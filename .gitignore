@@ -1,4 +1,5 @@
 out/
+*.plantuml
 
 # gitignore from standard template. Source is:
 # https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore

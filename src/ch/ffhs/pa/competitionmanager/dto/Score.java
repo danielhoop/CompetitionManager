@@ -14,7 +14,7 @@ public class Score implements Comparable<Score>, ICRUD {
 
     private long id;
     private long eventId;
-    private Competitor Competitor;
+    private Competitor competitor;
     // Either 'timeNeeded' or 'pointsAchieved' must be filled, but not both!
     private LocalTime timeNeeded;
     // pointsAchieved is Double such that it can be null.
@@ -44,10 +44,10 @@ public class Score implements Comparable<Score>, ICRUD {
     }
     // competitor
     public ch.ffhs.pa.competitionmanager.dto.Competitor getCompetitor() {
-        return Competitor;
+        return competitor;
     }
     public void setCompetitor(ch.ffhs.pa.competitionmanager.dto.Competitor competitor) {
-        Competitor = competitor;
+        this.competitor = competitor;
     }
     // timeNeeded
     public LocalTime getTimeNeeded() {

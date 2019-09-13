@@ -42,7 +42,7 @@ public class Category implements ICRUD {
     public String getDescription() {
         return description;
     }
-    public void setX(String description) { this.description = description; }
+    public void setDescription(String description) { this.description = description; }
     // miAgeInclusive
     public byte getMinAgeInclusive() {
         return minAgeInclusive;
