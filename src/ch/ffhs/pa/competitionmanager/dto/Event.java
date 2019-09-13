@@ -1,6 +1,6 @@
-package ch.ffhs.pa.ninjaworriors.dto;
+package ch.ffhs.pa.competitionmanager.dto;
 
-import ch.ffhs.pa.ninjaworriors.interfaces.ICRUD;
+import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
 
 public class Event implements ICRUD {
     private long id;

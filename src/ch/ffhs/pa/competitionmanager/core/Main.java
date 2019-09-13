@@ -1,4 +1,4 @@
-package ch.ffhs.pa.ninjaworriors.core;
+package ch.ffhs.pa.competitionmanager.core;
 
 public class Main {
 

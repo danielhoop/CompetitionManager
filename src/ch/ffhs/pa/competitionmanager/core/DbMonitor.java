@@ -1,7 +1,7 @@
-package ch.ffhs.pa.ninjaworriors.core;
+package ch.ffhs.pa.competitionmanager.core;
 
-import ch.ffhs.pa.ninjaworriors.interfaces.IDbPuller;
-import ch.ffhs.pa.ninjaworriors.interfaces.INotifiable;
+import ch.ffhs.pa.competitionmanager.interfaces.IDbPuller;
+import ch.ffhs.pa.competitionmanager.interfaces.INotifiable;
 
 import java.util.List;
 

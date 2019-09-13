@@ -1,8 +1,7 @@
-package ch.ffhs.pa.ninjaworriors.dto;
+package ch.ffhs.pa.competitionmanager.dto;
 
-import ch.ffhs.pa.ninjaworriors.interfaces.ICRUD;
+import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -29,7 +28,7 @@ public class Score implements Comparable<Score>, ICRUD {
                  LocalDateTime timeOfRecording) {
         this.id = id;
         this.eventId = eventId;
-        this. timeNeeded = timeNeeded;
+        this.timeNeeded = timeNeeded;
         this.pointsAchieved = pointsAchieved;
         this.isValid = isValid;
         this.numberOfTries = numberOfTries;
@@ -44,10 +43,10 @@ public class Score implements Comparable<Score>, ICRUD {
         return eventId;
     }
     // competitor
-    public ch.ffhs.pa.ninjaworriors.dto.Competitor getCompetitor() {
+    public ch.ffhs.pa.competitionmanager.dto.Competitor getCompetitor() {
         return Competitor;
     }
-    public void setCompetitor(ch.ffhs.pa.ninjaworriors.dto.Competitor competitor) {
+    public void setCompetitor(ch.ffhs.pa.competitionmanager.dto.Competitor competitor) {
         Competitor = competitor;
     }
     // timeNeeded

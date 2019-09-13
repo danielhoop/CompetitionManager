@@ -1,4 +1,4 @@
-package ch.ffhs.pa.ninjaworriors.interfaces;
+package ch.ffhs.pa.competitionmanager.interfaces;
 
 /**
  * Interface for persistence.

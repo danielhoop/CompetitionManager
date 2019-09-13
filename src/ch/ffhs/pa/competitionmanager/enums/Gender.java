@@ -1,4 +1,4 @@
-package ch.ffhs.pa.ninjaworriors.enums;
+package ch.ffhs.pa.competitionmanager.enums;
 
 public enum Gender {
     NOT_RELEVANT, MALE, FEMALE

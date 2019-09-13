@@ -1,7 +1,7 @@
-package ch.ffhs.pa.ninjaworriors.dto;
+package ch.ffhs.pa.competitionmanager.dto;
 
-import ch.ffhs.pa.ninjaworriors.enums.Gender;
-import ch.ffhs.pa.ninjaworriors.interfaces.ICRUD;
+import ch.ffhs.pa.competitionmanager.enums.Gender;
+import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
 
 /**
  * Contains information on a competition category.

@@ -1,9 +1,9 @@
-package ch.ffhs.pa.ninjaworriors.core;
+package ch.ffhs.pa.competitionmanager.core;
 
-import ch.ffhs.pa.ninjaworriors.dto.Category;
-import ch.ffhs.pa.ninjaworriors.dto.Event;
-import ch.ffhs.pa.ninjaworriors.dto.Score;
-import ch.ffhs.pa.ninjaworriors.interfaces.INotifiable;
+import ch.ffhs.pa.competitionmanager.dto.Category;
+import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.dto.Score;
+import ch.ffhs.pa.competitionmanager.interfaces.INotifiable;
 
 import java.sql.Connection;
 import java.util.Collections;
