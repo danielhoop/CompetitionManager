@@ -1,14 +1,23 @@
 package ch.ffhs.pa.competitionmanager;
 
+import ch.danielhoop.sql.DynamicDriverLoader;
 import ch.danielhoop.utils.ArgumentInterpreter;
+import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.DbMonitor;
 import ch.ffhs.pa.competitionmanager.core.RankingList;
 import ch.ffhs.pa.competitionmanager.db.DbConfig;
 import ch.ffhs.pa.competitionmanager.dto.Category;
+import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.dto.Score;
+import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
 
 import javax.swing.*;
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 /**
  * Main function of the project.
@@ -16,7 +25,7 @@ import javax.swing.*;
  * Command line arguments are:
  * -- mode "edit" OR "display"
  * As well as other arguments for the databse connection. An example of command lime aguments that could work is:
- * --mode "display" --driverPath "E:/Workspaces/IntelliJ/CompetitionManager/lib/mysql-connector-java-8.0.17.jar" --driverName "com.mysql.jdbc.Driver" --address "jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true" --user "NinjaWarrior" --password "Asdf-Poiu-0987-1234"
+ * --mode "display" --driverPath "E:/Workspaces/IntelliJ/CompetitionManager/lib/mysql-connector-java-8.0.17.jar" --driverName "com.mysql.cj.jdbc.Driver" --address "jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT" --user "NinjaWarrior" --password "Asdf-Poiu-0987-1234"
  */
 public class Main {
 
@@ -36,7 +45,7 @@ public class Main {
                             + "\n  --password \"password\""
                             + "\nExample:"
                             + "\n  --mode \"edit\" --driverPath \"C:/path/ojdbc6.jar\" --driverName \"oracle.jdbc.driver.OracleDriver\" --address \"jdbc:oracle:thin:@//www.databaseServer.com:1521/schemaName\" --user \"anyUser\" --password \"secret\""
-                            + "\n  --mode \"display\" --driverPath \"C:/path/mysql-connector-java-8.0.17.jar\" --driverName \"com.mysql.jdbc.Driver\" --address \"jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true\" --user \"anyUser\" --password \"secret\""
+                            + "\n  --mode \"display\" --driverPath \"C:/path/mysql-connector-java-8.0.17.jar\" --driverName \"com.mysql.cj.jdbc.Driver\" --address \"jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true\" --user \"anyUser\" --password \"secret\""
                             + "\nHints:"
                             + "\n  No hints at the time.");
             System.exit(0);
@@ -54,9 +63,10 @@ public class Main {
         RankingList rankingList;
         Event event;
         Category category;
-        Score scores;
+        Score score;
         DbConfig dbConfig;
-        String mode, driverPath, driverName, address, user, password;
+        Connection con;
+        String mode, driverPath, driverName, address, user, password, connectionString;
 
         mode = args1.get("mode");
         driverPath = args1.get("driverPath");
@@ -68,32 +78,33 @@ public class Main {
         if (args1.argIsSet("password")) {
             password = args1.get("password");
         } else {
-            // Option 3: Hidden characters in password field & NICE.
-            JPanel panel = new JPanel();
-            JLabel label = new JLabel("Please enter password for database user '" + user + "':");
-            JPasswordField pass = new JPasswordField(20);
-            panel.add(label);
-            panel.add(pass);
-            String[] options = new String[]{"OK", "Cancel"};
-            int option = JOptionPane.showOptionDialog(null, panel, "Password required",
-                    JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE,
-                    null, options, options[1]);
-            if(option == 0) { // If OK button was pressed.
-                password = new String(pass.getPassword());
-            } else {
-                System.exit(1);
+            DbCredentials dbCred = new DbCredentials(user, null);
+            PasswordUi pwUi = new PasswordUi(dbCred);
+            if (dbCred.getPassword() == null) {
+                ExceptionVisualizer.show(new IllegalArgumentException("The password must not be null."));
             }
-            // Option 1: Plain text password field.
-            /*password = JOptionPane.showInputDialog();*/
-
-            // Option 2: Hidden characters in password field, but not so nice.
-            /*JPasswordField pf = new JPasswordField();
-            int okCxl = JOptionPane.showConfirmDialog(null, pf,
-                    "Enter database password",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-            if (okCxl == JOptionPane.OK_OPTION) {
-                password = new String(pf.getPassword());
-            }*/
+            password = dbCred.getPassword();
         }
+
+        // Create connection to database
+        try {
+            System.out.print("Loading database driver...");
+            DynamicDriverLoader.registerDriver(driverPath, driverName);
+            System.out.println(" Done.");
+
+            System.out.println("Connecting to database...");
+            con = DriverManager.getConnection(address, user, password);
+
+            con.setAutoCommit(false);
+            // st = con.createStatement();
+            System.out.println("Connected.");
+
+
+            // Close connection before leaving main method.
+            con.close();
+        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | MalformedURLException | FileNotFoundException e) {
+            ExceptionVisualizer.show(e);
+        }
+
     }
 }
