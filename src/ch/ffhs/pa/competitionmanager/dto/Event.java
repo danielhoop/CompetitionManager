@@ -1,18 +1,29 @@
 package ch.ffhs.pa.competitionmanager.dto;
 
+import ch.danielhoop.utils.ExceptionVisualizer;
+import ch.ffhs.pa.competitionmanager.core.GlobalState;
+import ch.ffhs.pa.competitionmanager.db.DbConfig;
 import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDate;
 
 public class Event implements ICRUD {
     private long id;
     private String name;
+    private LocalDate date;
     // Hier kann z.B. geschrieben werden «Mittwoch, 11. September 2019». Deshalb ist es ein String Feld.
-    private String date;
+    private String dateDescription;
     private String description;
 
-    public Event(long id, String name, String date, String description) {
+    public Event(long id, String name, LocalDate date, String dateDescription, String description) {
         this.id = id;
         this.name = name;
         this.date = date;
+        this.dateDescription = dateDescription;
         this.description = description;
     }
 
@@ -28,12 +39,15 @@ public class Event implements ICRUD {
         this.name = name;
     }
     // date
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
+    // dateDescription
+    public String getDateDescription() { return dateDescription; }
+    public void setDateDescription(String dateDescription) { this.dateDescription = dateDescription; }
     // description
     public String getDescription() {
         return description;
@@ -43,6 +57,34 @@ public class Event implements ICRUD {
     }
 
     // CRUD operations
+    public static Event getById(long id) {
+        GlobalState globalState = GlobalState.getInstance();
+        Connection conn = globalState.getDbConnector().getConnection();
+        Statement stmt = globalState.getDbConnector().createStatmentForConnection(conn);
+        Event event = null;
+
+        try {
+            stmt.execute(DbConfig.eventyById(id));
+            ResultSet rs = stmt.getResultSet();
+            if (rs == null || !rs.next()) {
+                ExceptionVisualizer.show(new IllegalStateException("No event was found with id = " + id));
+            } else {
+                event = new Event(id,
+                        rs.getString("name"),
+                        rs.getDate("date").toLocalDate(),
+                        rs.getString("date_descr"),
+                        rs.getString("description"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.show(e);
+        }
+
+        globalState.getDbConnector().closeStatement(stmt);
+        globalState.getDbConnector().closeConnection(conn);
+        return event;
+    }
+
     @Override
     public boolean create() {
         // TODO: Add a new row to database table.

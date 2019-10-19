@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The ranking list. When notified, it will pull tha databse for new entries and sort the entries according
+ * The ranking list. When notified, it will pull tha database for new entries and sort the entries according
  * to their score or time (needed).
  * @author Daniel Hoop, Reto Laesser, Christian Ion
  */
