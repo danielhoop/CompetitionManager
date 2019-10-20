@@ -2,6 +2,7 @@ package ch.ffhs.pa.competitionmanager.core;
 
 import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.db.DbConfig;
+import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.interfaces.IDbPuller;
 
 import java.sql.Connection;
@@ -9,27 +10,27 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 
+/**
+ * Periodically checks if the relevant content of the database has changed such that all RankingLists should pull again from the database.
+ */
 public class DbPuller implements IDbPuller {
 
-    private GlobalState globalState;
+    private GlobalState globalState = GlobalState.getInstance();
     private long maxIdPrevious = 0;
     private long maxIdNow = 0;
     private long nValidScoresPrevious = 0;
     private long nValidScoresNow = 0;
 
-    public DbPuller() {
-        globalState = GlobalState.getInstance();
-    }
+    public DbPuller() { }
 
     @Override
     public boolean hasDbContentChanged() {
-        Connection conn = null;
-        Statement stmt = null;
-        int eventId = globalState.getEventId();
+        DbConnector dbConnector = globalState.getDbConnector();
+        Connection conn = dbConnector.getConnection();
+        Statement stmt = dbConnector.createStatmentForConnection(conn);
+        long eventId = globalState.getEvent().getId();
         boolean hasChanged = false;
         try {
-            conn = globalState.getDbConnector().getConnection();
-            stmt = globalState.getDbConnector().createStatmentForConnection(conn);
             // Get the number of valid scores and compare against old value.
             stmt.execute(DbConfig.numberOfValidScores(eventId));
             ResultSet rs = stmt.getResultSet();
@@ -55,8 +56,8 @@ public class DbPuller implements IDbPuller {
         } catch (SQLException e) {
             ExceptionVisualizer.show(e);
         } finally {
-            globalState.getDbConnector().closeStatement(stmt);
-            globalState.getDbConnector().closeConnection(conn);
+            dbConnector.closeStatement(stmt);
+            dbConnector.closeConnection(conn);
         }
 
         maxIdPrevious = maxIdNow;

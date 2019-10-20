@@ -31,7 +31,7 @@ public class DbMonitor {
     }
 
     /**
-     * Start monitoring the database. If changed occur, all objects in attribute 'objectsToNotify' will be notified.
+     * Start monitoring the database. If changes occur, all objects in attribute 'objectsToNotify' will be notified.
      */
     public void start() {
         Thread thread = new Thread(() -> {

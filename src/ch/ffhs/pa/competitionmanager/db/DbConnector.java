@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Class to create database connection.
+ * Class to create database connection and handle exceptions.
  */
 public class DbConnector {
 
@@ -16,6 +16,12 @@ public class DbConnector {
     private String user;
     private String password;
 
+    /**
+     * Initialize the DbConnector. No connection will be opened!
+     * @param address The address (connection string) of the database.
+     * @param user The database user.
+     * @param password The password for the database user.
+     */
     public DbConnector(String address, String user, String password) {
         this.address = address;
         this.user = user;
@@ -23,7 +29,7 @@ public class DbConnector {
     }
 
     /**
-     * Get the database connection.
+     * Get the database connection. Attention: Don't forget to close the connection if you are done, using the method DbConnector.closeConnection(Connection connection)
      * @return A database connection.
      */
     public Connection getConnection() {
@@ -47,6 +53,11 @@ public class DbConnector {
         return null;
     }
 
+    /**
+     * Create a statement of an open connection. Catch errors and show them visually and in stout.
+     * @param connection The database connection.
+     * @return A Statement.
+     */
     public Statement createStatmentForConnection(Connection connection) {
         Statement stmt = null;
         try {
@@ -58,6 +69,10 @@ public class DbConnector {
         return stmt;
     }
 
+    /**
+     * Close an open connection. Catch errors and show them visually and in stout.
+     * @param connection The database connection.
+     */
     public void closeConnection(Connection connection) {
         if (connection == null)
             return;
@@ -68,6 +83,11 @@ public class DbConnector {
             ExceptionVisualizer.show(e);
         }
     }
+
+    /**
+     * Close an open statement. Catch errors and show them visually and in stout.
+     * @param statement The statement.
+     */
     public void closeStatement(Statement statement) {
         if (statement == null)
             return;

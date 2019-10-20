@@ -6,12 +6,14 @@ import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.DbConfig;
+import ch.ffhs.pa.competitionmanager.db.DbPreparator;
 import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
 
+import javax.swing.*;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.sql.Connection;
@@ -89,8 +91,12 @@ public class Main {
             System.out.println(" Done.");
 
             // TODO: Choose an eventId and start to monitor changes in database.
-            int eventId = 1;
-            globalState.setEventId(eventId);
+            int eventId = Integer.valueOf(JOptionPane.showInputDialog("Please enter the id of the event."));
+            event = Event.getById(eventId);
+            globalState.setEvent(event);
+
+            CategoryList categoryList = new CategoryList(event);
+            DbPreparator.prepare(event, categoryList.getCategories());
 
             // Start DbMonitor
             DbPuller dbPuller = new DbPuller();

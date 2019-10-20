@@ -13,12 +13,12 @@ public class Category implements ICRUD {
     private long eventId;
     private String name;
     private String description;
-    private byte minAgeInclusive;
-    private byte maxAgeInclusive;
+    private int minAgeInclusive;
+    private int maxAgeInclusive;
     private Gender gender;
 
     public Category(long id, long eventId, String name, String description,
-                    byte minAgeInclusive, byte maxAgeInclusive, Gender gender) {
+                    int minAgeInclusive, int maxAgeInclusive, Gender gender) {
         this.id = id;
         this.eventId = eventId;
         this.name = name;
@@ -44,15 +44,15 @@ public class Category implements ICRUD {
     }
     public void setDescription(String description) { this.description = description; }
     // miAgeInclusive
-    public byte getMinAgeInclusive() {
+    public int getMinAgeInclusive() {
         return minAgeInclusive;
     }
-    public void setMinAgeInclusive(byte minAgeInclusive) { this.minAgeInclusive = minAgeInclusive; }
+    public void setMinAgeInclusive(int minAgeInclusive) { this.minAgeInclusive = minAgeInclusive; }
     // maxAgeInclusive
-    public byte getMaxAgeInclusive() {
+    public int getMaxAgeInclusive() {
         return maxAgeInclusive;
     }
-    public void setMaxAgeInclusive(byte maxAgeInclusive) { this.maxAgeInclusive = maxAgeInclusive; }
+    public void setMaxAgeInclusive(int maxAgeInclusive) { this.maxAgeInclusive = maxAgeInclusive; }
     // gender
     public Gender getGender() {
         return gender;

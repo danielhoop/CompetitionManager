@@ -3,6 +3,7 @@ package ch.ffhs.pa.competitionmanager.dto;
 import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.db.DbConfig;
+import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
 
 import java.sql.Connection;
@@ -56,15 +57,15 @@ public class Event implements ICRUD {
         this.description = description;
     }
 
-    // CRUD operations
+    // Load event from database.
     public static Event getById(long id) {
-        GlobalState globalState = GlobalState.getInstance();
-        Connection conn = globalState.getDbConnector().getConnection();
-        Statement stmt = globalState.getDbConnector().createStatmentForConnection(conn);
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+        Statement stmt = dbConnector.createStatmentForConnection(conn);
         Event event = null;
 
         try {
-            stmt.execute(DbConfig.eventyById(id));
+            stmt.execute(DbConfig.eventById(id));
             ResultSet rs = stmt.getResultSet();
             if (rs == null || !rs.next()) {
                 ExceptionVisualizer.show(new IllegalStateException("No event was found with id = " + id));
@@ -80,11 +81,12 @@ public class Event implements ICRUD {
             ExceptionVisualizer.show(e);
         }
 
-        globalState.getDbConnector().closeStatement(stmt);
-        globalState.getDbConnector().closeConnection(conn);
+        dbConnector.closeStatement(stmt);
+        dbConnector.closeConnection(conn);
         return event;
     }
 
+    // CRUD operations
     @Override
     public boolean create() {
         // TODO: Add a new row to database table.

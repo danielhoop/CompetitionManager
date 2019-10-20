@@ -20,15 +20,11 @@ public class RankingList implements INotifiable {
     private Category category;
     private List<Score> scores;
     private long highestScoreIdInList;
-    private String dbConnectionString;
-    private Connection dbConnection;
 
-    public RankingList(Event event, Category category, List<Score> scores, long highestScoreIdInList,
-                       String dbConnectionString) {
+    public RankingList(Event event, Category category, List<Score> scores, long highestScoreIdInList) {
         this.event = event;
         this.category = category;
         this.highestScoreIdInList = highestScoreIdInList;
-        this.dbConnectionString = dbConnectionString;
     }
 
     /**
