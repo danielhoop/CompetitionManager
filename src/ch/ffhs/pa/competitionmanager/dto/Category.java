@@ -1,7 +1,13 @@
 package ch.ffhs.pa.competitionmanager.dto;
 
+import ch.danielhoop.utils.ExceptionVisualizer;
+import ch.ffhs.pa.competitionmanager.core.GlobalState;
+import ch.ffhs.pa.competitionmanager.db.DbConnector;
+import ch.ffhs.pa.competitionmanager.db.Query;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
+
+import java.sql.*;
 
 /**
  * Contains information on a competition category.
@@ -62,9 +68,26 @@ public class Category implements ICRUD {
     // CRUD operations
     @Override
     public boolean create() {
-        // TODO: Add a new row to database table.
-        //       Then, use the new id provided by the database and update the id in this class instance.
-        return false;
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(Query.createCategory(eventId,name,description,minAgeInclusive,maxAgeInclusive,gender), PreparedStatement.RETURN_GENERATED_KEYS);
+            preparedStatement.executeUpdate();
+            try(ResultSet rs = preparedStatement.getGeneratedKeys()) {
+                if (rs.next()) {
+                    this.id = rs.getLong(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Category.create(): ");
+            return false;
+        }
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 
     @Override

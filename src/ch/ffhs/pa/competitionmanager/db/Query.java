@@ -1,5 +1,7 @@
 package ch.ffhs.pa.competitionmanager.db;
 
+import ch.ffhs.pa.competitionmanager.enums.Gender;
+
 /**
  * Contains strings for querying the database.
  */
@@ -138,5 +140,10 @@ public class Query {
                 "    where     s.`deleted` = false\n" +
                 "          AND s.`is_valid` = true\n" +
                 "          AND s.`event_id` = "+ eventId + ";";
+    }
+    public static String createCategory(long eventId, String name, String description, int minAgeInclusive, int maxAgeInclusive, Gender gender){
+        return "INSERT INTO CATEGORY" +
+                "(event_id, name, description, min_age_inclusive, max_age_inclusive, gender)" +
+                " values (" + eventId + ", " + name + ", "+ description + ", " + minAgeInclusive + ", " + maxAgeInclusive + ", " + gender + ");";
     }
 }
