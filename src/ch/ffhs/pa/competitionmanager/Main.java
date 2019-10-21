@@ -6,16 +6,15 @@ import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.DbPreparator;
-import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 import ch.ffhs.pa.competitionmanager.dto.Event;
-import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
 
 import javax.swing.*;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.sql.SQLException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Main function of the project.
@@ -56,11 +55,6 @@ public class Main {
 
         // Initialize objects
         GlobalState globalState = GlobalState.getInstance();
-        DbMonitor dbMonitor;
-        RankingList rankingList;
-        Event event;
-        Category category;
-        Score score;
         String driverPath, driverName, address, user, password;
 
         driverPath = args1.get("driverPath");
@@ -88,20 +82,35 @@ public class Main {
             System.out.println(" Done.");
 
             // TODO: Choose an eventId and start to monitor changes in database.
-            int eventId = Integer.valueOf(JOptionPane.showInputDialog("Please enter the id of the event."));
+            Event event;
+            // int eventId = Integer.valueOf(JOptionPane.showInputDialog("Please enter the id of the event."));
+            int eventId = 1;
             event = Event.getById(eventId);
             globalState.setEvent(event);
 
+            // CategoryList
             CategoryList categoryList = new CategoryList(event);
-            DbPreparator.prepare(event, categoryList.getCategories());
+            // Prepare database for event.
+            DbPreparator.prepare(event, categoryList);
+            // RankingList
+            RankingList rankingList = new RankingList(event, categoryList);
 
             // Start DbMonitor
             DbPuller dbPuller = new DbPuller();
+            DbMonitor dbMonitor = new DbMonitor(rankingList, 5, dbPuller);
+            dbMonitor.start();
 
+            // Sleep and wait for changes in database.
+            // The dbMonitor thread will continue to run!
+            try {
+                Thread.sleep(360000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             // Close connection before leaving main method.
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | MalformedURLException | FileNotFoundException e) {
-            ExceptionVisualizer.show(e);
+            ExceptionVisualizer.showAndAddMessage(e, "Debugging inside Main.main().");
         }
 
     }

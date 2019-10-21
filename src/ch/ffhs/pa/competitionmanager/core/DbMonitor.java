@@ -3,6 +3,7 @@ package ch.ffhs.pa.competitionmanager.core;
 import ch.ffhs.pa.competitionmanager.interfaces.IDbPuller;
 import ch.ffhs.pa.competitionmanager.interfaces.INotifiable;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +27,19 @@ public class DbMonitor {
      */
     public DbMonitor(List<INotifiable> objectsToNotify, int pullFrequencyInSecs, IDbPuller dbPuller) {
         this.objectsToNotify = objectsToNotify;
+        this.pullFrequencyInSecs = pullFrequencyInSecs;
+        this.dbPuller = dbPuller;
+    }
+
+    /**
+     * Constructor, but will take only one single object to notify.
+     * @param objectToNotify An object to notify.
+     * @param pullFrequencyInSecs The pull frequency (in seconds) to check if the database has changed.
+     * @param dbPuller An objects that will pull the database and provided methods to check whether the content has changed.
+     */
+    public DbMonitor(INotifiable objectToNotify, int pullFrequencyInSecs, IDbPuller dbPuller) {
+        this.objectsToNotify = new LinkedList<INotifiable>();
+        this.objectsToNotify.add(objectToNotify);
         this.pullFrequencyInSecs = pullFrequencyInSecs;
         this.dbPuller = dbPuller;
     }

@@ -45,9 +45,9 @@ public class Query {
         return "ALTER TABLE `CompetitionManager`.`competitor`\n" +
                 "ADD COLUMN `" + ageColumnName(eventId) + "` TINYINT unsigned\n" +
                 "AS (\n" +
-                "    YEAR(" + dateOfToday + ") -\n" +
+                "    YEAR('" + dateOfToday + "') -\n" +
                 "    YEAR(`date_of_birth`) - \n" +
-                "    IF(STR_TO_DATE(CONCAT(YEAR(" + dateOfToday + "), '-', MONTH(`date_of_birth`), '-', DAY(`date_of_birth`)) ,'%Y-%c-%e') > " + dateOfToday + ", 1, 0)\n" +
+                "    IF(STR_TO_DATE(CONCAT(YEAR('" + dateOfToday + "'), '-', MONTH(`date_of_birth`), '-', DAY(`date_of_birth`)) ,'%Y-%c-%e') > '" + dateOfToday + "', 1, 0)\n" +
                 ");";
     }
 

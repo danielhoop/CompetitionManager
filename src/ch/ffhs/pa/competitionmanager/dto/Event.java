@@ -81,7 +81,7 @@ public class Event implements ICRUD {
             stmt.execute(Query.eventById(id));
             ResultSet rs = stmt.getResultSet();
             if (rs == null || !rs.next()) {
-                ExceptionVisualizer.show(new IllegalStateException("No event was found with id = " + id));
+                ExceptionVisualizer.showAndAddMessage(new IllegalStateException("No event was found with id = " + id), "Event.getById(): ");
             } else {
                 event = new Event(id,
                         rs.getString("name"),
@@ -92,7 +92,7 @@ public class Event implements ICRUD {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            ExceptionVisualizer.show(e);
+            ExceptionVisualizer.showAndAddMessage(e, "Event.getById(): ");
         }
 
         dbConnector.closeStatement(stmt);

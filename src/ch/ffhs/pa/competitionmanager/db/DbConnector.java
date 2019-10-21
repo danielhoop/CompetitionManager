@@ -2,10 +2,7 @@ package ch.ffhs.pa.competitionmanager.db;
 
 import ch.danielhoop.utils.ExceptionVisualizer;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Class to create database connection and handle exceptions.
@@ -44,11 +41,11 @@ public class DbConnector {
                     conn.close();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
-                    ExceptionVisualizer.show(ex);
+                    ExceptionVisualizer.showAndAddMessage(ex, "DbConnector.getConnection() -> conn.close(): ");
                 }
             }
             e.printStackTrace();
-            ExceptionVisualizer.show(e);
+            ExceptionVisualizer.showAndAddMessage(e, "DbConnector.getConnection() -> DriverManager.getConnection(): ");
         }
         return null;
     }

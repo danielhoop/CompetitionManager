@@ -14,7 +14,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -26,46 +25,50 @@ public class RankingList implements INotifiable {
 
     private GlobalState globalState = GlobalState.getInstance();
     private Event event;
-    private CategoryList categories;
+    private CategoryList categoryList;
     private Map<Category, List<Score>> scores;
     private Map<Category, Long> highestIdInScores;
 
-    public RankingList(Event event, CategoryList categories) {
+    public RankingList(Event event, CategoryList categoryList) {
         this.event = event;
-        this.categories = categories;
-        this.scores = getScoresFromDb(event, categories);
+        this.categoryList = categoryList;
+        this.scores = getScoresFromDb(event, categoryList);
     }
 
     public void reloadFromDb(boolean reloadCategories) {
         if (reloadCategories) {
-            categories.reloadFromDb();
+            categoryList.reloadFromDb();
         }
-        this.scores = getScoresFromDb(event, categories);
+        this.scores = getScoresFromDb(event, categoryList);
+    }
+
+    public Map<Category, List<Score>> getScores() {
+        return scores;
     }
 
     /**
      * Gets all Score of the category from database and replaces inner list 'Score' completely.
      * @return A map where the key is the category, and the value is the score list.
      */
-    private Map<Category, List<Score>> getScoresFromDb(Event event, CategoryList categories) {
+    private Map<Category, List<Score>> getScoresFromDb(Event event, CategoryList categoryList) {
 
         long eventId = event.getId();
-        List<Category> categoryList = categories.getCategories();
+        List<Category> categories = categoryList.getCategories();
 
         DbConnector dbConnector = globalState.getDbConnector();
         Connection conn = dbConnector.getConnection();
         Statement stmt = dbConnector.createStatmentForConnection(conn);
 
         Map<Category, List<Score>> scoreMap = new HashMap<>();
-        for (Category category : categoryList) {
+        for (Category category : categories) {
 
-            List<Score> scoreList = new LinkedList<>();
+            List<Score> scores = new LinkedList<>();
             try {
                 String viewName = Query.categoryViewFullName(eventId, category.getId());
                 stmt.execute(Query.getScoresForCategory(eventId, viewName, event.isTimeRelevant()));
                 ResultSet rs = stmt.getResultSet();
                 while (rs.next()) {
-                    scoreList.add(new Score(
+                    Score score = new Score(
                             rs.getLong("id"),
                             rs.getLong("event_id"),
                             new Competitor(
@@ -81,7 +84,8 @@ public class RankingList implements INotifiable {
                             rs.getInt("number_of_tries"),
                             rs.getBoolean("is_valid"),
                             rs.getTimestamp("time_of_recording").toLocalDateTime()
-                    ));
+                    );
+                    scores.add(score);
                 }
 
             } catch (SQLException e) {
@@ -90,6 +94,8 @@ public class RankingList implements INotifiable {
                         category.getName() +
                         " from the database and storing them into a list, the following error occurred: ");
             }
+
+            scoreMap.put(category, scores);
         }
 
         dbConnector.closeStatement(stmt);
@@ -97,18 +103,20 @@ public class RankingList implements INotifiable {
         return scoreMap;
     }
 
-    /**
-     * Only gets new Score that were not in the database before and thus is more efficient than method 'updateScoreCompletely'.
-     * @return Boolean value indicating if the transaction was successful.
-     */
-    private boolean getNewScoreFromDb() {
-        // TODO Execute query to get newest Score of which the id is above the current 'highestScoreIdInList'.
-        return true;
-    }
+//    /**
+//     * Only gets new Score that were not in the database before and thus is more efficient than method 'updateScoreCompletely'.
+//     * @return Boolean value indicating if the transaction was successful.
+//     */
+//    private Map<Category, List<Score>> getNewScoreFromDb(Event event, CategoryList categoryList) {
+//        // TODO Execute query to get newest Score of which the id is above the current 'highestScoreIdInList'. Really necessary? Only for performance. But let's not do it.
+//        return new HashMap<Category, List<Score>>();
+//    }
 
     @Override
     public void notifyMe() {
+        System.out.print("Database has changed. Pulling newest results...");
         reloadFromDb(false);
+        System.out.print(" Done.\n");
     }
 
 }

@@ -38,23 +38,19 @@ public class DbPuller implements IDbPuller {
                 throw new IllegalStateException("The result set returned from the query to count the number of valid scores was null or did not contain any rows.");
             nValidScoresNow = rs.getLong(1);
             rs.close();
+            hasChanged = nValidScoresNow != nValidScoresPrevious;
 
             // Get the maximum id of scores
-            if (nValidScoresNow == nValidScoresPrevious) {
-                stmt.execute(Query.maxIdInScores(eventId));
-                rs = stmt.getResultSet();
-                if (rs == null || !rs.next())
-                    throw new IllegalStateException("The result set returned from the query to get the maximum id in table 'score' was null or did not contain any rows.");
-                rs.next();
-                maxIdNow = rs.getLong(1);
-                rs.close();
-                hasChanged = maxIdNow != maxIdPrevious;
-            } else {
-                hasChanged = true;
-            }
+            stmt.execute(Query.maxIdInScores(eventId));
+            rs = stmt.getResultSet();
+            if (rs == null || !rs.next())
+                throw new IllegalStateException("The result set returned from the query to get the maximum id in table 'score' was null or did not contain any rows.");
+            maxIdNow = rs.getLong(1);
+            rs.close();
+            hasChanged = maxIdNow != maxIdPrevious;
 
         } catch (SQLException e) {
-            ExceptionVisualizer.show(e);
+            ExceptionVisualizer.showAndAddMessage(e, "DbPuller.hasDbContentChanged(): ");
         } finally {
             dbConnector.closeStatement(stmt);
             dbConnector.closeConnection(conn);

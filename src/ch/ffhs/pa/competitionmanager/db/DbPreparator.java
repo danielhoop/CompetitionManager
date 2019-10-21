@@ -1,6 +1,7 @@
 package ch.ffhs.pa.competitionmanager.db;
 
 import ch.danielhoop.utils.ExceptionVisualizer;
+import ch.ffhs.pa.competitionmanager.core.CategoryList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.Event;
@@ -18,10 +19,10 @@ public class DbPreparator {
 
     private static GlobalState globalState = GlobalState.getInstance();
 
-    public static boolean prepare(Event event, List<Category> categories) {
+    public static boolean prepare(Event event, CategoryList categoryList) {
         boolean hasWorked = true;
         hasWorked = hasWorked & createAgeColumn(event);
-        hasWorked = hasWorked & createCategoryViewsInDb(event, categories);
+        hasWorked = hasWorked & createCategoryViewsInDb(event, categoryList);
         return hasWorked;
     }
 
@@ -43,6 +44,7 @@ public class DbPreparator {
             // Do nothing. This error can occur if the age column does not yet exist. Just carry on.
         }
         try {
+            String query = Query.createAgeColumn(eventId, date);
             stmt.execute(Query.createAgeColumn(eventId, date));
         } catch (SQLException e) {
             ExceptionVisualizer.showAndAddMessage(e, "When trying to create the age column in the competitor table, the following error occurred: ");
@@ -58,12 +60,14 @@ public class DbPreparator {
     /**
      * Create all views on scores of each category.
      * @param event The event.
-     * @param categories A list of categories for which views should be created.
+     * @param categoryList An object of type CategoryList containing all categories.
      * @return Logical value indicating if the database operations were successful.
      */
-    private static boolean createCategoryViewsInDb(Event event, List<Category> categories) {
+    private static boolean createCategoryViewsInDb(Event event, CategoryList categoryList) {
 
         long eventId = event.getId();
+        List<Category> categories = categoryList.getCategories();
+
         // DbConnection
         boolean hasWorked = true;
         DbConnector dbConnector = globalState.getDbConnector();

@@ -11,7 +11,7 @@ public class EventEditorUi {
         // TODO: Make GUI with which all details of an event can be configured.
         // TODO: If createNew = true, then create a new database entry instead of altering it.
         if (createNew && event == null) {
-            ExceptionVisualizer.show(new IllegalArgumentException("If `createNew` is true, then `event` must not be null."));
+            ExceptionVisualizer.showAndAddMessage(new IllegalArgumentException("If `createNew` is true, then `event` must not be null."), "EventEditorUi(): ");
         }
     }
 }

@@ -28,6 +28,7 @@ public class Score implements Comparable<Score>, ICRUD {
                  LocalDateTime timeOfRecording) {
         this.id = id;
         this.eventId = eventId;
+        this.competitor = competitor;
         this.timeNeeded = timeNeeded;
         this.pointsAchieved = pointsAchieved;
         this.isValid = isValid;
