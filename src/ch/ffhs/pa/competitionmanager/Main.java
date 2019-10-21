@@ -6,8 +6,10 @@ import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.DbPreparator;
+import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
 
 import javax.swing.*;
@@ -100,6 +102,10 @@ public class Main {
             DbMonitor dbMonitor = new DbMonitor(rankingList, 5, dbPuller);
             dbMonitor.start();
 
+            Category cat1 = new Category(1,1,"test", "desc", 3, 30, Gender.MALE);
+            cat1.create();
+            System.out.println(cat1.getId());
+
             // Sleep and wait for changes in database.
             // The dbMonitor thread will continue to run!
             try {
@@ -107,6 +113,8 @@ public class Main {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+
 
             // Close connection before leaving main method.
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | MalformedURLException | FileNotFoundException e) {

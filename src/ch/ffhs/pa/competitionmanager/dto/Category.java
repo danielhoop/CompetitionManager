@@ -71,12 +71,13 @@ public class Category implements ICRUD {
         DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
         Connection conn = dbConnector.getConnection();
 
-        try {
-            PreparedStatement preparedStatement = conn.prepareStatement(Query.createCategory(eventId,name,description,minAgeInclusive,maxAgeInclusive,gender), PreparedStatement.RETURN_GENERATED_KEYS);
-            preparedStatement.executeUpdate();
-            try(ResultSet rs = preparedStatement.getGeneratedKeys()) {
-                if (rs.next()) {
-                    this.id = rs.getLong(1);
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.createCategory(eventId, name, description, minAgeInclusive, maxAgeInclusive, gender), stmt.RETURN_GENERATED_KEYS)) {
+                preparedStatement.executeUpdate();
+                try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        this.id = rs.getLong(1);
+                    }
                 }
             }
 
