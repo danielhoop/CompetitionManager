@@ -38,12 +38,12 @@ public class DbPreparator {
         Connection conn = dbConnector.getConnection();
         Statement stmt = dbConnector.createStatmentForConnection(conn);
         try {
-            stmt.execute(DbConfig.dropAgeColumn(eventId));
+            stmt.execute(Query.dropAgeColumn(eventId));
         } catch (SQLException e) {
             // Do nothing. This error can occur if the age column does not yet exist. Just carry on.
         }
         try {
-            stmt.execute(DbConfig.createAgeColumn(eventId, date));
+            stmt.execute(Query.createAgeColumn(eventId, date));
         } catch (SQLException e) {
             ExceptionVisualizer.showAndAddMessage(e, "When trying to create the age column in the competitor table, the following error occurred: ");
             return false;
@@ -73,14 +73,14 @@ public class DbPreparator {
 
         // First, delete all existing views concerning categories.
         try {
-            stmt.execute(DbConfig.getAllViewNames());
+            stmt.execute(Query.getAllViewNames());
             ResultSet rs = stmt.getResultSet();
             String viewName;
             while (rs.next()) {
                 viewName = rs.getString(1);
-                if (viewName.startsWith(DbConfig.categoryViewEventName(eventId))) {
+                if (viewName.startsWith(Query.categoryViewEventName(eventId))) {
                     stmtDeleteView = dbConnector.createStatmentForConnection(conn);
-                    stmtDeleteView.execute(DbConfig.dropView(viewName));
+                    stmtDeleteView.execute(Query.dropView(viewName));
                     dbConnector.closeStatement(stmtDeleteView);
                 }
             }
@@ -95,16 +95,16 @@ public class DbPreparator {
         String categoryViewName = "";
         try {
             // The view that includes all competitors
-            categoryViewName = DbConfig.categoryViewFullName(eventId, 0);
-            stmt.execute(DbConfig.createScoreViewForAllCompetitors(
+            categoryViewName = Query.categoryViewFullName(eventId, 0);
+            stmt.execute(Query.createScoreViewForAllCompetitors(
                     categoryViewName,
                     eventId));
             // A view for each category.
             for (Category category : categories) {
-                categoryViewName = DbConfig.categoryViewFullName(eventId, category.getId());
-                stmt.execute(DbConfig.createScoreViewForCategory(
-                        categoryViewName,
+                categoryViewName = Query.categoryViewFullName(eventId, category.getId());
+                stmt.execute(Query.createScoreViewForCategory(
                         eventId,
+                        categoryViewName,
                         category.getMinAgeInclusive(),
                         category.getMaxAgeInclusive(),
                         category.getGender().getValue()));

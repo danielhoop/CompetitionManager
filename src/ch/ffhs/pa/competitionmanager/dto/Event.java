@@ -2,7 +2,7 @@ package ch.ffhs.pa.competitionmanager.dto;
 
 import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
-import ch.ffhs.pa.competitionmanager.db.DbConfig;
+import ch.ffhs.pa.competitionmanager.db.Query;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
 
@@ -19,13 +19,15 @@ public class Event implements ICRUD {
     // Hier kann z.B. geschrieben werden «Mittwoch, 11. September 2019». Deshalb ist es ein String Feld.
     private String dateDescription;
     private String description;
+    private boolean isTimeRelevant;
 
-    public Event(long id, String name, LocalDate date, String dateDescription, String description) {
+    public Event(long id, String name, LocalDate date, String dateDescription, String description, boolean isTimeRelevant) {
         this.id = id;
         this.name = name;
         this.date = date;
         this.dateDescription = dateDescription;
         this.description = description;
+        this.isTimeRelevant = isTimeRelevant;
     }
 
     // id. No setter!
@@ -47,14 +49,25 @@ public class Event implements ICRUD {
         this.date = date;
     }
     // dateDescription
-    public String getDateDescription() { return dateDescription; }
-    public void setDateDescription(String dateDescription) { this.dateDescription = dateDescription; }
+    public String getDateDescription() {
+        return dateDescription;
+    }
+    public void setDateDescription(String dateDescription) {
+        this.dateDescription = dateDescription;
+    }
     // description
     public String getDescription() {
         return description;
     }
     public void setDescription(String description) {
         this.description = description;
+    }
+    // Time relevant
+    public boolean isTimeRelevant() {
+        return isTimeRelevant;
+    }
+    public void setTimeRelevant(boolean timeRelevant) {
+        isTimeRelevant = timeRelevant;
     }
 
     // Load event from database.
@@ -65,7 +78,7 @@ public class Event implements ICRUD {
         Event event = null;
 
         try {
-            stmt.execute(DbConfig.eventById(id));
+            stmt.execute(Query.eventById(id));
             ResultSet rs = stmt.getResultSet();
             if (rs == null || !rs.next()) {
                 ExceptionVisualizer.show(new IllegalStateException("No event was found with id = " + id));
@@ -74,7 +87,8 @@ public class Event implements ICRUD {
                         rs.getString("name"),
                         rs.getDate("date").toLocalDate(),
                         rs.getString("date_descr"),
-                        rs.getString("description"));
+                        rs.getString("description"),
+                        rs.getBoolean("is_time_relevant"));
             }
         } catch (SQLException e) {
             e.printStackTrace();

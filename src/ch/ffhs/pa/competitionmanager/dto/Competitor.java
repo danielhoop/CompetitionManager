@@ -16,10 +16,9 @@ public class Competitor implements ICRUD {
     private String name;
     private Gender gender;
     private LocalDate dateOfBirth;
-    private byte age;
+    private int age;
 
-    public Competitor(long id, long eventId, String name,
-                      Gender gender, LocalDate dateOfBirth, byte age) {
+    public Competitor(long id, long eventId, String name, Gender gender, LocalDate dateOfBirth, int age) {
         this.id = id;
         this.eventId = eventId;
         this.name = name;
@@ -51,10 +50,10 @@ public class Competitor implements ICRUD {
     }
     public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
     // age
-    public byte getAge() {
+    public int getAge() {
         return age;
     }
-    public void setAge(byte age) { this.age = age; }
+    public void setAge(int age) { this.age = age; }
 
     // CRUD operations
     @Override

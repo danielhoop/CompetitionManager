@@ -1,7 +1,7 @@
 package ch.ffhs.pa.competitionmanager.core;
 
 import ch.danielhoop.utils.ExceptionVisualizer;
-import ch.ffhs.pa.competitionmanager.db.DbConfig;
+import ch.ffhs.pa.competitionmanager.db.Query;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.interfaces.IDbPuller;
 
@@ -32,7 +32,7 @@ public class DbPuller implements IDbPuller {
         boolean hasChanged = false;
         try {
             // Get the number of valid scores and compare against old value.
-            stmt.execute(DbConfig.numberOfValidScores(eventId));
+            stmt.execute(Query.numberOfValidScores(eventId));
             ResultSet rs = stmt.getResultSet();
             if (rs == null || !rs.next())
                 throw new IllegalStateException("The result set returned from the query to count the number of valid scores was null or did not contain any rows.");
@@ -41,7 +41,7 @@ public class DbPuller implements IDbPuller {
 
             // Get the maximum id of scores
             if (nValidScoresNow == nValidScoresPrevious) {
-                stmt.execute(DbConfig.maxIdInScores(eventId));
+                stmt.execute(Query.maxIdInScores(eventId));
                 rs = stmt.getResultSet();
                 if (rs == null || !rs.next())
                     throw new IllegalStateException("The result set returned from the query to get the maximum id in table 'score' was null or did not contain any rows.");

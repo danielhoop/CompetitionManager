@@ -1,7 +1,7 @@
 package ch.ffhs.pa.competitionmanager.core;
 
 import ch.danielhoop.utils.ExceptionVisualizer;
-import ch.ffhs.pa.competitionmanager.db.DbConfig;
+import ch.ffhs.pa.competitionmanager.db.Query;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.Event;
@@ -25,25 +25,26 @@ public class CategoryList {
 
     public CategoryList(Event event) {
         this.event = event;
-        this.categories = getCategoriesFromDb(event.getId());
+        this.categories = getCategoriesFromDb(event);
     }
 
     public void reloadFromDb() {
-        this.categories = getCategoriesFromDb(event.getId());
+        this.categories = getCategoriesFromDb(event);
     }
 
     public List<Category> getCategories() {
         return categories;
     }
 
-    private List<Category> getCategoriesFromDb(long eventId) {
+    private List<Category> getCategoriesFromDb(Event event) {
 
+        long eventId = event.getId();
         List<Category> categoryList = new LinkedList<>();
         DbConnector dbConnector = globalState.getDbConnector();
         Connection conn = dbConnector.getConnection();
         Statement stmt = dbConnector.createStatmentForConnection(conn);
         try {
-            stmt.execute(DbConfig.getAllCategories(eventId));
+            stmt.execute(Query.getAllCategories(eventId));
             ResultSet rs = stmt.getResultSet();
             while (rs.next()) {
                 categoryList.add(new Category(

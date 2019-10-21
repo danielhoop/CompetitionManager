@@ -5,7 +5,6 @@ import ch.danielhoop.utils.ArgumentInterpreter;
 import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
-import ch.ffhs.pa.competitionmanager.db.DbConfig;
 import ch.ffhs.pa.competitionmanager.db.DbPreparator;
 import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
@@ -16,8 +15,6 @@ import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
 import javax.swing.*;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**

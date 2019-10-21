@@ -3,11 +3,8 @@ package ch.ffhs.pa.competitionmanager.db;
 /**
  * Contains strings for querying the database.
  */
-public class DbConfig {
+public class Query {
 
-    static String dbConnectionString() {
-        return "";
-    }
     static String queryAllScoresForEvent(long event, boolean validOnly) {
         return "";
     }
@@ -35,7 +32,7 @@ public class DbConfig {
      */
     public static String dropAgeColumn(long eventId) {
         return "ALTER TABLE `CompetitionManager`.`competitor`\n" +
-                "DROP COLUMN `age_" + eventId + "`;";
+                "DROP COLUMN `" + ageColumnName(eventId) + "`;";
     }
 
     /**
@@ -46,7 +43,7 @@ public class DbConfig {
      */
     static String createAgeColumn(long eventId, String dateOfToday) {
         return "ALTER TABLE `CompetitionManager`.`competitor`\n" +
-                "ADD COLUMN `age_" + eventId + "` TINYINT unsigned\n" +
+                "ADD COLUMN `" + ageColumnName(eventId) + "` TINYINT unsigned\n" +
                 "AS (\n" +
                 "    YEAR(" + dateOfToday + ") -\n" +
                 "    YEAR(`date_of_birth`) - \n" +
@@ -77,6 +74,28 @@ public class DbConfig {
                 "  and `event_id` = " + event + ";";
     }
 
+    public static String getScoresForCategory(long eventId, String viewName, boolean isTimeRelevant) {
+        String queryPart1 = "SELECT s1.*\n" +
+                "FROM `CompetitionManager`.`" + viewName + "` s1\n" +
+                "LEFT JOIN `CompetitionManager`.`" + viewName + "` s2\n";
+
+        String queryPart2;
+        if (isTimeRelevant) {
+            queryPart2 = "ON s1.`competitor_id` = s2.`competitor_id` AND timediff(s1.`time_needed`, s2.`time_needed`) > 0\n" +
+                    "WHERE s2.`time_needed` IS NULL\n" +
+                    "ORDER BY s1.`time_needed` ASC;";
+        } else {
+            queryPart2 = "ON s1.`competitor_id` = s2.`competitor_id` AND s1.`points_achieved` > s2.`points_achieved`\n" +
+                    "WHERE s2.`points_achieved` IS NULL\n" +
+                    "ORDER BY s1.`points_achieved` DESC;";
+        }
+        return queryPart1 + queryPart2;
+    }
+
+    public static String ageColumnName(long eventId) {
+        return "age_" + eventId;
+    }
+
     // --------------------------------------------
     // Methods to create SQL strings for categories
     // --------------------------------------------
@@ -97,18 +116,18 @@ public class DbConfig {
     public static String dropView(String viewName) {
         return "drop view `CompetitionManager`.`" + viewName + "`;";
     }
-    public static String createScoreViewForCategory(String viewName, long eventId, int minAgeInclusive, int maxAgeInclusive, int gender) {
+    public static String createScoreViewForCategory(long eventId, String viewName, int minAgeInclusive, int maxAgeInclusive, int gender) {
         return "create view `CompetitionManager`.`" + viewName + "` as\n" +
-                "select s.*, c.`name`, c.`date_of_birth`\n" +
+                "select s.*, c.`name`, c.`gender`, c.`date_of_birth`, c.`" + ageColumnName(eventId) + "`\n" +
                 "    from `CompetitionManager`.`score` s\n" +
                 "    left join `CompetitionManager`.`competitor` c\n" +
                 "        on s.`competitor_id` = c.`id`\n" +
                 "    where     s.`deleted` = false\n" +
                 "          AND s.`is_valid` = true\n" +
                 "          AND s.`event_id` = "+ eventId + "\n" +
-                "          AND c.age >= " + minAgeInclusive + "\n" +
-                "          AND c.age <= " + maxAgeInclusive + "\n" +
-                "          AND c.gender = " + gender + ";";
+                "          AND c.`" + ageColumnName(eventId) + "` >= " + minAgeInclusive + "\n" +
+                "          AND c.`" + ageColumnName(eventId) + "` <= " + maxAgeInclusive + "\n" +
+                "          AND c.`gender` = " + gender + ";";
     }
     public static String createScoreViewForAllCompetitors(String viewName, long eventId) {
         return "create view `CompetitionManager`.`" + viewName + "` as\n" +
