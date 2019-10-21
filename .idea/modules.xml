@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CompetitionManager.iml" filepath="$PROJECT_DIR$/CompetitionManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ninja-warriors-new.iml" filepath="$PROJECT_DIR$/ninja-warriors-new.iml" />
     </modules>
   </component>
 </project>
