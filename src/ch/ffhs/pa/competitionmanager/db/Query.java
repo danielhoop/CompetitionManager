@@ -142,7 +142,7 @@ public class Query {
                 "          AND s.`event_id` = "+ eventId + ";";
     }
     public static String createCategory(long eventId, String name, String description, int minAgeInclusive, int maxAgeInclusive, Gender gender){
-        return "INSERT INTO CompetitionManager.CATEGORY" +
+        return "INSERT INTO CompetitionManager.category" +
                 "(event_id, name, description, min_age_inclusive, max_age_inclusive, gender)" +
                 " values (" + eventId + ", '" + name + "', '" + description + "', " + minAgeInclusive + ", " + maxAgeInclusive + ", " + gender.getValue() + ");";
     }
