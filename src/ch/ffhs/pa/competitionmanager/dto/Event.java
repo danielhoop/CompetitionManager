@@ -126,9 +126,10 @@ public class Event implements ICRUD {
 
     @Override
     public boolean update() {
-        this.delete();
-        this.create();
-        return true;
+        if(this.delete() == true && this.create() == true){
+            return true;
+        }
+        return false;
     }
 
     @Override

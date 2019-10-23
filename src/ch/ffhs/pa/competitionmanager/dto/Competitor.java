@@ -89,8 +89,9 @@ public class Competitor implements ICRUD {
 
     @Override
     public boolean update() {
-        this.delete();
-        this.create();
+        if(this.delete() == true && this.create() == true){
+            return true;
+        }
         return false;
     }
 
