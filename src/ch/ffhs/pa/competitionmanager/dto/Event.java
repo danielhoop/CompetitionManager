@@ -6,10 +6,7 @@ import ch.ffhs.pa.competitionmanager.db.Query;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.LocalDate;
 
 public class Event implements ICRUD {
@@ -103,9 +100,28 @@ public class Event implements ICRUD {
     // CRUD operations
     @Override
     public boolean create() {
-        // TODO: Add a new row to database table.
-        //       Then, use the new id provided by the database and update the id in this class instance.
-        return false;
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.createEvent(name,date, dateDescription, description, isTimeRelevant), stmt.RETURN_GENERATED_KEYS)) {
+                preparedStatement.executeUpdate();
+                try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        this.id = rs.getLong(1);
+                    }
+                }
+            }
+            dbConnector.closeStatement(stmt);
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Event.create(): ");
+            return false;
+        }
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 
     @Override

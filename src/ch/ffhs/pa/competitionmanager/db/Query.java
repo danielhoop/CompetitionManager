@@ -5,6 +5,8 @@ import ch.ffhs.pa.competitionmanager.enums.Gender;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * Contains strings for querying the database.
@@ -158,5 +160,23 @@ public class Query {
         return "INSERT INTO CompetitionManager.competitor" +
                 "(name, gender, date_of_birth, created_datetime, deleted)" +
                 " values ('" + name + "', " + gender.getValue() + ", '" + date_of_birth + "', '" + created_datetime + "' , 0);";
+    }
+    public static String createEvent(String name,  LocalDate date, String date_descr, String description, boolean is_time_relevant){
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        String created_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
+
+        return "INSERT INTO CompetitionManager.event" +
+                "(name, date, date_descr, description, is_time_relevant, created_datetime, deleted)" +
+                " values ('" + name + "', " + date + ", '" + date_descr + "', '"
+                + description + "' , " + is_time_relevant + "', '" + created_datetime + ",0);";
+    }
+    public static String createScore(Long eventid, Long competitor_id, LocalTime time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording){
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        String created_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
+        return "INSERT INTO CompetitionManger.score" +
+                "(event_id,competitor_id,time_needed,points_achieved, number_of_tries," +
+                "is_valid, time_of_recording, created_datetime, deleted) VALUES" +
+                "(" + eventid + ", " + competitor_id + ", " + time_needed + ", " + points_achieved  + ", " + number_of_tries +
+                ", " + is_valid + ", " + time_of_recording + ", " + created_datetime + ",0);";
     }
 }
