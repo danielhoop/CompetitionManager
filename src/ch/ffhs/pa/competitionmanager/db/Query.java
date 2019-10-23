@@ -2,6 +2,10 @@ package ch.ffhs.pa.competitionmanager.db;
 
 import ch.ffhs.pa.competitionmanager.enums.Gender;
 
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+
 /**
  * Contains strings for querying the database.
  */
@@ -145,5 +149,14 @@ public class Query {
         return "INSERT INTO CompetitionManager.category" +
                 "(event_id, name, description, min_age_inclusive, max_age_inclusive, gender)" +
                 " values (" + eventId + ", '" + name + "', '" + description + "', " + minAgeInclusive + ", " + maxAgeInclusive + ", " + gender.getValue() + ");";
+    }
+    public static String createCompetitor(String name,Gender gender, LocalDate date_of_birth ){
+
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        String created_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
+
+        return "INSERT INTO CompetitionManager.competitor" +
+                "(name, gender, date_of_birth, created_datetime, deleted)" +
+                " values ('" + name + "', " + gender.getValue() + ", '" + date_of_birth + "', '" + created_datetime + "' , 0);";
     }
 }
