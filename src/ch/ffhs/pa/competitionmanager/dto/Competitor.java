@@ -80,8 +80,8 @@ public class Competitor implements ICRUD {
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Competitor.create(): ");
-            return false;
-        }
+        return false;
+    }
 
         dbConnector.closeConnection(conn);
         return true;
@@ -89,14 +89,29 @@ public class Competitor implements ICRUD {
 
     @Override
     public boolean update() {
-        // TODO: First, set 'deleted', 'updated', and 'deletedDateTime' attribute in database to true, then create a new competitor in the database.
-        //       Like this, the history of updates will be available.
+        this.delete();
+        this.create();
         return false;
     }
 
     @Override
     public boolean delete() {
-        // TODO: Set 'deleted' attribute in database and set 'deletedDateTime' accordingly.
-        return false;
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.deleteCompetitor(id))) {
+                preparedStatement.executeUpdate();
+            }
+            dbConnector.closeStatement(stmt);
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Competitor.delete(): ");
+            return false;
+        }
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 }

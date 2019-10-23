@@ -126,14 +126,29 @@ public class Event implements ICRUD {
 
     @Override
     public boolean update() {
-        // TODO: First, set 'deleted', 'updated', and 'deletedDateTime' attribute in database to true, then create a new competitor in the database.
-        //       Like this, the history of updates will be available.
-        return false;
+        this.delete();
+        this.create();
+        return true;
     }
 
     @Override
     public boolean delete() {
-        // TODO: Set 'deleted' attribute in database and set 'deletedDateTime' accordingly.
-        return false;
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.deleteEvent(id))) {
+                preparedStatement.executeUpdate();
+            }
+            dbConnector.closeStatement(stmt);
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Event.delete(): ");
+            return false;
+        }
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 }

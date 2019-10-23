@@ -6,19 +6,13 @@ import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.DbPreparator;
-import ch.ffhs.pa.competitionmanager.dto.Category;
-import ch.ffhs.pa.competitionmanager.dto.Competitor;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 import ch.ffhs.pa.competitionmanager.dto.Event;
-import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
 
-import javax.swing.*;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Main function of the project.

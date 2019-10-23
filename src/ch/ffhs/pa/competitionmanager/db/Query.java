@@ -147,11 +147,29 @@ public class Query {
                 "          AND s.`is_valid` = true\n" +
                 "          AND s.`event_id` = "+ eventId + ";";
     }
+    /**
+     * Creates a Event in the Database
+     * @param eventId Event ID of the Event
+     * @param name Event Name
+     * @param description Event Description
+     * @param minAgeInclusive Lower Age Level which includes Competitor to the Category
+     * @param maxAgeInclusive Higher Age Level which includes Competitor to the Category
+     * @param gender Genders which are for that Category
+     * @return A SQL String which creates a Event Entry in the Database
+     */
     public static String createCategory(long eventId, String name, String description, int minAgeInclusive, int maxAgeInclusive, Gender gender){
         return "INSERT INTO CompetitionManager.category" +
                 "(event_id, name, description, min_age_inclusive, max_age_inclusive, gender)" +
                 " values (" + eventId + ", '" + name + "', '" + description + "', " + minAgeInclusive + ", " + maxAgeInclusive + ", " + gender.getValue() + ");";
     }
+
+    /**
+     * Creates a Competitor in the Database
+     * @param name Name of the Competitor
+     * @param gender Gender of the Competitor
+     * @param date_of_birth Birthdate of Competitor
+     * @return A SQL String which creates a Competitor Entry in the Database
+     */
     public static String createCompetitor(String name,Gender gender, LocalDate date_of_birth ){
 
         Timestamp ts = new Timestamp(System.currentTimeMillis());
@@ -161,6 +179,16 @@ public class Query {
                 "(name, gender, date_of_birth, created_datetime, deleted)" +
                 " values ('" + name + "', " + gender.getValue() + ", '" + date_of_birth + "', '" + created_datetime + "' , 0);";
     }
+
+    /**
+     * Creates a Event in the Database
+     * @param name Name of the Event
+     * @param date Date of the Event
+     * @param date_descr Event Date Description
+     * @param description Event Description
+     * @param is_time_relevant Boolean if the Event is Time relevant
+     * @return A SQL String which creates a Event in the Database
+     */
     public static String createEvent(String name,  LocalDate date, String date_descr, String description, boolean is_time_relevant){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String created_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
@@ -170,13 +198,61 @@ public class Query {
                 " values ('" + name + "', " + date + ", '" + date_descr + "', '"
                 + description + "' , " + is_time_relevant + "', '" + created_datetime + ",0);";
     }
+
+    /**
+     * Creates a Score in the Database
+     * @param eventid Event ID which is relevant for this Score
+     * @param competitor_id Competitor ID which is relevant for this Score
+     * @param time_needed Time which was needed for this Score
+     * @param points_achieved Points which are achived for this Score
+     * @param number_of_tries How many tries are needed for this Score
+     * @param is_valid If the Score is valid
+     * @param time_of_recording When the Score has been recorded
+     * @return A SQL String which creates a Score Entry in Database
+     */
     public static String createScore(Long eventid, Long competitor_id, LocalTime time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String created_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
         return "INSERT INTO CompetitionManger.score" +
                 "(event_id,competitor_id,time_needed,points_achieved, number_of_tries," +
                 "is_valid, time_of_recording, created_datetime, deleted) VALUES" +
-                "(" + eventid + ", " + competitor_id + ", " + time_needed + ", " + points_achieved  + ", " + number_of_tries +
-                ", " + is_valid + ", " + time_of_recording + ", " + created_datetime + ",0);";
+                "(" + eventid + ", " + competitor_id + ", '" + time_needed + "', " + points_achieved  + ", " + number_of_tries +
+                ", " + is_valid + ", '" + time_of_recording + "', '" + created_datetime + "',0);";
+    }
+
+    /**
+     * Sets the delete flag with the current timestamp in the database
+     * @param id Competitor ID which has to be deleted
+     * @return A SQL Statement which sets deleted to true
+     */
+    public static String deleteCompetitor(Long id){
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        String deleted_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
+        return "UPDATE CompetitionManger.competitor SET deleted = 1, deleted_datetime = '"
+                + deleted_datetime + "' WHERE id = " + id + ";";
+    }
+
+    /**
+     * Sets the delete flag with the current timestamp in the database
+     * @param id Event ID which has to be deleted
+     * @return A SQL Statement which sets deleted to true
+     */
+    public static String deleteEvent(Long id){
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        String deleted_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
+        return "UPDATE CompetitionManger.event SET deleted = 1, deleted_datetime = '"
+                + deleted_datetime + "' WHERE id = " + id + ";";
+    }
+
+    /**
+     * Sets the delete flag with the current timestamp in the database
+     * @param id Score ID which has to be deleted
+     * @return A SQL Statement which sets deleted to true
+     */
+    public static String deleteScore(Long id){
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        String deleted_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
+        return "UPDATE CompetitionManger.score SET deleted = 1, deleted_datetime = '"
+                + deleted_datetime + "' WHERE id = " + id + ";";
     }
 }
