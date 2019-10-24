@@ -240,7 +240,7 @@ public class Query {
     public static String deleteEvent(Long id){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String deleted_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
-        return "UPDATE CompetitionManger.event SET deleted = 1, deleted_datetime = '"
+        return "UPDATE event SET deleted = 1, deleted_datetime = '"
                 + deleted_datetime + "' WHERE id = " + id + ";";
     }
 
@@ -252,7 +252,14 @@ public class Query {
     public static String deleteScore(Long id){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String deleted_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
-        return "UPDATE CompetitionManger.score SET deleted = 1, deleted_datetime = '"
+        return "UPDATE score SET deleted = 1, deleted_datetime = '"
+                + deleted_datetime + "' WHERE id = " + id + ";";
+    }
+
+    public static String deleteCategory(Long id){
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        String deleted_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
+        return "UPDATE category SET deleted = 1, deleted_datetime = '"
                 + deleted_datetime + "' WHERE id = " + id + ";";
     }
 }
