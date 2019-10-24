@@ -117,7 +117,15 @@ public class Score implements Comparable<Score>, ICRUD {
         Connection conn = dbConnector.getConnection();
 
         try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
-            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.createScore(eventId,competitor.getId(), timeNeeded, pointsAchieved, numberOfTries, isValid, timeOfRecording), stmt.RETURN_GENERATED_KEYS)) {
+            String queryString;
+
+            if(pointsAchieved == null) {
+                queryString = Query.createScore(eventId, competitor.getId(), timeNeeded, 0, numberOfTries, isValid, timeOfRecording);
+            } else {
+                queryString = Query.createScore(eventId, competitor.getId(), timeNeeded, pointsAchieved, numberOfTries, isValid, timeOfRecording);
+            }
+
+            try (PreparedStatement preparedStatement = conn.prepareStatement(queryString, stmt.RETURN_GENERATED_KEYS)) {
                 preparedStatement.executeUpdate();
                 try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
                     if (rs.next()) {

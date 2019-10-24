@@ -195,8 +195,8 @@ public class Query {
 
         return "INSERT INTO CompetitionManager.event" +
                 "(name, date, date_descr, description, is_time_relevant, created_datetime, deleted)" +
-                " values ('" + name + "', " + date + ", '" + date_descr + "', '"
-                + description + "' , " + is_time_relevant + "', '" + created_datetime + ",0);";
+                " values ('" + name + "', '" + date + "', '" + date_descr + "', '"
+                + description + "' , " + is_time_relevant + ", '" + created_datetime + "',0);";
     }
 
     /**
@@ -213,7 +213,7 @@ public class Query {
     public static String createScore(Long eventid, Long competitor_id, LocalTime time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String created_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
-        return "INSERT INTO CompetitionManger.score" +
+        return "INSERT INTO CompetitionManager.score" +
                 "(event_id,competitor_id,time_needed,points_achieved, number_of_tries," +
                 "is_valid, time_of_recording, created_datetime, deleted) VALUES" +
                 "(" + eventid + ", " + competitor_id + ", '" + time_needed + "', " + points_achieved  + ", " + number_of_tries +
@@ -228,7 +228,7 @@ public class Query {
     public static String deleteCompetitor(Long id){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String deleted_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
-        return "UPDATE CompetitionManger.competitor SET deleted = 1, deleted_datetime = '"
+        return "UPDATE competitor SET deleted = 1, deleted_datetime = '"
                 + deleted_datetime + "' WHERE id = " + id + ";";
     }
 
