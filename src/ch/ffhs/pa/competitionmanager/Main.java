@@ -3,28 +3,21 @@ package ch.ffhs.pa.competitionmanager;
 import ch.danielhoop.sql.DynamicDriverLoader;
 import ch.danielhoop.utils.ArgumentInterpreter;
 import ch.danielhoop.utils.ExceptionVisualizer;
-import ch.ffhs.pa.competitionmanager.core.DbMonitor;
-import ch.ffhs.pa.competitionmanager.core.RankingList;
-import ch.ffhs.pa.competitionmanager.db.DbConfig;
-import ch.ffhs.pa.competitionmanager.dto.Category;
+import ch.ffhs.pa.competitionmanager.core.*;
+import ch.ffhs.pa.competitionmanager.db.DbConnector;
+import ch.ffhs.pa.competitionmanager.db.DbPreparator;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 import ch.ffhs.pa.competitionmanager.dto.Event;
-import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
 
-import javax.swing.*;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
  * Main function of the project.
  * Must be called from the command line. Either start the application in editing mode or in displaying mode to show the ranking lists.
- * Command line arguments are:
- * -- mode "edit" OR "display"
- * As well as other arguments for the databse connection. An example of command lime aguments that could work is:
+ * Command line arguments are arguments for the database connection. An example of command lime arguments that could work is:
  * --mode "display" --driverPath "E:/Workspaces/IntelliJ/CompetitionManager/lib/mysql-connector-java-8.0.17.jar" --driverName "com.mysql.cj.jdbc.Driver" --address "jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT" --user "NinjaWarrior" --password "Asdf-Poiu-0987-1234"
  */
 public class Main {
@@ -59,16 +52,9 @@ public class Main {
                 .readArgs(args);
 
         // Initialize objects
-        DbMonitor<Object> dbMonitor;
-        RankingList rankingList;
-        Event event;
-        Category category;
-        Score score;
-        DbConfig dbConfig;
-        Connection con;
-        String mode, driverPath, driverName, address, user, password, connectionString;
+        GlobalState globalState = GlobalState.getInstance();
+        String driverPath, driverName, address, user, password;
 
-        mode = args1.get("mode");
         driverPath = args1.get("driverPath");
         driverName = args1.get("driverName");
         address = args1.get("address");
@@ -86,24 +72,46 @@ public class Main {
             password = dbCred.getPassword();
         }
 
-        // Create connection to database
+        // Prepare database driver and connection to database.
         try {
             System.out.print("Loading database driver...");
             DynamicDriverLoader.registerDriver(driverPath, driverName);
+            globalState.setDbConnector(new DbConnector(address, user, password));
             System.out.println(" Done.");
 
-            System.out.println("Connecting to database...");
-            con = DriverManager.getConnection(address, user, password);
+            // TODO: Choose an eventId and start to monitor changes in database.
+            Event event;
+            // int eventId = Integer.valueOf(JOptionPane.showInputDialog("Please enter the id of the event."));
+            int eventId = 1;
+            event = Event.getById(eventId);
+            globalState.setEvent(event);
 
-            con.setAutoCommit(false);
-            // st = con.createStatement();
-            System.out.println("Connected.");
+            // CategoryList
+            CategoryList categoryList = new CategoryList(event);
+            // Prepare database for event.
+            DbPreparator.prepare(event, categoryList);
+            // RankingList
+            RankingList rankingList = new RankingList(event, categoryList);
+
+            // Start DbMonitor
+            DbPuller dbPuller = new DbPuller();
+            DbMonitor dbMonitor = new DbMonitor(rankingList, 5, dbPuller);
+            dbMonitor.start();
+
+
+            // Sleep and wait for changes in database.
+            // The dbMonitor thread will continue to run!
+            try {
+                Thread.sleep(360000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
 
 
             // Close connection before leaving main method.
-            con.close();
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | MalformedURLException | FileNotFoundException e) {
-            ExceptionVisualizer.show(e);
+            ExceptionVisualizer.showAndAddMessage(e, "Debugging inside Main.main().");
         }
 
     }

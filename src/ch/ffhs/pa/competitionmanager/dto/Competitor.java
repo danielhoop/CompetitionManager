@@ -1,8 +1,13 @@
 package ch.ffhs.pa.competitionmanager.dto;
 
+import ch.danielhoop.utils.ExceptionVisualizer;
+import ch.ffhs.pa.competitionmanager.core.GlobalState;
+import ch.ffhs.pa.competitionmanager.db.DbConnector;
+import ch.ffhs.pa.competitionmanager.db.Query;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
 
+import java.sql.*;
 import java.time.LocalDate;
 
 /**
@@ -16,10 +21,9 @@ public class Competitor implements ICRUD {
     private String name;
     private Gender gender;
     private LocalDate dateOfBirth;
-    private byte age;
+    private int age;
 
-    public Competitor(long id, long eventId, String name,
-                      Gender gender, LocalDate dateOfBirth, byte age) {
+    public Competitor(long id, long eventId, String name, Gender gender, LocalDate dateOfBirth, int age) {
         this.id = id;
         this.eventId = eventId;
         this.name = name;
@@ -51,29 +55,64 @@ public class Competitor implements ICRUD {
     }
     public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
     // age
-    public byte getAge() {
+    public int getAge() {
         return age;
     }
-    public void setAge(byte age) { this.age = age; }
+    public void setAge(int age) { this.age = age; }
 
     // CRUD operations
     @Override
     public boolean create() {
-        // TODO: Add a new row to database table.
-        //       Then, use the new id provided by the database and update the id in this class instance.
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.createCompetitor(name,gender, dateOfBirth), stmt.RETURN_GENERATED_KEYS)) {
+                preparedStatement.executeUpdate();
+                try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        this.id = rs.getLong(1);
+                    }
+                }
+            }
+            dbConnector.closeStatement(stmt);
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Competitor.create(): ");
         return false;
+    }
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 
     @Override
     public boolean update() {
-        // TODO: First, set 'deleted', 'updated', and 'deletedDateTime' attribute in database to true, then create a new competitor in the database.
-        //       Like this, the history of updates will be available.
+        if(this.delete() == true && this.create() == true){
+            return true;
+        }
         return false;
     }
 
     @Override
     public boolean delete() {
-        // TODO: Set 'deleted' attribute in database and set 'deletedDateTime' accordingly.
-        return false;
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.deleteCompetitor(id))) {
+                preparedStatement.executeUpdate();
+            }
+            dbConnector.closeStatement(stmt);
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Competitor.delete(): ");
+            return false;
+        }
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 }

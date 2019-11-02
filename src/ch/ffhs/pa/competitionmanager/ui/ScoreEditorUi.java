@@ -11,7 +11,7 @@ public class ScoreEditorUi {
         // TODO: Score GUI must contain all competitor details in order to avoid confusions of competitors with same or similar names.
         // TODO: If createNew = true, then create a new database entry instead of altering it.
         if (createNew && score == null) {
-            ExceptionVisualizer.show(new IllegalArgumentException("If `createNew` is true, then `event` must not be null."));
+            ExceptionVisualizer.showAndAddMessage(new IllegalArgumentException("If `createNew` is true, then `event` must not be null."), "ScoreEditorUi(): ");
         }
     }
 }
