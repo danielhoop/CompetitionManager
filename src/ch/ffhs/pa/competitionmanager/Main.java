@@ -8,6 +8,8 @@ import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.DbPreparator;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.gui.EventSelector;
+import ch.ffhs.pa.competitionmanager.playground.TableTest;
 import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
 
 import java.io.FileNotFoundException;
@@ -98,6 +100,8 @@ public class Main {
             DbMonitor dbMonitor = new DbMonitor(rankingList, 5, dbPuller);
             dbMonitor.start();
 
+            // Open the EventSelector
+            EventSelector.main(new String[]{});
 
             // Sleep and wait for changes in database.
             // The dbMonitor thread will continue to run!

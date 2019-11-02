@@ -24,8 +24,8 @@ public class Query {
     }
 
     /**
-     * Give back an SQL string to get the row from 'event' table that has specific id.
-     * @return An SQL string to get the row from 'event' table that has specific id.
+     * Give back a SQL string to get the row from 'event' table that has specific id.
+     * @return A SQL string to get the row from 'event' table that has specific id.
      */
     public static String eventById(long id) {
         return "select *\n" +
@@ -34,9 +34,20 @@ public class Query {
     }
 
     /**
-     * Give back an SQL string that will drop the column called 'age_<eventId>' in table 'competitor'.
+     * Get all events from the database.
+     * @return A
+     */
+    public static String getAllEvents() {
+        return "select *\n" +
+                "from `CompetitionManager`.`event`\n" +
+                "where `deleted` = false\n" +
+                "order by `date` desc;";
+    }
+
+    /**
+     * Give back a SQL string that will drop the column called 'age_<eventId>' in table 'competitor'.
      * @param eventId The id of the event.
-     * @return An SQL string that will drop the column called 'age_<eventId>' in table 'competitor'.
+     * @return A SQL string that will drop the column called 'age_<eventId>' in table 'competitor'.
      */
     public static String dropAgeColumn(long eventId) {
         return "ALTER TABLE `CompetitionManager`.`competitor`\n" +
@@ -44,10 +55,10 @@ public class Query {
     }
 
     /**
-     * Give back an SQL string that wil create an age column in table 'competitor' which contains the age in years.
+     * Give back a SQL string that wil create an age column in table 'competitor' which contains the age in years.
      * @param eventId The id of the event.
      * @param dateOfToday A date string ISO-8601 format uuuu-MM-dd, like '2019-01-01'.
-     * @return An SQL string that wil create an age column in table 'competitor' which contains the age in years.
+     * @return A SQL string that wil create an age column in table 'competitor' which contains the age in years.
      */
     static String createAgeColumn(long eventId, String dateOfToday) {
         return "ALTER TABLE `CompetitionManager`.`competitor`\n" +
@@ -60,9 +71,9 @@ public class Query {
     }
 
     /**
-     * Given an event id, returns an SQL string that will count the number of valid scores in table 'score'.
+     * Given an event id, returns a SQL string that will count the number of valid scores in table 'score'.
      * @param event The id of the event.
-     * @return An SQL string that will count the number of valid scores in table 'score'.
+     * @return A SQL string that will count the number of valid scores in table 'score'.
      */
     public static String numberOfValidScores(long event) {
         return "select sum(`is_valid`)\n" +
@@ -71,9 +82,9 @@ public class Query {
     }
 
     /**
-     * Given an event id, returns an SQL string that will return the maximum id in table 'score'.
+     * Given an event id, returns a SQL string that will return the maximum id in table 'score'.
      * @param event The id of the event.
-     * @return An SQL string that will return the maximum id in table 'score'
+     * @return A SQL string that will return the maximum id in table 'score'
      */
     public static String maxIdInScores(long event) {
         return "select max(`id`)\n" +
@@ -148,7 +159,7 @@ public class Query {
                 "          AND s.`event_id` = "+ eventId + ";";
     }
     /**
-     * Creates a Event in the Database
+     * Creates a Category in the Database
      * @param eventId Event ID of the Event
      * @param name Event Name
      * @param description Event Description
