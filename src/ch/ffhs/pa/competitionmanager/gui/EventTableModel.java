@@ -10,8 +10,7 @@ import java.util.ResourceBundle;
 
 public class EventTableModel extends AbstractTableModel {
 
-    private GlobalState globalState = GlobalState.getInstance();
-    private ResourceBundle bundle = ResourceBundle.getBundle("GuiText", globalState.getLocale());
+    private ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
 
     private List<Event> events;
     private String[] columns;
@@ -23,6 +22,17 @@ public class EventTableModel extends AbstractTableModel {
                 bundle.getString("Event.date"),
                 bundle.getString("Event.isTimeRelevant")
         };
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        Event event = events.get(rowIndex);
+        switch (columnIndex) {
+            case 0: return event.getName();
+            case 1: return event.getDate();
+            case 2: return event.isTimeRelevant();
+            default: return null;
+        }
     }
 
     public Event getEventFromRow(int rowIndex) {
@@ -42,17 +52,6 @@ public class EventTableModel extends AbstractTableModel {
     @Override
     public int getColumnCount() {
         return columns.length;
-    }
-
-    @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        Event event = events.get(rowIndex);
-        switch (columnIndex) {
-            case 0: return event.getName();
-            case 1: return event.getDate();
-            case 2: return event.isTimeRelevant();
-            default: return null;
-        }
     }
 
     // Doing similar things with the default table model...

@@ -32,8 +32,19 @@ public class EventSelector {
         createUIComponents();
     }
 
+    public static void main() {
+        SwingUtilities.invokeLater(() -> {
+            ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
+
+            JFrame frame = new JFrame(bundle.getString("EventSelector.title"));
+            frame.setContentPane(new EventSelector(frame).outerPanel);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.pack();
+            frame.setVisible(true);
+        });
+    }
+
     private void createUIComponents() {
-        EventSelector eventSelectorInstance = this;
         GlobalState globalState = GlobalState.getInstance();
         ResourceBundle bundle = globalState.getGuiTextBundle();
 
@@ -70,6 +81,7 @@ public class EventSelector {
             @Override
             public void mouseReleased(MouseEvent e) {
                 selectedRow = eventTable.rowAtPoint(e.getPoint());
+                openEmptyScoreEditor();
                 // System.out.println("RowSelectionEvent fired. selectedRow: " + selectedRow);
             }
             @Override
@@ -95,15 +107,7 @@ public class EventSelector {
             public void mousePressed(MouseEvent e) {}
             @Override
             public void mouseReleased(MouseEvent e) {
-                // Open (empty) window "ScoreEditor"
-                if (selectedRow == -1) {
-                    JOptionPane.showMessageDialog(null, bundle.getString("EventSelector.noRowSelectedErrorHint"));
-                } else {
-                    Event event = eventTableModel.getEventFromRow(selectedRow);
-                    GlobalState.getInstance().setEvent(event);
-                    mainFrame.dispose();
-                    ScoreEditor.main(true, eventSelectorInstance);
-                }
+                openEmptyScoreEditor();
             }
             @Override
             public void mouseEntered(MouseEvent e) {}
@@ -142,20 +146,20 @@ public class EventSelector {
             @Override
             public void mouseExited(MouseEvent e) {}
         });
-
-
     }
 
-    public static void main() {
-        SwingUtilities.invokeLater(() -> {
-            ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
+    private void openEmptyScoreEditor() {
+        EventSelector eventSelectorInstance = this;
+        GlobalState globalState = GlobalState.getInstance();
+        ResourceBundle bundle = globalState.getGuiTextBundle();
 
-            JFrame frame = new JFrame(bundle.getString("EventSelector.title"));
-            frame.setContentPane(new EventSelector(frame).outerPanel);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.pack();
-            frame.setVisible(true);
-        });
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, bundle.getString("EventSelector.noRowSelectedErrorHint"));
+        } else {
+            Event event = eventTableModel.getEventFromRow(selectedRow);
+            GlobalState.getInstance().setEvent(event);
+            mainFrame.dispose();
+            ScoreEditor.main(true, eventSelectorInstance);
+        }
     }
-
 }

@@ -115,13 +115,19 @@ public class Query {
         return "age_" + eventId;
     }
 
+    public static String getAllCompetitors(long eventId) {
+        return "select *\n" +
+                "from `CompetitionManager`.`competitor`\n" +
+                "where `deleted` = false;";
+    }
+
     // --------------------------------------------
     // Methods to create SQL strings for categories
     // --------------------------------------------
     public static String getAllCategories(long eventId) {
         return "select *\n" +
-                "    from `CompetitionManager`.`category`\n" +
-                "    where `event_id` = " + eventId + ";";
+                "from `CompetitionManager`.`category`\n" +
+                "where `event_id` = " + eventId + ";";
     }
     public static String getAllViewNames() {
         return "SHOW FULL TABLES IN `CompetitionManager` WHERE TABLE_TYPE LIKE '%VIEW%';";
@@ -138,25 +144,25 @@ public class Query {
     public static String createScoreViewForCategory(long eventId, String viewName, int minAgeInclusive, int maxAgeInclusive, int gender) {
         return "create view `CompetitionManager`.`" + viewName + "` as\n" +
                 "select s.*, c.`name`, c.`gender`, c.`date_of_birth`, c.`" + ageColumnName(eventId) + "`\n" +
-                "    from `CompetitionManager`.`score` s\n" +
-                "    left join `CompetitionManager`.`competitor` c\n" +
-                "        on s.`competitor_id` = c.`id`\n" +
-                "    where     s.`deleted` = false\n" +
-                "          AND s.`is_valid` = true\n" +
-                "          AND s.`event_id` = "+ eventId + "\n" +
-                "          AND c.`" + ageColumnName(eventId) + "` >= " + minAgeInclusive + "\n" +
-                "          AND c.`" + ageColumnName(eventId) + "` <= " + maxAgeInclusive + "\n" +
-                "          AND c.`gender` = " + gender + ";";
+                "from `CompetitionManager`.`score` s\n" +
+                "left join `CompetitionManager`.`competitor` c\n" +
+                "on s.`competitor_id` = c.`id`\n" +
+                "where     s.`deleted` = false\n" +
+                "  AND s.`is_valid` = true\n" +
+                "  AND s.`event_id` = "+ eventId + "\n" +
+                "      AND c.`" + ageColumnName(eventId) + "` >= " + minAgeInclusive + "\n" +
+                "      AND c.`" + ageColumnName(eventId) + "` <= " + maxAgeInclusive + "\n" +
+                "      AND c.`gender` = " + gender + ";";
     }
     public static String createScoreViewForAllCompetitors(String viewName, long eventId) {
         return "create view `CompetitionManager`.`" + viewName + "` as\n" +
                 "select s.*, c.`name`, c.`date_of_birth`\n" +
-                "    from `CompetitionManager`.`score` s\n" +
-                "    left join `CompetitionManager`.`competitor` c\n" +
-                "        on s.`competitor_id` = c.`id`\n" +
-                "    where     s.`deleted` = false\n" +
-                "          AND s.`is_valid` = true\n" +
-                "          AND s.`event_id` = "+ eventId + ";";
+                "from `CompetitionManager`.`score` s\n" +
+                "left join `CompetitionManager`.`competitor` c\n" +
+                "    on s.`competitor_id` = c.`id`\n" +
+                "where     s.`deleted` = false\n" +
+                "      AND s.`is_valid` = true\n" +
+                "      AND s.`event_id` = "+ eventId + ";";
     }
     /**
      * Creates a Category in the Database

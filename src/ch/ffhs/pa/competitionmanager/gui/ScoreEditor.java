@@ -1,13 +1,31 @@
 package ch.ffhs.pa.competitionmanager.gui;
 
+import ch.ffhs.pa.competitionmanager.core.CompetitorList;
+import ch.ffhs.pa.competitionmanager.core.EventList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
+import ch.ffhs.pa.competitionmanager.dto.Event;
 
 import javax.swing.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ResourceBundle;
 
 public class ScoreEditor {
+
+    CompetitorTableModel competitorTableModel;
+
     private JPanel outerPanel;
     private JLabel text1;
+    private JTextField nameTextField;
+    private JTextField dateOfBirthTextField;
+    private JTable competitorTable;
+    private JTextField timeNeededTextField;
+    private JCheckBox checkBox1;
+    private JButton saveButton;
+    private JTextField pointsAchievedTextField;
+    private JLabel timeNeededLabel;
+    private JLabel pointsAchievedLabel;
+    private JButton neueNWettkämpferInButton;
     private boolean createNew;
 
     private ScoreEditor(boolean createNew) {
@@ -20,6 +38,7 @@ public class ScoreEditor {
         ResourceBundle bundle = globalState.getGuiTextBundle();
 
         // Create text1 string, depending on whether time is relevant or points.
+        // TODO: Does not work.
         String text1String = bundle.getString("ScoreEditor.text1.start");
         if (globalState.getEvent().isTimeRelevant()) {
             text1String += bundle.getString("ScoreEditor.text1.time");
@@ -28,6 +47,52 @@ public class ScoreEditor {
         }
         text1 = new JLabel(text1String);
 
+        // Table
+        // TODO: Add a filter depending on the inputs in name of competitor / dateOfBirth / gender.
+        // http://www.java2s.com/Tutorial/Java/0240__Swing/JTableFiltering.htm
+        CompetitorList competitorList = new CompetitorList(globalState.getEvent());
+        competitorTableModel = competitorList.getCompetitorsAsTableModel();
+        competitorTable = new JTable(competitorTableModel);
+
+        // Time needed or points achieved
+        timeNeededLabel = new JLabel(bundle.getString("Score.timeNeeded"));
+        timeNeededTextField = new JTextField();
+        pointsAchievedLabel = new JLabel(bundle.getString("Score.pointsAchieved"));
+        pointsAchievedTextField = new JTextField();
+        if (globalState.getEvent().isTimeRelevant()) {
+            pointsAchievedLabel.setVisible(false);
+            pointsAchievedTextField.setVisible(false);
+        } else {
+            timeNeededLabel.setVisible(false);
+            timeNeededTextField.setVisible(false);
+        }
+
+        // Button must either say "save" or "save changes".
+        // TODO: Does not work.
+        if (createNew) {
+            saveButton = new JButton(bundle.getString("save"));
+        } else {
+            saveButton = new JButton(bundle.getString("change"));
+        }
+        saveButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                // TODO: Save or adapt data.
+                if (createNew) {
+
+                } else {
+
+                }
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+        });
     }
 
     public static void main(boolean createNew, Object formToSetNull) {

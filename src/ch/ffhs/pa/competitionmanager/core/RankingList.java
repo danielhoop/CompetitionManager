@@ -73,7 +73,6 @@ public class RankingList implements INotifiable {
                             rs.getLong("event_id"),
                             new Competitor(
                                     rs.getLong("competitor_id"),
-                                    rs.getLong("event_id"),
                                     rs.getString("name"),
                                     Gender.valueOf(rs.getInt("gender")),
                                     rs.getDate("date_of_birth").toLocalDate(),
