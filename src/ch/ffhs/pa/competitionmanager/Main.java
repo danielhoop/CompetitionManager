@@ -5,12 +5,9 @@ import ch.danielhoop.utils.ArgumentInterpreter;
 import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
-import ch.ffhs.pa.competitionmanager.db.DbPreparator;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
-import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.gui.EventSelector;
-import ch.ffhs.pa.competitionmanager.playground.TableTest;
-import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
+import ch.ffhs.pa.competitionmanager.gui.PasswordGui;
 
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
@@ -67,56 +64,27 @@ public class Main {
             password = args1.get("password");
         } else {
             DbCredentials dbCred = new DbCredentials(user, null);
-            PasswordUi pwUi = new PasswordUi(dbCred);
+            PasswordGui pwUi = new PasswordGui(dbCred);
             if (dbCred.getPassword() == null) {
                 ExceptionVisualizer.show(new IllegalArgumentException("The password must not be null."));
             }
             password = dbCred.getPassword();
         }
 
-        // Prepare database driver and connection to database.
         try {
+            // Prepare database driver and connection to database.
             System.out.print("Loading database driver...");
             DynamicDriverLoader.registerDriver(driverPath, driverName);
             globalState.setDbConnector(new DbConnector(address, user, password));
             System.out.println(" Done.");
 
-            // TODO: Choose an eventId and start to monitor changes in database.
-            Event event;
-            // int eventId = Integer.valueOf(JOptionPane.showInputDialog("Please enter the id of the event."));
-            int eventId = 1;
-            event = Event.getById(eventId);
-            globalState.setEvent(event);
-
-            // CategoryList
-            CategoryList categoryList = new CategoryList(event);
-            // Prepare database for event.
-            DbPreparator.prepare(event, categoryList);
-            // RankingList
-            RankingList rankingList = new RankingList(event, categoryList);
-
-            // Start DbMonitor
-            DbPuller dbPuller = new DbPuller();
-            DbMonitor dbMonitor = new DbMonitor(rankingList, 5, dbPuller);
-            dbMonitor.start();
-
-            // Open the EventSelector
-            EventSelector.main(new String[]{});
-
-            // Sleep and wait for changes in database.
-            // The dbMonitor thread will continue to run!
-            try {
-                Thread.sleep(360000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-
-
             // Close connection before leaving main method.
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | MalformedURLException | FileNotFoundException e) {
             ExceptionVisualizer.showAndAddMessage(e, "Debugging inside Main.main().");
         }
+
+        // Open the EventSelector
+        EventSelector.main();
 
     }
 }
