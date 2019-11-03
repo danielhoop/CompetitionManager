@@ -8,6 +8,7 @@ import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.DbPreparator;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.gui.CompetitorEditor;
 import ch.ffhs.pa.competitionmanager.gui.EventSelector;
 import ch.ffhs.pa.competitionmanager.playground.TableTest;
 import ch.ffhs.pa.competitionmanager.ui.PasswordUi;
@@ -101,7 +102,9 @@ public class Main {
             dbMonitor.start();
 
             // Open the EventSelector
-            EventSelector.main(new String[]{});
+            //EventSelector.main(new String[]{});
+
+            CompetitorEditor.main(false);
 
             // Sleep and wait for changes in database.
             // The dbMonitor thread will continue to run!
