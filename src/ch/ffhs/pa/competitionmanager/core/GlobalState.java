@@ -1,7 +1,10 @@
 package ch.ffhs.pa.competitionmanager.core;
 
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
+import ch.ffhs.pa.competitionmanager.dto.Category;
+import ch.ffhs.pa.competitionmanager.dto.Competitor;
 import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.enums.SupportedLocale;
 
 import java.util.HashMap;
@@ -15,9 +18,13 @@ public class GlobalState {
 
     private static GlobalState globalState = null;
     private DbConnector dbConnector;
-    private Event event;
     private Map<SupportedLocale, Locale> locales;
     private Locale locale;
+
+    private Category category;
+    private Competitor competitor;
+    private Event event;
+    private Score score;
 
     private GlobalState() {
         locales = new HashMap<>();
@@ -40,12 +47,32 @@ public class GlobalState {
     public void setDbConnector(DbConnector dbConnector) {
         this.dbConnector = dbConnector;
     }
+    
+    public Category getCategory() {
+        return category;
+    }
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+    public Competitor getCompetitor() {
+        return competitor;
+    }
+    public void setCompetitor(Competitor competitor) {
+        this.competitor = competitor;
+    }
     public Event getEvent() {
         return event;
     }
     public void setEvent(Event event) {
         this.event = event;
     }
+    public Score getScore() {
+        return score;
+    }
+    public void setScore(Score score) {
+        this.score = score;
+    }
+
     public Locale getLocale() {
         return this.locale;
     }
