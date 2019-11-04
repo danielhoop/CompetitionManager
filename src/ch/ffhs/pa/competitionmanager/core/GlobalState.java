@@ -73,14 +73,14 @@ public class GlobalState {
     }
     public void setEvent(Event event) {
         this.event = event;
-        // CompetitorList
-        competitorList = CompetitorList.Build.withAllCompetitors(event);
         // CategoryList
         categoryList = new CategoryList(event);
         // Prepare database for event.
         DbPreparator.prepare(event, categoryList);
         // RankingList
         rankingList = new RankingList(event, categoryList);
+        // CompetitorList
+        competitorList = CompetitorList.Build.withAllCompetitors(event);
         // Start DbMonitor
         if (dbMonitor != null) {
             dbMonitor.stop();

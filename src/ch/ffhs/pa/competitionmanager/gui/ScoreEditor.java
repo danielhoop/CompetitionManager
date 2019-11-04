@@ -1,11 +1,11 @@
 package ch.ffhs.pa.competitionmanager.gui;
 
 import ch.ffhs.pa.competitionmanager.core.CompetitorList;
-import ch.ffhs.pa.competitionmanager.core.EventList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
-import ch.ffhs.pa.competitionmanager.dto.Event;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ResourceBundle;
@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 public class ScoreEditor {
 
     CompetitorTableModel competitorTableModel;
+    CompetitorList competitorList;
 
     private JPanel outerPanel;
     private JLabel text1;
@@ -26,6 +27,8 @@ public class ScoreEditor {
     private JLabel timeNeededLabel;
     private JLabel pointsAchievedLabel;
     private JButton neueNWettkämpferInButton;
+    private JButton reloadCompetitorsButton;
+    private JScrollPane competitorScrollPane;
     private boolean createNew;
 
     private ScoreEditor(boolean createNew) {
@@ -50,14 +53,14 @@ public class ScoreEditor {
         // Table
         // TODO: Add a filter depending on the inputs in name of competitor / dateOfBirth / gender.
         // http://www.java2s.com/Tutorial/Java/0240__Swing/JTableFiltering.htm
-        CompetitorList competitorList = globalState.getCompetitorList();
+        competitorList = globalState.getCompetitorList();
         competitorTableModel = competitorList.getCompetitorsAsTableModel();
         competitorTable = new JTable(competitorTableModel);
 
         // Time needed or points achieved
-        timeNeededLabel = new JLabel(bundle.getString("Score.timeNeeded"));
+        timeNeededLabel = new JLabel();
         timeNeededTextField = new JTextField();
-        pointsAchievedLabel = new JLabel(bundle.getString("Score.pointsAchieved"));
+        pointsAchievedLabel = new JLabel();
         pointsAchievedTextField = new JTextField();
         if (globalState.getEvent().isTimeRelevant()) {
             pointsAchievedLabel.setVisible(false);
@@ -66,6 +69,27 @@ public class ScoreEditor {
             timeNeededLabel.setVisible(false);
             timeNeededTextField.setVisible(false);
         }
+
+        // Reload Competitors Button
+        reloadCompetitorsButton = new JButton();
+        reloadCompetitorsButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                globalState.reloadCompetitorListFromDb();
+                //competitorTableModel.fireTableDataChanged();
+                competitorTableModel = globalState.getCompetitorList().getCompetitorsAsTableModel();
+                competitorTable = new JTable(competitorTableModel);
+                competitorScrollPane.getViewport().add(competitorTable);
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+        });
 
         // Button must either say "save" or "save changes".
         // TODO: Does not work.
