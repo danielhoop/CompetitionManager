@@ -141,7 +141,7 @@
                           <text resource-bundle="GuiText" key="ScoreEditor.createCompetitor"/>
                         </properties>
                       </component>
-                      <component id="9f1fe" class="javax.swing.JButton" binding="reloadCompetitorsButton" custom-create="true">
+                      <component id="9f1fe" class="javax.swing.JButton" binding="reloadCompetitorsButton">
                         <constraints>
                           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
@@ -188,7 +188,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="4222d" class="javax.swing.JLabel" binding="timeNeededLabel" custom-create="true">
+                  <component id="4222d" class="javax.swing.JLabel" binding="timeNeededLabel">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -196,7 +196,7 @@
                       <text resource-bundle="GuiText" key="Score.timeNeeded"/>
                     </properties>
                   </component>
-                  <component id="200c5" class="javax.swing.JTextField" binding="timeNeededTextField" custom-create="true">
+                  <component id="200c5" class="javax.swing.JTextField" binding="timeNeededTextField">
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
@@ -212,7 +212,7 @@
                       <text resource-bundle="GuiText" key="Score.isValid"/>
                     </properties>
                   </component>
-                  <component id="f4b6f" class="javax.swing.JCheckBox" binding="checkBox1" default-binding="true">
+                  <component id="f4b6f" class="javax.swing.JCheckBox" binding="isValidCheckBox">
                     <constraints>
                       <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -221,7 +221,7 @@
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="48104" class="javax.swing.JLabel" binding="pointsAchievedLabel" custom-create="true">
+                  <component id="48104" class="javax.swing.JLabel" binding="pointsAchievedLabel">
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -229,7 +229,7 @@
                       <text resource-bundle="GuiText" key="Score.pointsAchieved"/>
                     </properties>
                   </component>
-                  <component id="c8b01" class="javax.swing.JTextField" binding="pointsAchievedTextField" custom-create="true">
+                  <component id="c8b01" class="javax.swing.JTextField" binding="pointsAchievedTextField">
                     <constraints>
                       <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
@@ -239,7 +239,7 @@
                   </component>
                 </children>
               </grid>
-              <component id="ba688" class="javax.swing.JButton" binding="saveButton" custom-create="true">
+              <component id="ba688" class="javax.swing.JButton" binding="saveButton">
                 <constraints>
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>

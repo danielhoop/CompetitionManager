@@ -2,6 +2,7 @@ package ch.ffhs.pa.competitionmanager.gui;
 
 import ch.ffhs.pa.competitionmanager.core.EventList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
+import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.Event;
 
 import javax.swing.*;
@@ -159,7 +160,12 @@ public class EventSelector {
             Event event = eventTableModel.getEventFromRow(selectedRow);
             GlobalState.getInstance().setEvent(event);
             mainFrame.dispose();
-            ScoreEditor.main(true, eventSelectorInstance);
+
+            // Test ScoreEditor with new score.
+            ScoreEditor.main();
+            // Test ScoreEditor to edit existing score.
+            //Category category = globalState.getCategoryList().getCategories().get(0);
+            //ScoreEditor.main(globalState.getRankingList().getScores().get(category).get(0));
         }
     }
 }
