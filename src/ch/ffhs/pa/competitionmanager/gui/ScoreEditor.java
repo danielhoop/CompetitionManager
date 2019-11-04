@@ -2,6 +2,7 @@ package ch.ffhs.pa.competitionmanager.gui;
 
 import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
+import ch.ffhs.pa.competitionmanager.utils.StringManipulator;
 
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
@@ -36,6 +37,28 @@ public class ScoreEditor {
     private ScoreEditor(boolean createNew) {
         this.createNew = createNew;
         createUIComponents();
+
+        // Add listeners to text fields.
+        // It won't work in the createUIComponents() method!!!
+        nameTextField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) { }
+            @Override
+            public void keyPressed(KeyEvent e) { }
+            @Override
+            public void keyReleased(KeyEvent e) {
+                System.out.println("keyReleased in nameTextField.");
+                filterCompetitorTable();
+            }
+        });
+
+        // Table
+        competitorList = GlobalState.getInstance().getCompetitorList();
+        competitorTableModel = competitorList.getCompetitorsAsTableModel();
+        competitorTable.setModel(competitorTableModel);
+        // Sorter & filter
+        competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
+        competitorTable.setRowSorter(competitorTableSorter);
     }
 
     private void createUIComponents() {
@@ -52,35 +75,15 @@ public class ScoreEditor {
         }
         text1 = new JLabel(text1String);
 
-        nameTextField = new JTextField();
-        /*nameTextField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Action performed in nameTextField.");
-                filterCompetitorTable();
-            }
-        });*/
-        nameTextField.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) { }
-            @Override
-            public void keyPressed(KeyEvent e) { }
-            @Override
-            public void keyReleased(KeyEvent e) {
-                System.out.println("keyReleased in nameTextField.");
-                filterCompetitorTable();
-            }
-        });
-
         // Table
         // TODO: Add a filter depending on the inputs in name of competitor / dateOfBirth / gender.
         // http://www.java2s.com/Tutorial/Java/0240__Swing/JTableFiltering.htm
-        competitorList = globalState.getCompetitorList();
+        /*competitorList = globalState.getCompetitorList();
         competitorTableModel = competitorList.getCompetitorsAsTableModel();
         competitorTable = new JTable(competitorTableModel);
         // Sorter & filter
         competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
-        competitorTable.setRowSorter(competitorTableSorter);
+        competitorTable.setRowSorter(competitorTableSorter);*/
 
         // Time needed or points achieved
         timeNeededLabel = new JLabel();
@@ -183,19 +186,13 @@ public class ScoreEditor {
     }*/
 
     private void filterCompetitorTable() {
-        List<RowFilter<Object,Object>> filters = new LinkedList<RowFilter<Object,Object>>();
+        List<RowFilter<Object,Object>> filters = new LinkedList<>();
         // First, filter on name
-        String name = nameTextField.getText().replaceAll("\\.", "\\.");
-        String text = nameTextField.getText();
-        //System.out.println(nameTextField.getText().replaceAll("\\.", "\\\\."));
-        //System.out.println(text);
-
-        // 2019-11-04: Debug here.
-        System.out.println("String before replacing with ...: " + name);
-        nameTextField.setText("XYZ");
-        System.out.println("String after replacing with ...: " + name);
         try {
             // If current expression doesn't parse, don't update.
+            // https://stackoverflow.com/questions/7904695/java-escaping-meta-characters-and-in-regex
+            String name = "(?i)" + StringManipulator.escapeMetaCharacters(nameTextField.getText()); //java.util.regex.Pattern.quote((nameTextField.getText());
+            System.out.println(name);
             filters.add(RowFilter.regexFilter(name, 0));
         } catch (java.util.regex.PatternSyntaxException e) {
             return;
@@ -211,5 +208,6 @@ public class ScoreEditor {
         }*/
         // Combine filters and apply. https://stackoverflow.com/questions/31372553/jtable-rowfilter-between-two-dates-same-column
         competitorTableSorter.setRowFilter(RowFilter.andFilter(filters));
+        competitorTableModel.fireTableDataChanged();
     }
 }
