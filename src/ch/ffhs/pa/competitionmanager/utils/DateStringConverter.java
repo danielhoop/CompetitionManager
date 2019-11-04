@@ -7,11 +7,11 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Locale;
 
-public class DateStringHandler {
+public class DateStringConverter {
 
     private DateFormat dateFormat;
 
-    public DateStringHandler(Locale locale) {
+    public DateStringConverter(Locale locale) {
         dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale);
         // Alternative...
         // https://dotnetcodr.com/2015/01/17/localising-dates-in-java-8-using-datetimeformatter/

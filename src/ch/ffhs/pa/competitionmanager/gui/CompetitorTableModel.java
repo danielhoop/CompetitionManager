@@ -3,18 +3,17 @@ package ch.ffhs.pa.competitionmanager.gui;
 import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Competitor;
-import ch.ffhs.pa.competitionmanager.utils.DateStringHandler;
+import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class CompetitorTableModel extends AbstractTableModel {
 
     private ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
-    DateStringHandler dateStringHandler = new DateStringHandler(GlobalState.getInstance().getLocale());
+    DateStringConverter dateStringConverter = new DateStringConverter(GlobalState.getInstance().getLocale());
 
     private List<Competitor> competitors;
     private String[] columns;
@@ -35,7 +34,7 @@ public class CompetitorTableModel extends AbstractTableModel {
         LocalDate dateOfBirth = competitor.getDateOfBirth();
         switch (columnIndex) {
             case 0: return competitor.getName();
-            case 1: return dateStringHandler.asString(competitor.getDateOfBirth());
+            case 1: return dateStringConverter.asString(competitor.getDateOfBirth());
             case 2: return competitor.getGender();
             default: return null;
         }

@@ -2,7 +2,6 @@ package ch.ffhs.pa.competitionmanager.gui;
 
 import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
-import ch.ffhs.pa.competitionmanager.utils.DateStringHandler;
 
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
@@ -205,7 +204,7 @@ public class ScoreEditor {
         /*try {
             filters.add(RowFilter.dateFilter(
                     RowFilter.ComparisonType.EQUAL,
-                    new DateStringHandler(GlobalState.getInstance().getLocale()).asDate(dateOfBirthTextField.getText()),
+                    new DateStringConverter(GlobalState.getInstance().getLocale()).asDate(dateOfBirthTextField.getText()),
                     0));
         } catch (java.text.ParseException e) {
             return;
