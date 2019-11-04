@@ -42,7 +42,7 @@ public class ScoreEditor {
     private JScrollPane competitorScrollPane;
     private JButton wettkämpferInBearbeitenButton;
 
-    private ScoreEditor(Score scoreToEdit) {
+    private ScoreEditor(JFrame mainFrame, Score scoreToEdit) {
         this.scoreToEdit = scoreToEdit;
         this.editExisting = scoreToEdit != null;
 
@@ -137,7 +137,12 @@ public class ScoreEditor {
             @Override
             public void mouseReleased(MouseEvent e) {
                 boolean savingHasWorked = saveOrEditScore();
-                if (!savingHasWorked) {
+                if (savingHasWorked) {
+                    // Success message, dispose old window and open new one.
+                    JOptionPane.showMessageDialog(null, bundle.getString("savingToDbWorked"));
+                    mainFrame.dispose();
+                    ScoreEditor.main();
+                } else {
                     JOptionPane.showMessageDialog(null, bundle.getString("savingToDbFailed"));
                 }
             }
@@ -159,7 +164,7 @@ public class ScoreEditor {
             ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
 
             JFrame frame = new JFrame(bundle.getString("ScoreEditor.title"));
-            frame.setContentPane(new ScoreEditor(scoreToEdit).outerPanel);
+            frame.setContentPane(new ScoreEditor(frame, scoreToEdit).outerPanel);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.pack();
             frame.setVisible(true);
