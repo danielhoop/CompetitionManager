@@ -142,9 +142,7 @@ public class ScoreEditor {
                     JOptionPane.showMessageDialog(null, bundle.getString("savingToDbWorked"));
                     mainFrame.dispose();
                     ScoreEditor.main();
-                } else {
-                    JOptionPane.showMessageDialog(null, bundle.getString("savingToDbFailed"));
-                }
+                } // else { JOptionPane.showMessageDialog(null, bundle.getString("savingToDbFailed")); }
             }
             @Override
             public void mouseEntered(MouseEvent e) {}
@@ -278,6 +276,6 @@ public class ScoreEditor {
                 return score.create();
             }
         }
-        return true;
+        return false;
     }
 }
