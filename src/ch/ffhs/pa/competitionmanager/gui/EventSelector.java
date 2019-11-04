@@ -52,7 +52,7 @@ public class EventSelector {
         // Table
         EventList eventList = new EventList();
         eventTableModel = eventList.getEventsAsTableModel();
-        eventTable = new JTable(eventTableModel);
+        eventTable.setModel(eventTableModel);
 
         // DONT do this!!!!!
         // *** Otherwise the row selection will not work ***!
@@ -70,8 +70,7 @@ public class EventSelector {
         }
         eventTable.changeSelection(rowIndexToSelect, 0, false, false);*/
 
-        int rowIndexToSelect = 0;
-        selectedRow = rowIndexToSelect;
+        selectedRow = 0;
 
         // Add a listener and save the selected row because otherwise it does not work when button is pressed.
         eventTable.addMouseListener(new MouseListener() {
@@ -82,8 +81,10 @@ public class EventSelector {
             @Override
             public void mouseReleased(MouseEvent e) {
                 selectedRow = eventTable.rowAtPoint(e.getPoint());
-                openEmptyScoreEditor();
                 // System.out.println("RowSelectionEvent fired. selectedRow: " + selectedRow);
+                if (e.getClickCount() == 2) {
+                    openEmptyScoreEditor();
+                }
             }
             @Override
             public void mouseEntered(MouseEvent e) { }
@@ -97,10 +98,6 @@ public class EventSelector {
 
 
         // Buttons
-        okButton = new JButton(bundle.getString("OK"));
-        editEventButton = new JButton(bundle.getString("EventSelector.editExisting"));
-        createEventButton = new JButton(bundle.getString("EventSelector.createNewEvent"));
-
         okButton.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {}
