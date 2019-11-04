@@ -35,7 +35,7 @@ public class CompetitorEditor {
 
         // TODO : Remove Later just for Testing/Building Reasons
         LocalDate localDate = LocalDate.of(1988,05,31);
-        globalState.setCompetitor(new Competitor('5',1,"Ludwig",Gender.MALE, localDate, 31));
+        globalState.setCompetitor(new Competitor('5',"Ludwig",Gender.MALE, localDate, 31));
         /*Remove till here*/
 
         if (!createNew){

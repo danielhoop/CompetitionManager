@@ -32,14 +32,15 @@ public class RankingList implements INotifiable {
     public RankingList(Event event, CategoryList categoryList) {
         this.event = event;
         this.categoryList = categoryList;
-        this.scores = getScoresFromDb(event, categoryList);
+        this.scores = new HashMap<>();
+        getScoresFromDb(event, categoryList);
     }
 
     public void reloadFromDb(boolean reloadCategories) {
         if (reloadCategories) {
             categoryList.reloadFromDb();
         }
-        this.scores = getScoresFromDb(event, categoryList);
+        getScoresFromDb(event, categoryList);
     }
 
     public Map<Category, List<Score>> getScores() {
@@ -50,7 +51,7 @@ public class RankingList implements INotifiable {
      * Gets all Score of the category from database and replaces inner list 'Score' completely.
      * @return A map where the key is the category, and the value is the score list.
      */
-    private Map<Category, List<Score>> getScoresFromDb(Event event, CategoryList categoryList) {
+    private void getScoresFromDb(Event event, CategoryList categoryList) {
 
         long eventId = event.getId();
         List<Category> categories = categoryList.getCategories();
@@ -59,10 +60,10 @@ public class RankingList implements INotifiable {
         Connection conn = dbConnector.getConnection();
         Statement stmt = dbConnector.createStatmentForConnection(conn);
 
-        Map<Category, List<Score>> scoreMap = new HashMap<>();
+        scores.clear();
         for (Category category : categories) {
 
-            List<Score> scores = new LinkedList<>();
+            List<Score> listOfScores = new LinkedList<>();
             try {
                 String viewName = Query.categoryViewFullName(eventId, category.getId());
                 stmt.execute(Query.getScoresForCategory(eventId, viewName, event.isTimeRelevant()));
@@ -73,7 +74,6 @@ public class RankingList implements INotifiable {
                             rs.getLong("event_id"),
                             new Competitor(
                                     rs.getLong("competitor_id"),
-                                    rs.getLong("event_id"),
                                     rs.getString("name"),
                                     Gender.valueOf(rs.getInt("gender")),
                                     rs.getDate("date_of_birth").toLocalDate(),
@@ -85,7 +85,7 @@ public class RankingList implements INotifiable {
                             rs.getBoolean("is_valid"),
                             rs.getTimestamp("time_of_recording").toLocalDateTime()
                     );
-                    scores.add(score);
+                    listOfScores.add(score);
                 }
 
             } catch (SQLException e) {
@@ -95,12 +95,11 @@ public class RankingList implements INotifiable {
                         " from the database and storing them into a list, the following error occurred: ");
             }
 
-            scoreMap.put(category, scores);
+            scores.put(category, listOfScores);
         }
 
         dbConnector.closeStatement(stmt);
         dbConnector.closeConnection(conn);
-        return scoreMap;
     }
 
 //    /**

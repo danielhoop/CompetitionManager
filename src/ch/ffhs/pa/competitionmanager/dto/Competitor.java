@@ -17,15 +17,13 @@ import java.time.LocalDate;
  */
 public class Competitor implements ICRUD {
     private long id;
-    private long eventId;
     private String name;
     private Gender gender;
     private LocalDate dateOfBirth;
     private int age;
 
-    public Competitor(long id, long eventId, String name, Gender gender, LocalDate dateOfBirth, int age) {
+    public Competitor(long id, String name, Gender gender, LocalDate dateOfBirth, int age) {
         this.id = id;
-        this.eventId = eventId;
         this.name = name;
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
@@ -35,9 +33,6 @@ public class Competitor implements ICRUD {
     // id. No setter!
     public long getId() {
         return id;
-    }
-    public long getEventId() {
-        return eventId;
     }
     // name
     public String getName() {

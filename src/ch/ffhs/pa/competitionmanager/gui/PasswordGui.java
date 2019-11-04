@@ -1,14 +1,14 @@
-package ch.ffhs.pa.competitionmanager.ui;
+package ch.ffhs.pa.competitionmanager.gui;
 
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 
 import javax.swing.*;
 
-public class PasswordUi {
+public class PasswordGui {
 
     private DbCredentials dbCred;
 
-    public PasswordUi(DbCredentials databaseCredentials) {
+    public PasswordGui(DbCredentials databaseCredentials) {
         // Option 3: Hidden characters in password field & NICE.
         JPanel panel = new JPanel();
         JLabel label = new JLabel("Please enter password for database user '" + databaseCredentials.getUsername() + "':");

@@ -22,11 +22,12 @@ public class EventList {
     private List<Event> events;
 
     public EventList() {
-        this.events = getEventsFromDb();
+        this.events = new LinkedList<>();
+        getEventsFromDb();
     }
 
     public void reloadFromDb() {
-        this.events = getEventsFromDb();
+        getEventsFromDb();
     }
 
     public List<Event> getEvents() {
@@ -38,8 +39,7 @@ public class EventList {
         return eventTableModel;
     }
 
-    private List<Event> getEventsFromDb() {
-        List<Event> events1 = new LinkedList<>();
+    private void getEventsFromDb() {
 
         DbConnector dbConnector = globalState.getDbConnector();
         Connection conn = dbConnector.getConnection();
@@ -48,8 +48,9 @@ public class EventList {
         try {
             stmt.execute(Query.getAllEvents());
             ResultSet rs = stmt.getResultSet();
+            events.clear();
             while (rs.next()) {
-                events1.add(new Event(
+                events.add(new Event(
                         rs.getLong("id"),
                         rs.getString("name"),
                         rs.getDate("date").toLocalDate(),
@@ -64,6 +65,5 @@ public class EventList {
 
         dbConnector.closeStatement(stmt);
         dbConnector.closeConnection(conn);
-        return events1;
     }
 }
