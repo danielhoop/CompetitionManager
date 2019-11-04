@@ -3,6 +3,7 @@ package ch.ffhs.pa.competitionmanager.gui;
 import ch.ffhs.pa.competitionmanager.core.EventList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.utils.DateStringHandler;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.ResourceBundle;
 public class EventTableModel extends AbstractTableModel {
 
     private ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
+    DateStringHandler dateStringHandler = new DateStringHandler(GlobalState.getInstance().getLocale());
 
     private List<Event> events;
     private String[] columns;
@@ -29,7 +31,7 @@ public class EventTableModel extends AbstractTableModel {
         Event event = events.get(rowIndex);
         switch (columnIndex) {
             case 0: return event.getName();
-            case 1: return event.getDate();
+            case 1: return dateStringHandler.asString(event.getDate());
             case 2: return event.isTimeRelevant();
             default: return null;
         }
