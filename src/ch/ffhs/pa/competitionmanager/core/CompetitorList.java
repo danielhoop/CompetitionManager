@@ -27,7 +27,8 @@ public class CompetitorList {
     private CompetitorList(Event event, boolean ofEvent) {
         this.ofEvent = ofEvent;
         this.event = event;
-        this.competitors = getCompetitorsFromDb(event, ofEvent);
+        this.competitors = new LinkedList<>();
+        getCompetitorsFromDb(event, ofEvent);
     }
     // Factory
     public static class Build {
@@ -40,7 +41,7 @@ public class CompetitorList {
     }
 
     public void reloadFromDb() {
-        this.competitors = getCompetitorsFromDb(event, ofEvent);
+        getCompetitorsFromDb(event, ofEvent);
     }
 
     public List<Competitor> getCompetitors() {
@@ -52,10 +53,9 @@ public class CompetitorList {
         return competitorTableModel;
     }
 
-    private List<Competitor> getCompetitorsFromDb(Event event, boolean ofEvent) {
+    private void getCompetitorsFromDb(Event event, boolean ofEvent) {
 
         long eventId = event.getId();
-        List<Competitor> competitorList = new LinkedList<>();
         DbConnector dbConnector = globalState.getDbConnector();
         Connection conn = dbConnector.getConnection();
         Statement stmt = dbConnector.createStatmentForConnection(conn);
@@ -67,8 +67,10 @@ public class CompetitorList {
             }
 
             ResultSet rs = stmt.getResultSet();
+            competitors.clear();
+
             while (rs.next()) {
-                competitorList.add(new Competitor(
+                competitors.add(new Competitor(
                         rs.getLong("id"),
                         rs.getString("name"),
                         Gender.valueOf(rs.getInt("gender")),
@@ -83,6 +85,5 @@ public class CompetitorList {
 
         dbConnector.closeStatement(stmt);
         dbConnector.closeConnection(conn);
-        return competitorList;
     }
 }

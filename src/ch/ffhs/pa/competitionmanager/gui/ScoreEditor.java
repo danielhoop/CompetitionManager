@@ -80,10 +80,7 @@ public class ScoreEditor {
             @Override
             public void mouseReleased(MouseEvent e) {
                 globalState.reloadCompetitorListFromDb();
-                //competitorTableModel.fireTableDataChanged();
-                competitorTableModel = globalState.getCompetitorList().getCompetitorsAsTableModel();
-                competitorTable = new JTable(competitorTableModel);
-                competitorScrollPane.getViewport().add(competitorTable);
+                competitorTableModel.fireTableDataChanged();
             }
             @Override
             public void mouseEntered(MouseEvent e) {}

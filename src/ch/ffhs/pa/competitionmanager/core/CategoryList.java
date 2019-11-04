@@ -25,29 +25,31 @@ public class CategoryList {
 
     public CategoryList(Event event) {
         this.event = event;
-        this.categories = getCategoriesFromDb(event);
+        this.categories = new LinkedList<>();
+        getCategoriesFromDb(event);
     }
 
     public void reloadFromDb() {
-        this.categories = getCategoriesFromDb(event);
+        getCategoriesFromDb(event);
     }
 
     public List<Category> getCategories() {
         return categories;
     }
 
-    private List<Category> getCategoriesFromDb(Event event) {
+    private void getCategoriesFromDb(Event event) {
 
         long eventId = event.getId();
-        List<Category> categoryList = new LinkedList<>();
         DbConnector dbConnector = globalState.getDbConnector();
         Connection conn = dbConnector.getConnection();
         Statement stmt = dbConnector.createStatmentForConnection(conn);
+
         try {
             stmt.execute(Query.getAllCategories(eventId));
             ResultSet rs = stmt.getResultSet();
+            categories.clear();
             while (rs.next()) {
-                categoryList.add(new Category(
+                categories.add(new Category(
                         rs.getLong("id"),
                         rs.getLong("event_id"),
                         rs.getString("name"),
@@ -64,6 +66,5 @@ public class CategoryList {
 
         dbConnector.closeStatement(stmt);
         dbConnector.closeConnection(conn);
-        return categoryList;
     }
 }
