@@ -30,6 +30,7 @@ public class GlobalState {
     private Score score;
 
     private CategoryList categoryList;
+    private CompetitorList competitorList;
     private RankingList rankingList;
     private DbMonitor dbMonitor;
 
@@ -72,6 +73,8 @@ public class GlobalState {
     }
     public void setEvent(Event event) {
         this.event = event;
+        // CompetitorList
+        competitorList = CompetitorList.Build.withAllCompetitors(event);
         // CategoryList
         categoryList = new CategoryList(event);
         // Prepare database for event.
@@ -100,6 +103,14 @@ public class GlobalState {
     // RankingList: No setter!
     public RankingList getRankingList() {
         return rankingList;
+    }
+
+    public CompetitorList getCompetitorList() {
+        return competitorList;
+    }
+
+    public void reloadCompetitorListFromDb() {
+        competitorList.reloadFromDb();
     }
 
     public Locale getLocale() {

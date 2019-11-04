@@ -21,14 +21,26 @@ public class CompetitorList {
     private GlobalState globalState = GlobalState.getInstance();
     private Event event;
     private List<Competitor> competitors;
+    private boolean ofEvent;
 
-    public CompetitorList(Event event) {
+    // Private constructor with factory pattern.
+    private CompetitorList(Event event, boolean ofEvent) {
+        this.ofEvent = ofEvent;
         this.event = event;
-        this.competitors = getCompetitorsFromDb(event);
+        this.competitors = getCompetitorsFromDb(event, ofEvent);
+    }
+    // Factory
+    public static class Build {
+        public static CompetitorList withAllCompetitors(Event event) {
+            return new CompetitorList(event, false);
+        }
+        public static CompetitorList havingScoresForEvent(Event event) {
+            return new CompetitorList(event, true);
+        }
     }
 
     public void reloadFromDb() {
-        this.competitors = getCompetitorsFromDb(event);
+        this.competitors = getCompetitorsFromDb(event, ofEvent);
     }
 
     public List<Competitor> getCompetitors() {
@@ -40,7 +52,7 @@ public class CompetitorList {
         return competitorTableModel;
     }
 
-    private List<Competitor> getCompetitorsFromDb(Event event) {
+    private List<Competitor> getCompetitorsFromDb(Event event, boolean ofEvent) {
 
         long eventId = event.getId();
         List<Competitor> competitorList = new LinkedList<>();
@@ -48,7 +60,12 @@ public class CompetitorList {
         Connection conn = dbConnector.getConnection();
         Statement stmt = dbConnector.createStatmentForConnection(conn);
         try {
-            stmt.execute(Query.getAllCompetitors(eventId));
+            if (ofEvent) {
+                stmt.execute(Query.getCompetitorsWithScoreForEvent(eventId));
+            } else {
+                stmt.execute(Query.getAllCompetitors());
+            }
+
             ResultSet rs = stmt.getResultSet();
             while (rs.next()) {
                 competitorList.add(new Competitor(

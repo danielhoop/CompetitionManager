@@ -115,10 +115,18 @@ public class Query {
         return "age_" + eventId;
     }
 
-    public static String getAllCompetitors(long eventId) {
+    public static String getAllCompetitors() {
         return "select *\n" +
                 "from `CompetitionManager`.`competitor`\n" +
                 "where `deleted` = false;";
+    }
+    public static String getCompetitorsWithScoreForEvent(long eventId) {
+        return "select distinct c.*\n" +
+                "from `CompetitionManager`.`competitor` c\n" +
+                "inner join `CompetitionManager`.`score` s\n" +
+                "    on c.`id` = s.`competitor_id`\n" +
+                "where     s.`event_id` = " + eventId + "\n" +
+                "      and s.`deleted` = false;";
     }
 
     // --------------------------------------------

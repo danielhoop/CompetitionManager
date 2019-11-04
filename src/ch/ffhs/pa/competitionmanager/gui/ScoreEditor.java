@@ -50,7 +50,7 @@ public class ScoreEditor {
         // Table
         // TODO: Add a filter depending on the inputs in name of competitor / dateOfBirth / gender.
         // http://www.java2s.com/Tutorial/Java/0240__Swing/JTableFiltering.htm
-        CompetitorList competitorList = new CompetitorList(globalState.getEvent());
+        CompetitorList competitorList = globalState.getCompetitorList();
         competitorTableModel = competitorList.getCompetitorsAsTableModel();
         competitorTable = new JTable(competitorTableModel);
 
