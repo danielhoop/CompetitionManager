@@ -41,6 +41,7 @@ public class ScoreEditor {
     private JButton reloadCompetitorsButton;
     private JScrollPane competitorScrollPane;
     private JButton wettkämpferInBearbeitenButton;
+    private int selectedRow;
 
     private ScoreEditor(JFrame mainFrame, Score scoreToEdit) {
         this.scoreToEdit = scoreToEdit;
@@ -95,6 +96,11 @@ public class ScoreEditor {
         competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
         competitorTable.setRowSorter(competitorTableSorter);
 
+        competitorTable.getSelectionModel().addListSelectionListener(e -> {
+            selectedRow = competitorTable.getSelectedRow();
+            // System.out.println("RowSelectionEvent fired. selectedRow: " + selectedRow);
+        });
+
         // Time needed or points achieved
         if (globalState.getEvent().isTimeRelevant()) {
             pointsAchievedLabel.setVisible(false);
@@ -148,6 +154,16 @@ public class ScoreEditor {
             public void mouseEntered(MouseEvent e) {}
             @Override
             public void mouseExited(MouseEvent e) {}
+        });
+
+        wettkämpferInBearbeitenButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow);
+                GlobalState.getInstance().setCompetitor(selectedCompetitor);
+                mainFrame.dispose();
+                CompetitorEditor.main(false);
+            }
         });
     }
 

@@ -38,7 +38,7 @@ public class CompetitorEditor {
         ResourceBundle bundle = ResourceBundle.getBundle("GuiText", globalState.getLocale());
         DateStringConverter dateStringConverter = new DateStringConverter(GlobalState.getInstance().getLocale());
 
-        // TODO : Remove Later just for Testing/Building Reasons
+        /* TODO : Remove Later just for Testing/Building Reasons
         LocalDate localDate = LocalDate.of(1988,05,31);
         globalState.setCompetitor(new Competitor('5',"Ludwig", Gender.MALE, localDate, 31));
         /*Remove till here*/

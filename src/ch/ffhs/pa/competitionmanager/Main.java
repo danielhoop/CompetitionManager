@@ -73,9 +73,9 @@ public class Main {
         }
 
         // Open the EventSelector
-        //EventSelector.main();
+        EventSelector.main();
 
-        CompetitorEditor.main(false);
+        //CompetitorEditor.main(false);
 
         try {
             // Prepare database driver and connection to database.
