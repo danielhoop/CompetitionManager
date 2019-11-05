@@ -156,14 +156,16 @@ public class ScoreEditor {
             public void mouseExited(MouseEvent e) {}
         });
 
-        wettkämpferInBearbeitenButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow);
-                GlobalState.getInstance().setCompetitor(selectedCompetitor);
-                mainFrame.dispose();
-                CompetitorEditor.main(false);
-            }
+        wettkämpferInBearbeitenButton.addActionListener(e -> {
+            Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow);
+            GlobalState.getInstance().setCompetitor(selectedCompetitor);
+            mainFrame.dispose();
+            CompetitorEditor.main(false);
+        });
+
+        neueNWettkämpferInButton.addActionListener(e -> {
+            mainFrame.dispose();
+            CompetitorEditor.main(true);
         });
     }
 

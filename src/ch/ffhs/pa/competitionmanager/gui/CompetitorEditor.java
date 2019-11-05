@@ -17,15 +17,18 @@ public class CompetitorEditor {
     private JPanel outerPanel;
     private JButton navigateToScoreEditor;
     private JButton navigateToEventSelector;
-    private JButton einenNeuenTeilnehmerErstellenButton;
+    private JButton newCompetitorCreateButton;
     private JLabel descriptionLabel;
     private JTextField competitorNameField;
     private JTextField competitorDateField;
     private JRadioButton maennlichRadioButton;
     private JRadioButton weiblichRadioButton;
     private JButton updateCompetitorButton;
+    private JButton deleteCompetitorButton;
     private boolean createNew;
     private JFrame mainFrame;
+    private ActionListener updateActionListener;
+    private Competitor newCompetitor;
 
     GlobalState globalState = GlobalState.getInstance();
     ResourceBundle bundle = ResourceBundle.getBundle("GuiText", globalState.getLocale());
@@ -44,7 +47,6 @@ public class CompetitorEditor {
 
         if (!createNew){
             Competitor editedCompetitor = globalState.getCompetitor();
-
             descriptionLabel.setText(bundle.getString("CompetitorEditor.descEditCompetitor") + editedCompetitor.getName());
             competitorNameField.setText(editedCompetitor.getName());
             String competitorBirthDate = dateStringConverter.asString(editedCompetitor.getDateOfBirth());
@@ -68,6 +70,14 @@ public class CompetitorEditor {
                 }
                 editedCompetitor.update();
             });
+            updateActionListener = e -> {
+                editedCompetitor.delete();
+                JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.deletedText"));
+                mainFrame.dispose();
+                EventSelector.main();
+            };
+
+            deleteCompetitorButton.addActionListener(updateActionListener);
         }
         maennlichRadioButton.addActionListener(e -> {
             if (maennlichRadioButton.isSelected() == true){
@@ -93,11 +103,76 @@ public class CompetitorEditor {
            mainFrame.dispose();
         });
 
+        newCompetitorCreateButton.addActionListener(e -> {
+            competitorNameField.setText(null);
+            competitorDateField.setText(null);
+            maennlichRadioButton.setSelected(false);
+            weiblichRadioButton.setSelected(false);
+            newCompetitorCreateButton.setVisible(false);
+            deleteCompetitorButton.setVisible(false);
+            updateCompetitorButton.removeActionListener(updateActionListener);
+            updateActionListener = e12 -> {
+                try {
+                    Gender selectedGender = Gender.NOT_RELEVANT;
+                    if (maennlichRadioButton.isSelected()){
+                        selectedGender = Gender.MALE;
+                    } else if (weiblichRadioButton.isSelected()){
+                        selectedGender = Gender.FEMALE;
+                    }
+                    newCompetitor = new Competitor(1,
+                            competitorNameField.getText(),
+                            selectedGender,
+                            dateStringConverter.asLocalDate(competitorDateField.getText()),
+                            5); //TODO calculate Age based on Birthdate?
+                    newCompetitor.setName(competitorNameField.getText());
+                    newCompetitor.create();
+                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.newCompCreatedText"));
+                }catch (Exception e1){
+                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnCreateCompetitor"));
+                }
+            };
+            updateCompetitorButton.addActionListener(updateActionListener);
+        });
 
+        if(createNew){
+            maennlichRadioButton.setSelected(false);
+            weiblichRadioButton.setSelected(false);
+            newCompetitorCreateButton.setVisible(false);
+            deleteCompetitorButton.setVisible(false);
+            newCompetitorCreateButton.addActionListener(e -> {
+                competitorNameField.setText(null);
+                competitorDateField.setText(null);
+                maennlichRadioButton.setSelected(false);
+                weiblichRadioButton.setSelected(false);
+                newCompetitorCreateButton.setVisible(false);
+                deleteCompetitorButton.setVisible(false);
 
-
+                updateActionListener = e12 -> {
+                    try {
+                        Gender selectedGender = Gender.NOT_RELEVANT;
+                        if (maennlichRadioButton.isSelected()){
+                            selectedGender = Gender.MALE;
+                        } else if (weiblichRadioButton.isSelected()){
+                            selectedGender = Gender.FEMALE;
+                        }
+                        newCompetitor = new Competitor(1,
+                                competitorNameField.getText(),
+                                selectedGender,
+                                dateStringConverter.asLocalDate(competitorDateField.getText()),
+                                5); //TODO calculate Age based on Birthdate?
+                        newCompetitor.setName(competitorNameField.getText());
+                        newCompetitor.create();
+                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.newCompCreatedText"));
+                    }catch (Exception e1){
+                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnCreateCompetitor"));
+                    }
+                };
+                updateCompetitorButton.addActionListener(updateActionListener);
+            });
+        }
 
     }
+
 
     public static void main( boolean createNew) {
         GlobalState globalState = GlobalState.getInstance();
