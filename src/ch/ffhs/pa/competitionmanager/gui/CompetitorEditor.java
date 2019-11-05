@@ -9,6 +9,7 @@ import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 
@@ -22,13 +23,16 @@ public class CompetitorEditor {
     private JTextField competitorDateField;
     private JRadioButton maennlichRadioButton;
     private JRadioButton weiblichRadioButton;
+    private JButton updateCompetitorButton;
     private boolean createNew;
+    private JFrame mainFrame;
 
     GlobalState globalState = GlobalState.getInstance();
     ResourceBundle bundle = ResourceBundle.getBundle("GuiText", globalState.getLocale());
 
-    private CompetitorEditor(boolean createNew) {
+    private CompetitorEditor(JFrame mainFrame, boolean createNew) {
         this.createNew = createNew;
+        this.mainFrame = mainFrame;
         createUIComponents();
     }
 
@@ -37,11 +41,6 @@ public class CompetitorEditor {
         GlobalState globalState = GlobalState.getInstance();
         ResourceBundle bundle = ResourceBundle.getBundle("GuiText", globalState.getLocale());
         DateStringConverter dateStringConverter = new DateStringConverter(GlobalState.getInstance().getLocale());
-
-        /* TODO : Remove Later just for Testing/Building Reasons
-        LocalDate localDate = LocalDate.of(1988,05,31);
-        globalState.setCompetitor(new Competitor('5',"Ludwig", Gender.MALE, localDate, 31));
-        /*Remove till here*/
 
         if (!createNew){
             Competitor editedCompetitor = globalState.getCompetitor();
@@ -55,26 +54,46 @@ public class CompetitorEditor {
             } else if (editedCompetitor.getGender() == Gender.MALE){
                 maennlichRadioButton.setSelected(true);
             }
-        }
-        maennlichRadioButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (maennlichRadioButton.isSelected() == true){
-                    weiblichRadioButton.setSelected(false);
+            updateCompetitorButton.addActionListener(e -> {
+                editedCompetitor.setName(competitorNameField.getText());
+                try {
+                    editedCompetitor.setDateOfBirth(dateStringConverter.asLocalDate(competitorDateField.getText()));
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
                 }
-                maennlichRadioButton.setSelected(true);
+                if(maennlichRadioButton.isSelected()){
+                    editedCompetitor.setGender(Gender.MALE);
+                } else {
+                    editedCompetitor.setGender(Gender.FEMALE);
+                }
+                editedCompetitor.update();
+            });
+        }
+        maennlichRadioButton.addActionListener(e -> {
+            if (maennlichRadioButton.isSelected() == true){
+                weiblichRadioButton.setSelected(false);
             }
+            maennlichRadioButton.setSelected(true);
         });
 
-        weiblichRadioButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (weiblichRadioButton.isSelected() == true){
-                    maennlichRadioButton.setSelected(false);
-                }
-                weiblichRadioButton.setSelected(true);
+        weiblichRadioButton.addActionListener(e -> {
+            if (weiblichRadioButton.isSelected() == true){
+                maennlichRadioButton.setSelected(false);
             }
+            weiblichRadioButton.setSelected(true);
         });
+
+        navigateToScoreEditor.addActionListener(e -> {
+            ScoreEditor.main();
+            mainFrame.dispose();
+        });
+
+        navigateToEventSelector.addActionListener(e -> {
+           EventSelector.main();
+           mainFrame.dispose();
+        });
+
+
 
 
 
@@ -85,7 +104,7 @@ public class CompetitorEditor {
         ResourceBundle bundle = ResourceBundle.getBundle("GuiText", globalState.getLocale());
 
         JFrame frame = new JFrame(bundle.getString("CompetitorEditor.title"));
-        frame.setContentPane(new CompetitorEditor(createNew).outerPanel);
+        frame.setContentPane(new CompetitorEditor(frame, createNew).outerPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
