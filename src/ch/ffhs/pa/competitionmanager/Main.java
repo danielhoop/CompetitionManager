@@ -6,6 +6,7 @@ import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
+import ch.ffhs.pa.competitionmanager.gui.CompetitorEditor;
 import ch.ffhs.pa.competitionmanager.gui.EventSelector;
 import ch.ffhs.pa.competitionmanager.gui.PasswordGui;
 
@@ -71,6 +72,11 @@ public class Main {
             password = dbCred.getPassword();
         }
 
+        // Open the EventSelector
+        //EventSelector.main();
+
+        CompetitorEditor.main(false);
+
         try {
             // Prepare database driver and connection to database.
             System.out.print("Loading database driver...");
@@ -78,27 +84,6 @@ public class Main {
             globalState.setDbConnector(new DbConnector(address, user, password));
             System.out.println(" Done.");
 
-            // TODO: Choose an eventId and start to monitor changes in database.
-            Event event;
-            // int eventId = Integer.valueOf(JOptionPane.showInputDialog("Please enter the id of the event."));
-            int eventId = 1;
-            event = Event.getById(eventId);
-            globalState.setEvent(event);
-
-            // CategoryList
-            CategoryList categoryList = new CategoryList(event);
-            // Prepare database for event.
-            DbPreparator.prepare(event, categoryList);
-            // RankingList
-            RankingList rankingList = new RankingList(event, categoryList);
-
-            // Start DbMonitor
-            DbPuller dbPuller = new DbPuller();
-            DbMonitor dbMonitor = new DbMonitor(rankingList, 5, dbPuller);
-            dbMonitor.start();
-
-            // Open the EventSelector
-            EventSelector.main(new String[]{});
 
             // Sleep and wait for changes in database.
             // The dbMonitor thread will continue to run!
@@ -115,8 +100,7 @@ public class Main {
             ExceptionVisualizer.showAndAddMessage(e, "Debugging inside Main.main().");
         }
 
-        // Open the EventSelector
-        EventSelector.main();
+
 
     }
 }
