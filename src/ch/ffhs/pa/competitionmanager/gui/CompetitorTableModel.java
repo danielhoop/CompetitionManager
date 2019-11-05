@@ -44,6 +44,14 @@ public class CompetitorTableModel extends AbstractTableModel {
         return competitors.get(rowIndex);
     }
 
+    public int isWhichColumn(String columnName) {
+        for (int i = 1; i < getColumnCount(); i++) {
+            if (columns[i].equals(columnName))
+                return i;
+        }
+        return -1;
+    }
+
     @Override
     public String getColumnName(int columnIndex) {
         return columns[columnIndex];
