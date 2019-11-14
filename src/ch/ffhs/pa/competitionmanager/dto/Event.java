@@ -126,10 +126,23 @@ public class Event implements ICRUD {
 
     @Override
     public boolean update() {
-        if(this.delete() == true && this.create() == true){
-            return true;
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.updateEvent(id, name, date, dateDescription, description, isTimeRelevant))) {
+                preparedStatement.executeUpdate();
+            }
+            dbConnector.closeStatement(stmt);
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Event.update(): ");
+            return false;
         }
-        return false;
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 
     @Override

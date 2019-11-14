@@ -147,10 +147,23 @@ public class Score implements Comparable<Score>, ICRUD {
 
     @Override
     public boolean update() {
-        if(this.delete() == true && this.create() == true){
-            return true;
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.updateScore(id, eventId, competitor.getId(), timeNeeded, pointsAchieved, numberOfTries, isValid, timeOfRecording))) {
+                preparedStatement.executeUpdate();
+            }
+            dbConnector.closeStatement(stmt);
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Score.delete(): ");
+            return false;
         }
-        return false;
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 
     @Override
@@ -166,7 +179,7 @@ public class Score implements Comparable<Score>, ICRUD {
             conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
-            ExceptionVisualizer.showAndAddMessage(e, "Event.delete(): ");
+            ExceptionVisualizer.showAndAddMessage(e, "Score.delete(): ");
             return false;
         }
 

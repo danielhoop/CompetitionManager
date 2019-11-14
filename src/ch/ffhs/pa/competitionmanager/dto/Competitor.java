@@ -84,10 +84,23 @@ public class Competitor implements ICRUD {
 
     @Override
     public boolean update() {
-        if(this.delete() == true && this.create() == true){
-            return true;
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.updateCompetitor(id, name, gender, dateOfBirth))) {
+                preparedStatement.executeUpdate();
+            }
+            dbConnector.closeStatement(stmt);
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Competitor.update(): ");
+            return false;
         }
-        return false;
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 
     @Override

@@ -7,10 +7,8 @@ import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
-import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 public class CompetitorEditor {
@@ -21,8 +19,8 @@ public class CompetitorEditor {
     private JLabel descriptionLabel;
     private JTextField competitorNameField;
     private JTextField competitorDateField;
-    private JRadioButton maennlichRadioButton;
-    private JRadioButton weiblichRadioButton;
+    private JRadioButton maleRadioButton;
+    private JRadioButton femaleRadioButton;
     private JButton updateCompetitorButton;
     private JButton deleteCompetitorButton;
     private boolean createNew;
@@ -52,9 +50,9 @@ public class CompetitorEditor {
             String competitorBirthDate = dateStringConverter.asString(editedCompetitor.getDateOfBirth());
             competitorDateField.setText(competitorBirthDate);
             if(editedCompetitor.getGender() == Gender.FEMALE) {
-                weiblichRadioButton.setSelected(true);
+                femaleRadioButton.setSelected(true);
             } else if (editedCompetitor.getGender() == Gender.MALE){
-                maennlichRadioButton.setSelected(true);
+                maleRadioButton.setSelected(true);
             }
             updateCompetitorButton.addActionListener(e -> {
                 editedCompetitor.setName(competitorNameField.getText());
@@ -63,7 +61,7 @@ public class CompetitorEditor {
                 } catch (ParseException e1) {
                     e1.printStackTrace();
                 }
-                if(maennlichRadioButton.isSelected()){
+                if(maleRadioButton.isSelected()){
                     editedCompetitor.setGender(Gender.MALE);
                 } else {
                     editedCompetitor.setGender(Gender.FEMALE);
@@ -79,18 +77,18 @@ public class CompetitorEditor {
 
             deleteCompetitorButton.addActionListener(updateActionListener);
         }
-        maennlichRadioButton.addActionListener(e -> {
-            if (maennlichRadioButton.isSelected() == true){
-                weiblichRadioButton.setSelected(false);
+        maleRadioButton.addActionListener(e -> {
+            if (maleRadioButton.isSelected() == true){
+                femaleRadioButton.setSelected(false);
             }
-            maennlichRadioButton.setSelected(true);
+            maleRadioButton.setSelected(true);
         });
 
-        weiblichRadioButton.addActionListener(e -> {
-            if (weiblichRadioButton.isSelected() == true){
-                maennlichRadioButton.setSelected(false);
+        femaleRadioButton.addActionListener(e -> {
+            if (femaleRadioButton.isSelected() == true){
+                maleRadioButton.setSelected(false);
             }
-            weiblichRadioButton.setSelected(true);
+            femaleRadioButton.setSelected(true);
         });
 
         navigateToScoreEditor.addActionListener(e -> {
@@ -106,17 +104,17 @@ public class CompetitorEditor {
         newCompetitorCreateButton.addActionListener(e -> {
             competitorNameField.setText(null);
             competitorDateField.setText(null);
-            maennlichRadioButton.setSelected(false);
-            weiblichRadioButton.setSelected(false);
+            maleRadioButton.setSelected(false);
+            femaleRadioButton.setSelected(false);
             newCompetitorCreateButton.setVisible(false);
             deleteCompetitorButton.setVisible(false);
             updateCompetitorButton.removeActionListener(updateActionListener);
             updateActionListener = e12 -> {
                 try {
                     Gender selectedGender = Gender.NOT_RELEVANT;
-                    if (maennlichRadioButton.isSelected()){
+                    if (maleRadioButton.isSelected()){
                         selectedGender = Gender.MALE;
-                    } else if (weiblichRadioButton.isSelected()){
+                    } else if (femaleRadioButton.isSelected()){
                         selectedGender = Gender.FEMALE;
                     }
                     newCompetitor = new Competitor(1,
@@ -135,24 +133,24 @@ public class CompetitorEditor {
         });
 
         if(createNew){
-            maennlichRadioButton.setSelected(false);
-            weiblichRadioButton.setSelected(false);
+            maleRadioButton.setSelected(false);
+            femaleRadioButton.setSelected(false);
             newCompetitorCreateButton.setVisible(false);
             deleteCompetitorButton.setVisible(false);
             newCompetitorCreateButton.addActionListener(e -> {
                 competitorNameField.setText(null);
                 competitorDateField.setText(null);
-                maennlichRadioButton.setSelected(false);
-                weiblichRadioButton.setSelected(false);
+                maleRadioButton.setSelected(false);
+                femaleRadioButton.setSelected(false);
                 newCompetitorCreateButton.setVisible(false);
                 deleteCompetitorButton.setVisible(false);
 
                 updateActionListener = e12 -> {
                     try {
                         Gender selectedGender = Gender.NOT_RELEVANT;
-                        if (maennlichRadioButton.isSelected()){
+                        if (maleRadioButton.isSelected()){
                             selectedGender = Gender.MALE;
-                        } else if (weiblichRadioButton.isSelected()){
+                        } else if (femaleRadioButton.isSelected()){
                             selectedGender = Gender.FEMALE;
                         }
                         newCompetitor = new Competitor(1,

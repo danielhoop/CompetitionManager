@@ -94,10 +94,23 @@ public class Category implements ICRUD {
 
     @Override
     public boolean update() {
-        if(this.delete() == true && this.create() == true){
-            return true;
+        DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
+        Connection conn = dbConnector.getConnection();
+
+        try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.updateCategory(id, eventId, name, description, minAgeInclusive, maxAgeInclusive, gender))) {
+                preparedStatement.executeUpdate();
+            }
+            dbConnector.closeStatement(stmt);
+            conn.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "Category.update(): ");
+            return false;
         }
-        return false;
+
+        dbConnector.closeConnection(conn);
+        return true;
     }
 
     @Override
