@@ -1,5 +1,6 @@
 package ch.ffhs.pa.competitionmanager.gui;
 
+import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Competitor;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
@@ -61,41 +62,80 @@ public class CompetitorEditor {
         });
     }
 
-    private void createUIComponents (){
+    private void createUIComponents() {
 
         GlobalState globalState = GlobalState.getInstance();
         ResourceBundle bundle = ResourceBundle.getBundle("GuiText", globalState.getLocale());
         DateStringConverter dateStringConverter = new DateStringConverter(GlobalState.getInstance().getLocale());
 
-        if (editExisting){
+        if (editExisting) {
             setCompetitorValues();
+        } else {
+            clearAllFields();
+        }
 
-            updateCompetitorButton.addActionListener(e -> {
-                SwingUtilities.invokeLater(() -> {
-                    competitor.setName(competitorNameField.getText());
-                    try {
-                        competitor.setDateOfBirth(dateStringConverter.asLocalDate(competitorDateField.getText()));
-                    } catch (ParseException e1) {
-                        e1.printStackTrace();
-                    }
+        ActionListener createUpdateActionListener = (e) -> {
+            SwingUtilities.invokeLater(() -> {
+                if (!editExisting) {
+                    competitor = new Competitor(-1, null, null, null, -1);
+                }
+                String name = competitorNameField.getText();
+                if (name == null || name.equals("")) {
+                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorEmptyName"));
+                    return;
+                }
+                competitor.setName(competitorNameField.getText());
+
+                try {
+                    competitor.setDateOfBirth(dateStringConverter.asLocalDate(competitorDateField.getText()));
                     if (maleRadioButton.isSelected()) {
                         competitor.setGender(Gender.MALE);
-                    } else {
+                    } else if (femaleRadioButton.isSelected()) {
                         competitor.setGender(Gender.FEMALE);
+                    } else {
+                        throw new IllegalArgumentException();
                     }
-                    competitor.update();
-                });
-            });
+                } catch (ParseException e1) {
+                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorDateFormat"));
+                    return;
+                } catch (IllegalArgumentException e1) {
+                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorNoGenderSelected"));
+                    return;
+                }
 
-            deleteCompetitorButton.addActionListener(e -> {
-                SwingUtilities.invokeLater(() -> {
-                    competitor.delete();
-                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.deletedText"));
-                    EventSelector.getInstanceAndSetVisible();
-                    setInvisibleAndClearAllFields();
-                });
+                if (editExisting) {
+                    if (!competitor.update()) {
+                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnPersist"));
+                    } else {
+                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.updatedText"));
+                        clearAllFields();
+                    }
+                } else {
+                    if (!competitor.create()) {
+                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnPersist"));
+                    } else {
+                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.newCompCreatedText"));
+                        clearAllFields();
+                    }
+                }
             });
-        }
+        };
+
+        updateCompetitorButton.addActionListener(createUpdateActionListener);
+        newCompetitorCreateButton.addActionListener(createUpdateActionListener);
+
+        deleteCompetitorButton.addActionListener(e -> {
+            SwingUtilities.invokeLater(() -> {
+                int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("CompetitorEditor.deleteAreYouSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (shouldBeZero != 0) {
+                    return;
+                }
+                competitor.delete();
+                clearAllFields();
+                JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.deletedText"));
+            });
+        });
+
         maleRadioButton.addActionListener(e -> {
             SwingUtilities.invokeLater(() -> {
                 if (maleRadioButton.isSelected() == true) {
@@ -127,71 +167,6 @@ public class CompetitorEditor {
                 setInvisibleAndClearAllFields();
             });
         });
-
-        newCompetitorCreateButton.addActionListener(e -> {
-            SwingUtilities.invokeLater(() -> {
-                clearAllFields();
-                newCompetitorCreateButton.setVisible(false);
-                deleteCompetitorButton.setVisible(false);
-                updateCompetitorButton.removeActionListener(updateActionListener);
-                updateActionListener = e12 -> {
-                    try {
-                        Gender selectedGender = Gender.NOT_RELEVANT;
-                        if (maleRadioButton.isSelected()) {
-                            selectedGender = Gender.MALE;
-                        } else if (femaleRadioButton.isSelected()) {
-                            selectedGender = Gender.FEMALE;
-                        }
-                        newCompetitor = new Competitor(1,
-                                competitorNameField.getText(),
-                                selectedGender,
-                                dateStringConverter.asLocalDate(competitorDateField.getText()),
-                                5); //TODO calculate Age based on Birthdate?
-                        newCompetitor.setName(competitorNameField.getText());
-                        newCompetitor.create();
-                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.newCompCreatedText"));
-                    } catch (Exception e1) {
-                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnCreateCompetitor"));
-                    }
-                };
-                updateCompetitorButton.addActionListener(updateActionListener);
-            });
-        });
-
-        if(!editExisting){
-            maleRadioButton.setSelected(false);
-            femaleRadioButton.setSelected(false);
-            newCompetitorCreateButton.setVisible(false);
-            deleteCompetitorButton.setVisible(false);
-            newCompetitorCreateButton.addActionListener(e -> {
-                clearAllFields();
-                newCompetitorCreateButton.setVisible(false);
-                deleteCompetitorButton.setVisible(false);
-
-                updateActionListener = e12 -> {
-                    try {
-                        Gender selectedGender = Gender.NOT_RELEVANT;
-                        if (maleRadioButton.isSelected()){
-                            selectedGender = Gender.MALE;
-                        } else if (femaleRadioButton.isSelected()){
-                            selectedGender = Gender.FEMALE;
-                        }
-                        newCompetitor = new Competitor(1,
-                                competitorNameField.getText(),
-                                selectedGender,
-                                dateStringConverter.asLocalDate(competitorDateField.getText()),
-                                5); //TODO calculate Age based on Birthdate?
-                        newCompetitor.setName(competitorNameField.getText());
-                        newCompetitor.create();
-                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.newCompCreatedText"));
-                    }catch (Exception e1){
-                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnCreateCompetitor"));
-                    }
-                };
-                updateCompetitorButton.addActionListener(updateActionListener);
-            });
-        }
-
     }
 
 
@@ -230,16 +205,24 @@ public class CompetitorEditor {
             } else if (competitor.getGender() == Gender.MALE) {
                 maleRadioButton.setSelected(true);
             }
+            newCompetitorCreateButton.setVisible(false);
+            updateCompetitorButton.setVisible(true);
+            deleteCompetitorButton.setVisible(true);
         }
     }
 
     private void clearAllFields() {
+        competitor = null;
         SwingUtilities.invokeLater(() -> {
             descriptionLabel.setText(bundle.getString("CompetitorEditor.titleDescription"));
             competitorNameField.setText("");
             competitorDateField.setText("");
             maleRadioButton.setSelected(false);
             femaleRadioButton.setSelected(false);
+
+            newCompetitorCreateButton.setVisible(true);
+            updateCompetitorButton.setVisible(false);
+            deleteCompetitorButton.setVisible(false);
         });
     }
 
