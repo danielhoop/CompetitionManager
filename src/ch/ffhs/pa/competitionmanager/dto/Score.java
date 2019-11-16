@@ -134,7 +134,6 @@ public class Score implements Comparable<Score>, ICRUD {
                 }
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Score.create(): ");
@@ -155,7 +154,6 @@ public class Score implements Comparable<Score>, ICRUD {
                 preparedStatement.executeUpdate();
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Score.delete(): ");
@@ -176,7 +174,6 @@ public class Score implements Comparable<Score>, ICRUD {
                 preparedStatement.executeUpdate();
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Score.delete(): ");

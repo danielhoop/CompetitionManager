@@ -81,7 +81,6 @@ public class Category implements ICRUD {
                 }
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Category.create(): ");
@@ -102,7 +101,6 @@ public class Category implements ICRUD {
                 preparedStatement.executeUpdate();
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Category.update(): ");
@@ -123,7 +121,6 @@ public class Category implements ICRUD {
                 preparedStatement.executeUpdate();
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Category.delete(): ");

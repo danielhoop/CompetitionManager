@@ -113,7 +113,6 @@ public class Event implements ICRUD {
                 }
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Event.create(): ");
@@ -134,7 +133,6 @@ public class Event implements ICRUD {
                 preparedStatement.executeUpdate();
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Event.update(): ");
@@ -155,7 +153,6 @@ public class Event implements ICRUD {
                 preparedStatement.executeUpdate();
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Event.delete(): ");

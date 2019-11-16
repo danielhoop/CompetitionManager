@@ -62,7 +62,7 @@ public class Query {
      */
     static String createAgeColumn(long event_id, String dateOfToday) {
         return "ALTER TABLE `CompetitionManager`.`competitor`\n" +
-                "ADD COLUMN `" + ageColumnName(event_id) + "` TINYINT unsigned\n" +
+                "ADD COLUMN `" + ageColumnName(event_id) + "` INT\n" +
                 "AS (\n" +
                 "    YEAR('" + dateOfToday + "') -\n" +
                 "    YEAR(`date_of_birth`) - \n" +

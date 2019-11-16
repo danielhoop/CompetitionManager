@@ -33,7 +33,6 @@ public class DbConnector {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(address, user, password);
-            conn.setAutoCommit(false);
             return conn;
         } catch (SQLException e) {
             if (conn != null) {

@@ -6,6 +6,7 @@ import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.Query;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
+import ch.ffhs.pa.competitionmanager.utils.AgeUtils;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -48,7 +49,10 @@ public class Competitor implements ICRUD {
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
-    public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+        this.age = AgeUtils.calcAge(dateOfBirth, GlobalState.getInstance().getEvent().getDate());
+    }
     // age
     public int getAge() {
         return age;
@@ -62,7 +66,7 @@ public class Competitor implements ICRUD {
         Connection conn = dbConnector.getConnection();
 
         try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
-            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.createCompetitor(name,gender, dateOfBirth), stmt.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.createCompetitor(name, gender, dateOfBirth), stmt.RETURN_GENERATED_KEYS)) {
                 preparedStatement.executeUpdate();
                 try (ResultSet rs = preparedStatement.getGeneratedKeys()) {
                     if (rs.next()) {
@@ -71,7 +75,6 @@ public class Competitor implements ICRUD {
                 }
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Competitor.create(): ");
@@ -92,7 +95,6 @@ public class Competitor implements ICRUD {
                 preparedStatement.executeUpdate();
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Competitor.update(): ");
@@ -113,7 +115,6 @@ public class Competitor implements ICRUD {
                 preparedStatement.executeUpdate();
             }
             dbConnector.closeStatement(stmt);
-            conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "Competitor.delete(): ");

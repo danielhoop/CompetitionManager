@@ -4,11 +4,13 @@ import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Competitor;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
 
+import ch.ffhs.pa.competitionmanager.utils.AgeUtils;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 /**
@@ -88,7 +90,12 @@ public class CompetitorEditor {
                 competitor.setName(competitorNameField.getText());
 
                 try {
-                    competitor.setDateOfBirth(dateStringConverter.asLocalDate(competitorDateField.getText()));
+                    LocalDate dateOfBirth = dateStringConverter.asLocalDate(competitorDateField.getText());
+                    if (!AgeUtils.isDateOfBirthPlausible(dateOfBirth)) {
+                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorDateOfBirthNotPlausible"));
+                        return;
+                    }
+                    competitor.setDateOfBirth(dateOfBirth);
                     if (maleRadioButton.isSelected()) {
                         competitor.setGender(Gender.MALE);
                     } else if (femaleRadioButton.isSelected()) {
