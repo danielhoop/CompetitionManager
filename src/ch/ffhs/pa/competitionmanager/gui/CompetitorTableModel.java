@@ -4,6 +4,7 @@ import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Competitor;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
+import ch.ffhs.pa.competitionmanager.utils.GenderStringConverter;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.LocalDate;
@@ -41,7 +42,7 @@ public class CompetitorTableModel extends AbstractTableModel {
         if (columnIndex == dateOfBirthIdx)
             return dateStringConverter.asString(competitor.getDateOfBirth());
         if (columnIndex == genderIdx)
-            return competitor.getGender();
+            return new GenderStringConverter().asString(competitor.getGender());
         return null;
     }
 
