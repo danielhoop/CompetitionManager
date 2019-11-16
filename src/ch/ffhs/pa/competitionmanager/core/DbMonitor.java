@@ -3,6 +3,7 @@ package ch.ffhs.pa.competitionmanager.core;
 import ch.ffhs.pa.competitionmanager.interfaces.IDbPuller;
 import ch.ffhs.pa.competitionmanager.interfaces.INotifiable;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +46,42 @@ public class DbMonitor {
     }
 
     /**
+     * Add an object to be notified to the list.
+     * @param objectToNotify The object to notify.
+     */
+    public void addObjectToNotify(INotifiable objectToNotify) {
+        objectsToNotify.add(objectToNotify);
+    }
+    /**
+     * Add an object to be notified to the list.
+     * @param index The index to put the element into the list.
+     * @param objectToNotify The object to notify.
+     */
+    public void addObjectToNotify(int index, INotifiable objectToNotify) {
+        objectsToNotify.add(index, objectToNotify);
+    }
+    /**
+     * Add a collection to be notified to notify to the list.
+     * @param objectsToNotify A collection of objects to be notified.
+     */
+    public void addObjectsToNotify(Collection<INotifiable> objectsToNotify) {
+        this.objectsToNotify.addAll(objectsToNotify);
+    }
+
+    /**
+     * Clear list of objects to be notified and fill it again with given collection.
+     * @param objectsToNotify A collection of objects to be notified.
+     */
+    public void resetObjectsToNotify(Collection<INotifiable> objectsToNotify) {
+        this.objectsToNotify.clear();
+        this.objectsToNotify.addAll(objectsToNotify);
+    }
+
+    public List<INotifiable> getObjectsToNotify() {
+        return objectsToNotify;
+    }
+
+    /**
      * Start monitoring the database. If changes occur, all objects in attribute 'objectsToNotify' will be notified.
      */
     public void start() {
@@ -53,9 +90,7 @@ public class DbMonitor {
             while (!interrupted) {
                 // If change has occurred, then notify all objects.
                 if (dbPuller.hasDbContentChanged()) {
-                    for (int i = 0; i < objectsToNotify.size(); i++) {
-                        objectsToNotify.get(i).notifyMe();
-                    }
+                    notifyAllObjects();
                 }
                 // Wait n seconds until next pull.
                 try {
@@ -76,4 +111,24 @@ public class DbMonitor {
     public void stop() {
         interrupted = true;
     }
+
+
+    /**
+     * Notify all objects in 'objectsToNotify'.
+     */
+    private void notifyAllObjects() {
+        // If the number of objectsToNotify has changed, then do it again.
+        int nObjects = objectsToNotify.size();
+        while (true) {
+            for (int i = 0; i < objectsToNotify.size(); i++) {
+                objectsToNotify.get(i).notifyMe();
+            }
+            if (nObjects == objectsToNotify.size()) {
+                break;
+            }
+            nObjects = objectsToNotify.size();
+        }
+    }
+
 }
+
