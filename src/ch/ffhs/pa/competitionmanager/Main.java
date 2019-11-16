@@ -3,6 +3,7 @@ package ch.ffhs.pa.competitionmanager;
 import ch.danielhoop.sql.DynamicDriverLoader;
 import ch.danielhoop.utils.ArgumentInterpreter;
 import ch.danielhoop.utils.ExceptionVisualizer;
+import ch.danielhoop.utils.GuiLookAndFeelUtils;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
@@ -46,8 +47,8 @@ public class Main {
 
         // Evaluate arguments and store in map-like structure.
         ArgumentInterpreter args1 = new ArgumentInterpreter(
-                new String[]{"mode","driverPath","driverName","address","user"},
-                new String[]{"mode","driverPath","driverName","address","user","password"},
+                new String[]{"mode", "driverPath", "driverName", "address", "user"},
+                new String[]{"mode", "driverPath", "driverName", "address", "user", "password"},
                 false, false, true, true, false)
                 .readArgs(args);
 
@@ -72,35 +73,29 @@ public class Main {
             password = dbCred.getPassword();
         }
 
-        // Open the EventSelector
-        EventSelector.main();
-
-        //CompetitorEditor.main(false);
-
         try {
             // Prepare database driver and connection to database.
             System.out.print("Loading database driver...");
             DynamicDriverLoader.registerDriver(driverPath, driverName);
             globalState.setDbConnector(new DbConnector(address, user, password));
             System.out.println(" Done.");
-
-
-            // Sleep and wait for changes in database.
-            // The dbMonitor thread will continue to run!
-            try {
-                Thread.sleep(360000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-
-
-            // Close connection before leaving main method.
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | MalformedURLException | FileNotFoundException e) {
-            ExceptionVisualizer.showAndAddMessage(e, "Debugging inside Main.main().");
+            ExceptionVisualizer.showAndAddMessage(e, "The database connection could not be established\n");
         }
 
+        // Set Gui Look and feel
+        GuiLookAndFeelUtils.set();
 
+        // Open the EventSelector
+        EventSelector.main();
+
+        // Sleep and wait for changes in database.
+        // The dbMonitor thread will continue to run!
+        try {
+            Thread.sleep(360000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 }
