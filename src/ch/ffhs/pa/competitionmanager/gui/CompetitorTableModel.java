@@ -17,27 +17,32 @@ public class CompetitorTableModel extends AbstractTableModel {
 
     private List<Competitor> competitors;
     private String[] columns;
+    private final int nameIdx, dateOfBirthIdx, genderIdx;
 
     public CompetitorTableModel(CompetitorList competitorList) {
-        this.competitors = competitorList.getCompetitors();
-        this.columns = new String[]{
+        competitors = competitorList.getCompetitors();
+        columns = new String[]{
                 bundle.getString("Competitor.name"),
                 bundle.getString("Competitor.dateOfBirth"),
                 bundle.getString("Competitor.gender")
         };
+        nameIdx = 0;
+        dateOfBirthIdx = 1;
+        genderIdx = 2;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
 
         Competitor competitor = competitors.get(rowIndex);
-        LocalDate dateOfBirth = competitor.getDateOfBirth();
-        switch (columnIndex) {
-            case 0: return competitor.getName();
-            case 1: return dateStringConverter.asString(competitor.getDateOfBirth());
-            case 2: return competitor.getGender();
-            default: return null;
-        }
+
+        if (columnIndex == nameIdx)
+            return competitor.getName();
+        if (columnIndex == dateOfBirthIdx)
+            return dateStringConverter.asString(competitor.getDateOfBirth());
+        if (columnIndex == genderIdx)
+            return competitor.getGender();
+        return null;
     }
 
     public Competitor getCompetitorFromRow(int rowIndex) {
