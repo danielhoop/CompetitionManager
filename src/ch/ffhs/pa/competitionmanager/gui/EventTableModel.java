@@ -16,25 +16,30 @@ public class EventTableModel extends AbstractTableModel {
 
     private List<Event> events;
     private String[] columns;
+    private final int nameIdx, dateIdx, timeRelevantIdx;
 
     public EventTableModel(EventList eventList) {
-        this.events = eventList.getEvents();
-        this.columns = new String[]{
+        events = eventList.getEvents();
+        columns = new String[]{
                 bundle.getString("Event.name"),
                 bundle.getString("Event.date"),
                 bundle.getString("Event.isTimeRelevant")
         };
+        nameIdx = 0;
+        dateIdx = 1;
+        timeRelevantIdx = 2;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Event event = events.get(rowIndex);
-        switch (columnIndex) {
-            case 0: return event.getName();
-            case 1: return dateStringConverter.asString(event.getDate());
-            case 2: return event.isTimeRelevant();
-            default: return null;
-        }
+        if (columnIndex == nameIdx)
+            return event.getName();
+        if (columnIndex == dateIdx)
+            return dateStringConverter.asString(event.getDate());;
+        if (columnIndex == timeRelevantIdx)
+            return event.isTimeRelevant();
+        return null;
     }
 
     public Event getEventFromRow(int rowIndex) {

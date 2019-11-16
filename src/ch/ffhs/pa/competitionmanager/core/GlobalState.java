@@ -8,10 +8,7 @@ import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.enums.SupportedLocale;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Singleton containing some global variables.
@@ -22,6 +19,8 @@ public class GlobalState {
     private DbConnector dbConnector;
     private Map<SupportedLocale, Locale> locales;
     private Locale locale;
+    private SupportedLocale localName;
+    private Collection<SupportedLocale> allSupportedLocals;
     private ResourceBundle guiTextBundle;
 
     private Category category;
@@ -119,7 +118,16 @@ public class GlobalState {
     public void setLocale(SupportedLocale localeName) {
         locale = locales.get(localeName);
         guiTextBundle = ResourceBundle.getBundle("GuiText", locale);
+        localName = localeName;
     }
+
+    public SupportedLocale getLocalName() {
+        return localName;
+    }
+    public Collection<SupportedLocale> getAllSupportedLocals() {
+        return allSupportedLocals;
+    }
+
     public ResourceBundle getGuiTextBundle() {
         return guiTextBundle;
     }
