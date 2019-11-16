@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
  */
 public class ScoreEditor {
 
-    private static ScoreEditor scoreEditorInstance = null;
+    private static ScoreEditor scoreEditor = null;
 
     private GlobalState globalState;
     private ResourceBundle bundle;
@@ -54,12 +54,12 @@ public class ScoreEditor {
     }
     
     public static ScoreEditor getInstanceAndSetVisible(Score scoreToEdit) {
-        if (scoreEditorInstance == null) {
-            scoreEditorInstance = ScoreEditor.main(scoreToEdit);
+        if (scoreEditor == null) {
+            scoreEditor = ScoreEditor.main(scoreToEdit);
         } else {
-            scoreEditorInstance.setVisible(true);
+            scoreEditor.mainFrame.setVisible(true);
         }
-        return scoreEditorInstance;
+        return scoreEditor;
     }
 
     private static ScoreEditor main(Score scoreToEdit) {
@@ -91,14 +91,15 @@ public class ScoreEditor {
         bundle = globalState.getGuiTextBundle();
 
         // Create text1 string, depending on whether time is relevant or points.
-        // TODO: Does not work.
-        String text1String = bundle.getString("ScoreEditor.text1.start");
-        if (globalState.getEvent().isTimeRelevant()) {
-            text1String += bundle.getString("ScoreEditor.text1.time");
-        } else {
-            text1String += bundle.getString("ScoreEditor.text1.points");
-        }
-        text1.setText(text1String);
+        SwingUtilities.invokeLater(() -> {
+            String text1String = bundle.getString("ScoreEditor.text1.start");
+            if (globalState.getEvent().isTimeRelevant()) {
+                text1String += bundle.getString("ScoreEditor.text1.time");
+            } else {
+                text1String += bundle.getString("ScoreEditor.text1.points");
+            }
+            text1.setText(text1String);
+        });
 
         // Add listeners to text fields.
         // It won't work in the createUIComponents() method!!!
@@ -138,13 +139,15 @@ public class ScoreEditor {
         });
 
         // Time needed or points achieved
-        if (globalState.getEvent().isTimeRelevant()) {
-            pointsAchievedLabel.setVisible(false);
-            pointsAchievedTextField.setVisible(false);
-        } else {
-            timeNeededLabel.setVisible(false);
-            timeNeededTextField.setVisible(false);
-        }
+        SwingUtilities.invokeLater(() -> {
+            if (globalState.getEvent().isTimeRelevant()) {
+                pointsAchievedLabel.setVisible(false);
+                pointsAchievedTextField.setVisible(false);
+            } else {
+                timeNeededLabel.setVisible(false);
+                timeNeededTextField.setVisible(false);
+            }
+        });
 
         // Reload Competitors Button
         reloadCompetitorsButton = new JButton();
@@ -165,12 +168,14 @@ public class ScoreEditor {
         });
 
         // Button must either say "save" or "save changes".
-        // TODO: Does not work.
-        if (editExisting) {
-            saveButton.setText(bundle.getString("change"));
-        } else {
-            saveButton.setText(bundle.getString("save"));
-        }
+        SwingUtilities.invokeLater(() -> {
+            if (editExisting) {
+                saveButton.setText(bundle.getString("change"));
+            } else {
+                saveButton.setText(bundle.getString("save"));
+            }
+        });
+
         saveButton.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {}
@@ -182,8 +187,7 @@ public class ScoreEditor {
                 if (savingHasWorked) {
                     // Success message, dispose old window and open new one.
                     JOptionPane.showMessageDialog(null, bundle.getString("savingToDbWorked"));
-                    SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
-                    clearAllFields();
+                    setInvisibleAndClearAllFields();
                 } // else { JOptionPane.showMessageDialog(null, bundle.getString("savingToDbFailed")); }
             }
             @Override
@@ -194,32 +198,30 @@ public class ScoreEditor {
 
         editCompetitorButton.addActionListener(e -> {
             Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow);
-            GlobalState.getInstance().setCompetitor(selectedCompetitor);
-            SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
-            CompetitorEditor.main(false);
+            CompetitorEditor.getInstanceAndSetVisible(selectedCompetitor);
+            setInvisibleAndClearAllFields();
         });
 
         newCompetitorButton.addActionListener(e -> {
-            SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
-            CompetitorEditor.main(true);
+            CompetitorEditor.getInstanceAndSetVisible();
+            setInvisibleAndClearAllFields();
         });
     }
 
     private void createUIComponents() {
     }
 
-    protected void setVisible(boolean b) {
-        mainFrame.setVisible(b);
-    }
+    private void setInvisibleAndClearAllFields() {
+        SwingUtilities.invokeLater(() -> {
+            mainFrame.setVisible(false);
+            nameTextField.setText("");
+            dateOfBirthTextField.setText("");
+            competitorTable.getRowSorter().setSortKeys(null);
 
-    private void clearAllFields() {
-        nameTextField.setText("");
-        dateOfBirthTextField.setText("");
-        competitorTable.getRowSorter().setSortKeys(null);
-
-        timeNeededTextField.setText("");
-        pointsAchievedTextField.setText("");
-        isValidCheckBox.setSelected(true);
+            timeNeededTextField.setText("");
+            pointsAchievedTextField.setText("");
+            isValidCheckBox.setSelected(true);
+        });
     }
 
     private void filterCompetitorTable() {

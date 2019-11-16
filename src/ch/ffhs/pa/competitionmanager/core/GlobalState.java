@@ -134,5 +134,5 @@ public class GlobalState {
     public ResourceBundle getGuiTextBundle() {
         return guiTextBundle;
     }
-    
+
 }

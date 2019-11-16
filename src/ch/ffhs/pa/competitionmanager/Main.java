@@ -87,7 +87,7 @@ public class Main {
         GuiLookAndFeelUtils.set();
 
         // Open the EventSelector
-        EventSelector.main();
+        EventSelector.getInstanceAndSetVisible();
 
         // Sleep and wait for changes in database.
         // The dbMonitor thread will continue to run!

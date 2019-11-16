@@ -13,7 +13,12 @@ import java.awt.event.MouseListener;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Singleton
+ */
 public class EventSelector {
+
+    private static EventSelector eventSelector = null;
 
     private EventTableModel eventTableModel;
     private JFrame mainFrame;
@@ -28,22 +33,32 @@ public class EventSelector {
     private JButton showRankingButton;
     private JScrollPane eventScrollPane;
 
+    public static EventSelector getInstanceAndSetVisible() {
+        if (eventSelector == null) {
+            eventSelector = EventSelector.main();
+        } else {
+            eventSelector.mainFrame.setVisible(true);
+        }
+        return eventSelector;
+    }
+
     private EventSelector(JFrame mainFrame) {
         this.mainFrame = mainFrame;
         createUIComponents();
     }
 
-    public static void main() {
+    private static EventSelector main() {
+        ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
+        JFrame frame = new JFrame(bundle.getString("EventSelector.title"));
+        EventSelector eventSelector = new EventSelector(frame);
         SwingUtilities.invokeLater(() -> {
-            ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
-
-            JFrame frame = new JFrame(bundle.getString("EventSelector.title"));
-            frame.setContentPane(new EventSelector(frame).outerPanel);
+            frame.setContentPane(eventSelector.outerPanel);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
+        return eventSelector;
     }
 
     private void createUIComponents() {
@@ -157,9 +172,8 @@ public class EventSelector {
         } else {
             Event event = eventTableModel.getEventFromRow(selectedRow);
             globalState.setEvent(event);
-            mainFrame.dispose();
 
-            // If there is no ScoreEditor, create a new one, else open the old one.
+            SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
             ScoreEditor.getInstanceAndSetVisible();
 
             // Test ScoreEditor to edit existing score.
