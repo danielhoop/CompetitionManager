@@ -92,7 +92,7 @@ public class CompetitorEditor {
         });
 
         navigateToScoreEditor.addActionListener(e -> {
-            ScoreEditor.main();
+            ScoreEditor.getInstanceAndSetVisible();
             mainFrame.dispose();
         });
 
@@ -180,6 +180,7 @@ public class CompetitorEditor {
         frame.setContentPane(new CompetitorEditor(frame, createNew).outerPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 

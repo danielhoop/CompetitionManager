@@ -41,6 +41,7 @@ public class EventSelector {
             frame.setContentPane(new EventSelector(frame).outerPanel);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.pack();
+            frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
     }
@@ -155,11 +156,12 @@ public class EventSelector {
             JOptionPane.showMessageDialog(null, bundle.getString("EventSelector.noRowSelectedErrorHint"));
         } else {
             Event event = eventTableModel.getEventFromRow(selectedRow);
-            GlobalState.getInstance().setEvent(event);
+            globalState.setEvent(event);
             mainFrame.dispose();
 
-            // Test ScoreEditor with new score.
-            ScoreEditor.main();
+            // If there is no ScoreEditor, create a new one, else open the old one.
+            ScoreEditor.getInstanceAndSetVisible();
+
             // Test ScoreEditor to edit existing score.
             //Category category = globalState.getCategoryList().getCategories().get(0);
             //ScoreEditor.main(globalState.getRankingList().getScores().get(category).get(0));

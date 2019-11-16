@@ -118,7 +118,8 @@ public class Query {
     public static String getAllCompetitors() {
         return "select *\n" +
                 "from `CompetitionManager`.`competitor`\n" +
-                "where `deleted` = false;";
+                "where `deleted` = false\n" +
+                "order by `name` asc;";
     }
     public static String getCompetitorsWithScoreForEvent(long event_id) {
         return "select distinct c.*\n" +

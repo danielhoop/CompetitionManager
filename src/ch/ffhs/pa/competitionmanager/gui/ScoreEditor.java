@@ -16,15 +16,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Singleton.
+ */
 public class ScoreEditor {
 
-    GlobalState globalState;
-    ResourceBundle bundle;
-    CompetitorTableModel competitorTableModel;
-    CompetitorList competitorList;
-    TableRowSorter<CompetitorTableModel> competitorTableSorter;
-    Score scoreToEdit;
-    boolean editExisting;
+    private static ScoreEditor scoreEditorInstance = null;
+
+    private GlobalState globalState;
+    private ResourceBundle bundle;
+    private CompetitorTableModel competitorTableModel;
+    private CompetitorList competitorList;
+    private TableRowSorter<CompetitorTableModel> competitorTableSorter;
+    private Score scoreToEdit;
+    private boolean editExisting;
+    private JFrame mainFrame;
 
     private JPanel outerPanel;
     private JLabel text1;
@@ -37,15 +43,45 @@ public class ScoreEditor {
     private JTextField pointsAchievedTextField;
     private JLabel timeNeededLabel;
     private JLabel pointsAchievedLabel;
-    private JButton neueNWettkämpferInButton;
+    private JButton newCompetitorButton;
     private JButton reloadCompetitorsButton;
     private JScrollPane competitorScrollPane;
-    private JButton wettkämpferInBearbeitenButton;
+    private JButton editCompetitorButton;
     private int selectedRow;
 
+    public static ScoreEditor getInstanceAndSetVisible() {
+        return getInstanceAndSetVisible(null);
+    }
+    
+    public static ScoreEditor getInstanceAndSetVisible(Score scoreToEdit) {
+        if (scoreEditorInstance == null) {
+            scoreEditorInstance = ScoreEditor.main(scoreToEdit);
+        } else {
+            scoreEditorInstance.setVisible(true);
+        }
+        return scoreEditorInstance;
+    }
+
+    private static ScoreEditor main(Score scoreToEdit) {
+
+        ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
+
+        JFrame frame = new JFrame(bundle.getString("ScoreEditor.title"));
+        ScoreEditor scoreEditor = new ScoreEditor(frame, scoreToEdit);
+        SwingUtilities.invokeLater(() -> {
+            frame.setContentPane(scoreEditor.outerPanel);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.pack();
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+        return scoreEditor;
+    }
+    
     private ScoreEditor(JFrame mainFrame, Score scoreToEdit) {
         this.scoreToEdit = scoreToEdit;
         this.editExisting = scoreToEdit != null;
+        this.mainFrame = mainFrame;
 
         createUIComponents();
 
@@ -146,8 +182,8 @@ public class ScoreEditor {
                 if (savingHasWorked) {
                     // Success message, dispose old window and open new one.
                     JOptionPane.showMessageDialog(null, bundle.getString("savingToDbWorked"));
-                    mainFrame.dispose();
-                    ScoreEditor.main();
+                    SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
+                    clearAllFields();
                 } // else { JOptionPane.showMessageDialog(null, bundle.getString("savingToDbFailed")); }
             }
             @Override
@@ -156,15 +192,15 @@ public class ScoreEditor {
             public void mouseExited(MouseEvent e) {}
         });
 
-        wettkämpferInBearbeitenButton.addActionListener(e -> {
+        editCompetitorButton.addActionListener(e -> {
             Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow);
             GlobalState.getInstance().setCompetitor(selectedCompetitor);
-            mainFrame.dispose();
+            SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
             CompetitorEditor.main(false);
         });
 
-        neueNWettkämpferInButton.addActionListener(e -> {
-            mainFrame.dispose();
+        newCompetitorButton.addActionListener(e -> {
+            SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
             CompetitorEditor.main(true);
         });
     }
@@ -172,23 +208,19 @@ public class ScoreEditor {
     private void createUIComponents() {
     }
 
-    public static void main() {
-        main(null);
-    }
-    public static void main(Score scoreToEdit) {
-        SwingUtilities.invokeLater(() -> {
-            ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
-
-            JFrame frame = new JFrame(bundle.getString("ScoreEditor.title"));
-            frame.setContentPane(new ScoreEditor(frame, scoreToEdit).outerPanel);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.pack();
-            frame.setVisible(true);
-        });
+    protected void setVisible(boolean b) {
+        mainFrame.setVisible(b);
     }
 
+    private void clearAllFields() {
+        nameTextField.setText("");
+        dateOfBirthTextField.setText("");
+        competitorTable.getRowSorter().setSortKeys(null);
 
-
+        timeNeededTextField.setText("");
+        pointsAchievedTextField.setText("");
+        isValidCheckBox.setSelected(true);
+    }
 
     private void filterCompetitorTable() {
         List<RowFilter<Object,Object>> filters = new LinkedList<>();
@@ -206,7 +238,6 @@ public class ScoreEditor {
             // If current expression doesn't parse, don't update.
             // https://stackoverflow.com/questions/7904695/java-escaping-meta-characters-and-in-regex
             String dateOfBirth = java.util.regex.Pattern.quote(dateOfBirthTextField.getText());
-            System.out.println(dateOfBirth);
             filters.add(RowFilter.regexFilter(dateOfBirth, 1));
         } catch (java.util.regex.PatternSyntaxException e) {
             return;
@@ -216,9 +247,6 @@ public class ScoreEditor {
         competitorTableSorter.setRowFilter(RowFilter.andFilter(filters));
         competitorTableModel.fireTableDataChanged();
     }
-
-
-
 
     private boolean saveOrEditScore() {
         boolean shouldContinue = true;
@@ -246,7 +274,6 @@ public class ScoreEditor {
         Double pointsAchieved = null;
         if (shouldContinue) {
             if (globalState.getEvent().isTimeRelevant()) {
-                // TODO: Time has to be parsed from textField
                 try {
                     timeNeeded = LocalTime.parse(timeNeededTextField.getText(), DateTimeFormatter.ISO_LOCAL_TIME);
                 } catch (DateTimeParseException ex) {

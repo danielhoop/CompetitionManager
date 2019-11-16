@@ -7,6 +7,9 @@ import ch.ffhs.pa.competitionmanager.dto.Competitor;
 import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.enums.SupportedLocale;
+import ch.ffhs.pa.competitionmanager.gui.CompetitorEditor;
+import ch.ffhs.pa.competitionmanager.gui.EventSelector;
+import ch.ffhs.pa.competitionmanager.gui.ScoreEditor;
 
 import java.util.*;
 
@@ -131,4 +134,5 @@ public class GlobalState {
     public ResourceBundle getGuiTextBundle() {
         return guiTextBundle;
     }
+    
 }
