@@ -1,6 +1,5 @@
 package ch.ffhs.pa.competitionmanager.gui;
 
-import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Competitor;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
@@ -25,18 +24,17 @@ public class CompetitorEditor {
     private JPanel outerPanel;
     private JButton navigateToScoreEditor;
     private JButton navigateToEventSelector;
-    private JButton newCompetitorCreateButton;
     private JLabel descriptionLabel;
     private JTextField competitorNameField;
     private JTextField competitorDateField;
     private JRadioButton maleRadioButton;
     private JRadioButton femaleRadioButton;
-    private JButton updateCompetitorButton;
-    private JButton deleteCompetitorButton;
+    private JButton saveButton;
+    private JButton deleteButton;
+    private JButton saveAndGoToScoreEditorButton;
+    private JLabel title;
     private boolean editExisting;
     private JFrame mainFrame;
-    private ActionListener updateActionListener;
-    private Competitor newCompetitor;
 
 
     public static CompetitorEditor getInstanceAndSetVisible() {
@@ -49,7 +47,10 @@ public class CompetitorEditor {
         }
         competitorEditor.competitor = competitor;
         competitorEditor.setCompetitorValues();
-        competitorEditor.mainFrame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            competitorEditor.mainFrame.pack();
+            competitorEditor.mainFrame.setVisible(true);
+        });
         return competitorEditor;
     }
 
@@ -121,10 +122,9 @@ public class CompetitorEditor {
             });
         };
 
-        updateCompetitorButton.addActionListener(createUpdateActionListener);
-        newCompetitorCreateButton.addActionListener(createUpdateActionListener);
+        saveButton.addActionListener(createUpdateActionListener);
 
-        deleteCompetitorButton.addActionListener(e -> {
+        deleteButton.addActionListener(e -> {
             SwingUtilities.invokeLater(() -> {
                 int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("CompetitorEditor.deleteAreYouSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (shouldBeZero != 0) {
@@ -197,7 +197,9 @@ public class CompetitorEditor {
 
             String competitorBirthDate = dateStringConverter.asString(competitor.getDateOfBirth());
 
+            title.setText(bundle.getString("CompetitorEditor.titleEdit"));
             descriptionLabel.setText(bundle.getString("CompetitorEditor.descEditCompetitor") + competitor.getName());
+            descriptionLabel.setVisible(true);
             competitorNameField.setText(competitor.getName());
             competitorDateField.setText(competitorBirthDate);
             if (competitor.getGender() == Gender.FEMALE) {
@@ -205,24 +207,25 @@ public class CompetitorEditor {
             } else if (competitor.getGender() == Gender.MALE) {
                 maleRadioButton.setSelected(true);
             }
-            newCompetitorCreateButton.setVisible(false);
-            updateCompetitorButton.setVisible(true);
-            deleteCompetitorButton.setVisible(true);
+            saveAndGoToScoreEditorButton.setText(bundle.getString("CompetitorEditor.buttonSaveAndGoToScore"));
+            saveButton.setText(bundle.getString("CompetitorEditor.buttonSaveChanges"));
+            deleteButton.setVisible(true);
         }
     }
 
     private void clearAllFields() {
         competitor = null;
         SwingUtilities.invokeLater(() -> {
-            descriptionLabel.setText(bundle.getString("CompetitorEditor.titleDescription"));
+            title.setText(bundle.getString("CompetitorEditor.titleCreate"));
+            descriptionLabel.setVisible(false);
             competitorNameField.setText("");
             competitorDateField.setText("");
             maleRadioButton.setSelected(false);
             femaleRadioButton.setSelected(false);
 
-            newCompetitorCreateButton.setVisible(true);
-            updateCompetitorButton.setVisible(false);
-            deleteCompetitorButton.setVisible(false);
+            saveAndGoToScoreEditorButton.setText(bundle.getString("CompetitorEditor.buttonCreateAndTotoScore"));
+            saveButton.setText(bundle.getString("CompetitorEditor.buttonCreateCompetitor"));
+            deleteButton.setVisible(false);
         });
     }
 

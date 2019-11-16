@@ -197,6 +197,11 @@ public class ScoreEditor {
         });
 
         editCompetitorButton.addActionListener(e -> {
+            int selectedRow = getSelectedRowOfTable();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
+                return;
+            }
             Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow);
             CompetitorEditor.getInstanceAndSetVisible(selectedCompetitor);
             setInvisibleAndClearAllFields();
@@ -250,9 +255,7 @@ public class ScoreEditor {
         competitorTableModel.fireTableDataChanged();
     }
 
-    private boolean saveOrEditScore() {
-        boolean shouldContinue = true;
-        boolean isValid = isValidCheckBox.isSelected();
+    private int getSelectedRowOfTable() {
         int selectedRow = -1;
         // Exception happens when table was not sorted/filtered at all.
         try {
@@ -260,6 +263,13 @@ public class ScoreEditor {
         } catch (IndexOutOfBoundsException ex) {
             selectedRow = competitorTable.getSelectedRow();
         }
+        return selectedRow;
+    }
+
+    private boolean saveOrEditScore() {
+        boolean shouldContinue = true;
+        boolean isValid = isValidCheckBox.isSelected();
+        int selectedRow = getSelectedRowOfTable();
 
         // Continue only if a row is selected or only 1 row is displayed
         if (!editExisting && selectedRow == -1) {
