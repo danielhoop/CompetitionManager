@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 /**
- * Signleton
+ * Singleton
  */
 public class CompetitorEditor {
 
@@ -79,68 +79,17 @@ public class CompetitorEditor {
             clearAllFields();
         }
 
-        ActionListener createOrUpdateActionListener = (e) -> {
-                if (!editExisting) {
-                    competitor = new Competitor(-1, null, null, null, -1);
-                }
-                String name = competitorNameField.getText();
-                if (name == null || name.equals("")) {
-                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorEmptyName"));
-                    return;
-                }
-                competitor.setName(competitorNameField.getText());
-
-                try {
-                    LocalDate dateOfBirth = dateStringConverter.asLocalDate(competitorDateField.getText());
-                    if (!AgeUtils.isDateOfBirthPlausible(dateOfBirth)) {
-                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorDateOfBirthNotPlausible"));
-                        return;
-                    }
-                    competitor.setDateOfBirth(dateOfBirth);
-                    if (maleRadioButton.isSelected()) {
-                        competitor.setGender(Gender.MALE);
-                    } else if (femaleRadioButton.isSelected()) {
-                        competitor.setGender(Gender.FEMALE);
-                    } else {
-                        throw new IllegalArgumentException();
-                    }
-                } catch (ParseException e1) {
-                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorDateFormat"));
-                    return;
-                } catch (IllegalArgumentException e1) {
-                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorNoGenderSelected"));
-                    return;
-                }
-
-                if (editExisting) {
-                    if (!competitor.update()) {
-                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnPersist"));
-                    } else {
-                        if (shouldShowSuccessOrUpdateMessage) {
-                            JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.updatedText"));
-                        }
-                        clearAllFields();
-                    }
-                } else {
-                    if (!competitor.create()) {
-                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnPersist"));
-                    } else {
-                        if (shouldShowSuccessOrUpdateMessage) {
-                            JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.newCompCreatedText"));
-                        }
-                        clearAllFields();
-                    }
-                }
-        };
-
-        saveButton.addActionListener(createOrUpdateActionListener);
+        saveButton.addActionListener(e -> createOrUpdateCompetitor());
 
         saveAndGoToScoreEditorButton.addActionListener(e -> {
             shouldShowSuccessOrUpdateMessage = false;
-            createOrUpdateActionListener.actionPerformed(e);
+            boolean noErrorHasOccurred = createOrUpdateCompetitor();
             shouldShowSuccessOrUpdateMessage = true;
-            ScoreEditor.getInstanceAndSetVisible(null, competitor.clone());
-            setInvisibleAndClearAllFields();
+
+            if(noErrorHasOccurred) {
+                ScoreEditor.getInstanceAndSetVisible(null, competitor.clone());
+                setInvisibleAndClearAllFields();
+            }
         });
 
         deleteButton.addActionListener(e -> {
@@ -252,4 +201,60 @@ public class CompetitorEditor {
         clearAllFields();
     }
 
+    private boolean createOrUpdateCompetitor() {
+        DateStringConverter dateStringConverter = new DateStringConverter(GlobalState.getInstance().getLocale());
+
+        if (!editExisting) {
+            competitor = new Competitor(-1, null, null, null, -1);
+        }
+        String name = competitorNameField.getText();
+        if (name == null || name.equals("")) {
+            JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorEmptyName"));
+            return false;
+        }
+        competitor.setName(competitorNameField.getText());
+
+        try {
+            LocalDate dateOfBirth = dateStringConverter.asLocalDate(competitorDateField.getText());
+            if (!AgeUtils.isDateOfBirthPlausible(dateOfBirth)) {
+                JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorDateOfBirthNotPlausible"));
+                return false;
+            }
+            competitor.setDateOfBirth(dateOfBirth);
+            if (maleRadioButton.isSelected()) {
+                competitor.setGender(Gender.MALE);
+            } else if (femaleRadioButton.isSelected()) {
+                competitor.setGender(Gender.FEMALE);
+            } else {
+                throw new IllegalArgumentException();
+            }
+        } catch (ParseException e1) {
+            JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorDateFormat"));
+            return false;
+        } catch (IllegalArgumentException e1) {
+            JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorNoGenderSelected"));
+            return false;
+        }
+
+        if (editExisting) {
+            if (!competitor.update()) {
+                JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnPersist"));
+            } else {
+                if (shouldShowSuccessOrUpdateMessage) {
+                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.updatedText"));
+                }
+                clearAllFields();
+            }
+        } else {
+            if (!competitor.create()) {
+                JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnPersist"));
+            } else {
+                if (shouldShowSuccessOrUpdateMessage) {
+                    JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.newCompCreatedText"));
+                }
+                clearAllFields();
+            }
+        }
+        return true;
+    }
 }

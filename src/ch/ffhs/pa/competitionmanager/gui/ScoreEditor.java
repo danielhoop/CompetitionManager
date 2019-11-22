@@ -188,7 +188,7 @@ public class ScoreEditor {
                 if (savingHasWorked) {
                     // Success message, dispose old window and open new one.
                     JOptionPane.showMessageDialog(null, bundle.getString("savingToDbWorked"));
-                    setInvisibleAndClearAllFields();
+                    clearAllFields();
                 } // else { JOptionPane.showMessageDialog(null, bundle.getString("savingToDbFailed")); }
             }
             @Override
@@ -217,9 +217,8 @@ public class ScoreEditor {
     private void createUIComponents() {
     }
 
-    private void setInvisibleAndClearAllFields() {
+    private void clearAllFields() {
         SwingUtilities.invokeLater(() -> {
-            mainFrame.setVisible(false);
             nameTextField.setText("");
             dateOfBirthTextField.setText("");
             competitorTable.clearSelection();
@@ -229,6 +228,13 @@ public class ScoreEditor {
             pointsAchievedTextField.setText("");
             isValidCheckBox.setSelected(true);
         });
+    }
+
+    private void setInvisibleAndClearAllFields() {
+        SwingUtilities.invokeLater(() -> {
+                mainFrame.setVisible(false);
+        });
+        clearAllFields();
     }
 
     private void filterCompetitorTable() {
