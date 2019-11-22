@@ -160,10 +160,24 @@ public class EventSelector {
             @Override
             public void mouseExited(MouseEvent e) {}
         });
+
+        editCategoriesButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                openCategoryEditor();
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+        });
     }
 
     private void openEmptyScoreEditor() {
-        EventSelector eventSelectorInstance = this;
         GlobalState globalState = GlobalState.getInstance();
         ResourceBundle bundle = globalState.getGuiTextBundle();
 
@@ -179,6 +193,21 @@ public class EventSelector {
             // Test ScoreEditor to edit existing score.
             //Category category = globalState.getCategoryList().getCategories().get(0);
             //ScoreEditor.main(globalState.getRankingList().getScores().get(category).get(0));
+        }
+    }
+
+    private void openCategoryEditor() {
+        GlobalState globalState = GlobalState.getInstance();
+        ResourceBundle bundle = globalState.getGuiTextBundle();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, bundle.getString("EventSelector.noRowSelectedErrorHint"));
+        } else {
+            Event event = eventTableModel.getEventFromRow(selectedRow);
+            globalState.setEvent(event);
+
+            SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
+            CategoryEditor.getInstanceAndSetVisible();
         }
     }
 }

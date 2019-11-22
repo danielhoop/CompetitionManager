@@ -6,6 +6,7 @@ import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
+import ch.ffhs.pa.competitionmanager.gui.CategoryTableModel;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -35,6 +36,11 @@ public class CategoryList {
 
     public List<Category> getCategories() {
         return categories;
+    }
+
+    public CategoryTableModel getCategoriesAsTableModel() {
+        CategoryTableModel categoryTableModel = new CategoryTableModel(this);
+        return categoryTableModel;
     }
 
     private void getCategoriesFromDb(Event event) {
