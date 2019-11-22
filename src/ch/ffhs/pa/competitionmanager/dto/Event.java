@@ -97,6 +97,11 @@ public class Event implements ICRUD {
         return event;
     }
 
+    @Override
+    public Event clone() {
+        return new Event(id, name, date, dateDescription, description, isTimeRelevant);
+    }
+
     // CRUD operations
     @Override
     public boolean create() {

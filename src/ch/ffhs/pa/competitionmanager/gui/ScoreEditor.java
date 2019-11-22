@@ -4,6 +4,7 @@ import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Competitor;
 import ch.ffhs.pa.competitionmanager.dto.Score;
+import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
@@ -49,37 +50,47 @@ public class ScoreEditor {
     private JButton editCompetitorButton;
     private int selectedRow;
 
+    /*public static ScoreEditor getInstance() {
+        if (scoreEditor == null) {
+            scoreEditor = ScoreEditor.main(false);
+        }
+        return scoreEditor;
+    }*/
+
     public static ScoreEditor getInstanceAndSetVisible() {
-        return getInstanceAndSetVisible(null);
+        return getInstanceAndSetVisible(null, null);
     }
     
-    public static ScoreEditor getInstanceAndSetVisible(Score scoreToEdit) {
+    public static ScoreEditor getInstanceAndSetVisible(Score scoreToEdit, Competitor competitor) {
         if (scoreEditor == null) {
-            scoreEditor = ScoreEditor.main(scoreToEdit);
+            scoreEditor = ScoreEditor.main(true);
         } else {
             scoreEditor.mainFrame.setVisible(true);
+            scoreEditor.reloadCompetitorsFromDb();
         }
+        scoreEditor.setScore(scoreToEdit);
+        scoreEditor.setCompetitor(competitor);
         return scoreEditor;
     }
 
-    private static ScoreEditor main(Score scoreToEdit) {
+    private static ScoreEditor main(boolean setVisible) {
 
         ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
 
         JFrame frame = new JFrame(bundle.getString("ScoreEditor.title"));
-        ScoreEditor scoreEditor = new ScoreEditor(frame, scoreToEdit);
+        ScoreEditor scoreEditor = new ScoreEditor(frame);
         SwingUtilities.invokeLater(() -> {
             frame.setContentPane(scoreEditor.outerPanel);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.pack();
             frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
+            frame.setVisible(setVisible);
         });
         return scoreEditor;
     }
     
-    private ScoreEditor(JFrame mainFrame, Score scoreToEdit) {
-        this.scoreToEdit = scoreToEdit;
+    private ScoreEditor(JFrame mainFrame) {
+        this.scoreToEdit = null;
         this.editExisting = scoreToEdit != null;
         this.mainFrame = mainFrame;
 
@@ -158,22 +169,12 @@ public class ScoreEditor {
             public void mousePressed(MouseEvent e) {}
             @Override
             public void mouseReleased(MouseEvent e) {
-                globalState.reloadCompetitorListFromDb();
-                competitorTableModel.fireTableDataChanged();
+                reloadCompetitorsFromDb();
             }
             @Override
             public void mouseEntered(MouseEvent e) {}
             @Override
             public void mouseExited(MouseEvent e) {}
-        });
-
-        // Button must either say "save" or "save changes".
-        SwingUtilities.invokeLater(() -> {
-            if (editExisting) {
-                saveButton.setText(bundle.getString("change"));
-            } else {
-                saveButton.setText(bundle.getString("save"));
-            }
         });
 
         saveButton.addMouseListener(new MouseListener() {
@@ -202,7 +203,7 @@ public class ScoreEditor {
                 JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
                 return;
             }
-            Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow);
+            Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow).clone();
             CompetitorEditor.getInstanceAndSetVisible(selectedCompetitor);
             setInvisibleAndClearAllFields();
         });
@@ -221,6 +222,7 @@ public class ScoreEditor {
             mainFrame.setVisible(false);
             nameTextField.setText("");
             dateOfBirthTextField.setText("");
+            competitorTable.clearSelection();
             competitorTable.getRowSorter().setSortKeys(null);
 
             timeNeededTextField.setText("");
@@ -257,13 +259,21 @@ public class ScoreEditor {
 
     private int getSelectedRowOfTable() {
         int selectedRow = -1;
-        // Exception happens when table was not sorted/filtered at all.
+        // Exception happens when competitorTable.getSelectedRow() is -1.
         try {
             selectedRow = competitorTable.convertRowIndexToModel(competitorTable.getSelectedRow());
         } catch (IndexOutOfBoundsException ex) {
-            selectedRow = competitorTable.getSelectedRow();
+            selectedRow = -1;
+        }
+        if (!editExisting && selectedRow == -1 && competitorTable.getRowCount() == 1) {
+            selectedRow = competitorTable.convertRowIndexToModel(0);
         }
         return selectedRow;
+    }
+
+    public void reloadCompetitorsFromDb() {
+        globalState.reloadCompetitorListFromDb();
+        competitorTableModel.fireTableDataChanged();
     }
 
     private boolean saveOrEditScore() {
@@ -272,13 +282,9 @@ public class ScoreEditor {
         int selectedRow = getSelectedRowOfTable();
 
         // Continue only if a row is selected or only 1 row is displayed
-        if (!editExisting && selectedRow == -1) {
-            if (competitorTable.getRowCount() == 1) {
-                selectedRow = 0;
-            } else {
-                JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
-                shouldContinue = false;
-            }
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
+            shouldContinue = false;
         }
 
         // Continue only if time and double can be parsed.
@@ -334,5 +340,34 @@ public class ScoreEditor {
             }
         }
         return false;
+    }
+
+    private void setCompetitor(Competitor competitor) {
+        if (competitor != null) {
+            SwingUtilities.invokeLater(() -> {
+                this.nameTextField.setText(competitor.getName());
+                this.dateOfBirthTextField.setText(new DateStringConverter(globalState.getLocale()).asString(competitor.getDateOfBirth()));
+
+                filterCompetitorTable();
+                if (getSelectedRowOfTable() == -1) {
+                    reloadCompetitorsFromDb();
+                    filterCompetitorTable();
+                }
+            });
+        }
+    }
+
+    private void setScore(Score score) {
+        this.editExisting = score != null;
+        this.scoreToEdit = score;
+
+        // Button must either say "save" or "save changes".
+        SwingUtilities.invokeLater(() -> {
+            if (editExisting) {
+                saveButton.setText(bundle.getString("change"));
+            } else {
+                saveButton.setText(bundle.getString("save"));
+            }
+        });
     }
 }

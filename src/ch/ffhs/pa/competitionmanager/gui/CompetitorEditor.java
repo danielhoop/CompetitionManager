@@ -22,6 +22,7 @@ public class CompetitorEditor {
     private GlobalState globalState = GlobalState.getInstance();
     private ResourceBundle bundle = ResourceBundle.getBundle("GuiText", globalState.getLocale());
     private Competitor competitor;
+    private boolean shouldShowSuccessOrUpdateMessage;
 
     private JPanel outerPanel;
     private JButton navigateToScoreEditor;
@@ -53,6 +54,7 @@ public class CompetitorEditor {
             competitorEditor.mainFrame.pack();
             competitorEditor.mainFrame.setVisible(true);
         });
+        competitorEditor.shouldShowSuccessOrUpdateMessage = true;
         return competitorEditor;
     }
 
@@ -77,8 +79,7 @@ public class CompetitorEditor {
             clearAllFields();
         }
 
-        ActionListener createUpdateActionListener = (e) -> {
-            SwingUtilities.invokeLater(() -> {
+        ActionListener createOrUpdateActionListener = (e) -> {
                 if (!editExisting) {
                     competitor = new Competitor(-1, null, null, null, -1);
                 }
@@ -115,21 +116,32 @@ public class CompetitorEditor {
                     if (!competitor.update()) {
                         JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnPersist"));
                     } else {
-                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.updatedText"));
+                        if (shouldShowSuccessOrUpdateMessage) {
+                            JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.updatedText"));
+                        }
                         clearAllFields();
                     }
                 } else {
                     if (!competitor.create()) {
                         JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.errorOnPersist"));
                     } else {
-                        JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.newCompCreatedText"));
+                        if (shouldShowSuccessOrUpdateMessage) {
+                            JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.newCompCreatedText"));
+                        }
                         clearAllFields();
                     }
                 }
-            });
         };
 
-        saveButton.addActionListener(createUpdateActionListener);
+        saveButton.addActionListener(createOrUpdateActionListener);
+
+        saveAndGoToScoreEditorButton.addActionListener(e -> {
+            shouldShowSuccessOrUpdateMessage = false;
+            createOrUpdateActionListener.actionPerformed(e);
+            shouldShowSuccessOrUpdateMessage = true;
+            ScoreEditor.getInstanceAndSetVisible(null, competitor.clone());
+            setInvisibleAndClearAllFields();
+        });
 
         deleteButton.addActionListener(e -> {
             SwingUtilities.invokeLater(() -> {
@@ -162,17 +174,13 @@ public class CompetitorEditor {
         });
 
         navigateToScoreEditor.addActionListener(e -> {
-            SwingUtilities.invokeLater(() -> {
-                ScoreEditor.getInstanceAndSetVisible();
-                setInvisibleAndClearAllFields();
-            });
+            ScoreEditor.getInstanceAndSetVisible();
+            setInvisibleAndClearAllFields();
         });
 
         navigateToEventSelector.addActionListener(e -> {
-            SwingUtilities.invokeLater(() -> {
-                EventSelector.getInstanceAndSetVisible();
-                setInvisibleAndClearAllFields();
-            });
+            EventSelector.getInstanceAndSetVisible();
+            setInvisibleAndClearAllFields();
         });
     }
 
@@ -221,7 +229,6 @@ public class CompetitorEditor {
     }
 
     private void clearAllFields() {
-        competitor = null;
         SwingUtilities.invokeLater(() -> {
             title.setText(bundle.getString("CompetitorEditor.titleCreate"));
             descriptionLabel.setVisible(false);
@@ -233,6 +240,8 @@ public class CompetitorEditor {
             saveAndGoToScoreEditorButton.setText(bundle.getString("CompetitorEditor.buttonCreateAndTotoScore"));
             saveButton.setText(bundle.getString("CompetitorEditor.buttonCreateCompetitor"));
             deleteButton.setVisible(false);
+
+            competitor = null;
         });
     }
 

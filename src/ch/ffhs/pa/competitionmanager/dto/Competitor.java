@@ -59,6 +59,11 @@ public class Competitor implements ICRUD {
     }
     public void setAge(int age) { this.age = age; }
 
+    @Override
+    public Competitor clone() {
+        return new Competitor(id,  name, gender, dateOfBirth, age);
+    }
+
     // CRUD operations
     @Override
     public boolean create() {

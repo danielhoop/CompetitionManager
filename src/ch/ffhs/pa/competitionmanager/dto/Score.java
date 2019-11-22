@@ -91,6 +91,10 @@ public class Score implements Comparable<Score>, ICRUD {
         this.timeOfRecording = timeOfRecording;
     }
 
+    @Override
+    public Score clone() {
+        return new Score(id, eventId, competitor, timeNeeded, pointsAchieved, numberOfTries, isValid, timeOfRecording);
+    }
 
     @Override
     public int compareTo(Score o) {

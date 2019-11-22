@@ -65,6 +65,11 @@ public class Category implements ICRUD {
     }
     public void setGender(Gender gender) { this.gender = gender; }
 
+    @Override
+    public Category clone() {
+        return new Category(id, eventId, name, description, minAgeInclusive, maxAgeInclusive, gender);
+    }
+
     // CRUD operations
     @Override
     public boolean create() {
