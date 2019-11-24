@@ -218,6 +218,7 @@ public class ScoreEditor {
     }
 
     private void clearAllFields() {
+        scoreToEdit = null;
         SwingUtilities.invokeLater(() -> {
             nameTextField.setText("");
             dateOfBirthTextField.setText("");
