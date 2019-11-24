@@ -136,7 +136,8 @@ public class Query {
     public static String getAllCategories(long event_id) {
         return "select *\n" +
                 "from `CompetitionManager`.`category`\n" +
-                "where `event_id` = " + event_id + ";";
+                "where `event_id` = " + event_id + "\n" +
+                "  and `deleted` = false;";
     }
     public static String getAllViewNames() {
         return "SHOW FULL TABLES IN `CompetitionManager` WHERE TABLE_TYPE LIKE '%VIEW%';";
