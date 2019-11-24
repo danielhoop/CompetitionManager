@@ -114,6 +114,9 @@ public class GlobalState {
     public void reloadCompetitorListFromDb() {
         competitorList.reloadFromDb();
     }
+    public void reloadCategoryListFromDb() {
+        categoryList.reloadFromDb();
+    }
 
     public Locale getLocale() {
         return this.locale;
