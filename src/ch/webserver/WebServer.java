@@ -1,8 +1,9 @@
 package ch.webserver;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+import java.lang.Object;
 /**
  * WebServer Object.
  *
@@ -22,11 +23,12 @@ public class WebServer {
      *
      *
      */
-    public static void main(String[] args) throws Exception {
 
-        // Create ServerSocket on LocalHost, port 6789
-        ServerSocket serverSocket = new ServerSocket(6789);
-        System.out.println("Listening for connections on port 6789...\r\n");
+
+    public static void startWebserver() throws IOException {
+        // Create ServerSocket on LocalHost, port 80
+        ServerSocket serverSocket = new ServerSocket(80);
+        System.out.println("Listening for connections on port 80...\r\n");
 
         // Listen for new client connections
         while(true) {
@@ -39,7 +41,9 @@ public class WebServer {
 
             // Start the connection thread
             connectionThread.start();
-            System.out.println("New connection on port 6789...\r\n");
+            System.out.println("New connection on port 80...\r\n");
+
+
         }
     }
 }

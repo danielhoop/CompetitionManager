@@ -6,6 +6,7 @@ import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
+import ch.webserver.HtmlPage;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -47,6 +48,7 @@ public class CategoryList {
         try {
             stmt.execute(Query.getAllCategories(eventId));
             ResultSet rs = stmt.getResultSet();
+
             categories.clear();
             while (rs.next()) {
                 categories.add(new Category(
@@ -58,12 +60,15 @@ public class CategoryList {
                         rs.getInt("max_age_inclusive"),
                         Gender.valueOf(rs.getInt("gender"))
                 ));
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "When getting all categories from the database and storing them into a list, the following error occurred: ");
         }
-
+        //System.out.println("Categories:" + categories.size());
+        //System.out.println("C HTML:" + HtmlPage.CategoryIDs(categories).render());
+        HtmlPage.writetoHTML(HtmlPage.CategoryIDs(categories).render(),"category_content.txt");
         dbConnector.closeStatement(stmt);
         dbConnector.closeConnection(conn);
     }

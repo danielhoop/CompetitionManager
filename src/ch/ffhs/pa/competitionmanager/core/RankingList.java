@@ -9,6 +9,7 @@ import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.interfaces.INotifiable;
+import ch.webserver.HtmlPage;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -68,6 +69,7 @@ public class RankingList implements INotifiable {
                 String viewName = Query.categoryViewFullName(eventId, category.getId());
                 stmt.execute(Query.getScoresForCategory(eventId, viewName, event.isTimeRelevant()));
                 ResultSet rs = stmt.getResultSet();
+
                 while (rs.next()) {
                     Score score = new Score(
                             rs.getLong("id"),
@@ -86,6 +88,7 @@ public class RankingList implements INotifiable {
                             rs.getTimestamp("time_of_recording").toLocalDateTime()
                     );
                     listOfScores.add(score);
+                   //System.out.println(rs.getLong("id") + " " +  rs.getString("name") + " " +  rs.getTime("time_needed").toLocalTime() + " " + rs.getDouble("points_achieved") );
                 }
 
             } catch (SQLException e) {
@@ -96,10 +99,17 @@ public class RankingList implements INotifiable {
             }
 
             scores.put(category, listOfScores);
+            //System.out.println("CName:" + category.getName());
         }
 
         dbConnector.closeStatement(stmt);
         dbConnector.closeConnection(conn);
+        HtmlPage.writetoHTML(HtmlPage.FullContent(scores).render(),"content.txt");
+       System.out.println(HtmlPage.FullContent(scores).render());
+
+
+
+
     }
 
 //    /**
@@ -114,6 +124,7 @@ public class RankingList implements INotifiable {
     @Override
     public void notifyMe() {
         System.out.print("Database has changed. Pulling newest results...");
+
         reloadFromDb(false);
         System.out.print(" Done.\n");
     }

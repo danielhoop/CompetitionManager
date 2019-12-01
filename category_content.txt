@@ -1,0 +1,1 @@
+<form id="formc"><input type="hidden" name="category" value="4" id="category"><input type="hidden" name="category" value="5" id="category"><input type="hidden" name="category" value="6" id="category"></form>
