@@ -1,5 +1,6 @@
 package ch.ffhs.pa.competitionmanager.gui;
 
+import org.apache.commons.lang3.time.StopWatch;
 import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Competitor;
@@ -13,9 +14,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.Timer;
+
 
 /**
  * Singleton.
@@ -48,7 +49,10 @@ public class ScoreEditor {
     private JButton reloadCompetitorsButton;
     private JScrollPane competitorScrollPane;
     private JButton editCompetitorButton;
+    private JButton start;
     private int selectedRow;
+    private StopWatch stopWatch = new StopWatch();
+    private java.util.Timer timer = new Timer();
 
     /*public static ScoreEditor getInstance() {
         if (scoreEditor == null) {
@@ -56,6 +60,17 @@ public class ScoreEditor {
         }
         return scoreEditor;
     }*/
+
+    private class RemindTask extends TimerTask {
+
+        public void run() {
+            timeNeededTextField.setText(stopWatch.toString());
+            System.out.println("Task running");
+
+
+
+        }
+    }
 
     public static ScoreEditor getInstanceAndSetVisible() {
         return getInstanceAndSetVisible(null, null);
@@ -136,6 +151,41 @@ public class ScoreEditor {
             }
         });
 
+timeNeededTextField.addKeyListener(new KeyListener() {
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+        if (Character.toUpperCase(e.getKeyChar()) == 'S')
+        {
+
+            if (start.getText() == "Start") {
+                stopWatch.start();
+                start.setText("Stop");
+                timer.schedule(new RemindTask(),0,10);
+                System.out.println("Task started");
+            } else {
+                timeNeededTextField.setText(stopWatch.toString());
+                stopWatch.stop();
+                start.setText("Start");
+                stopWatch.reset();
+                timer.cancel();
+                System.out.println("Task cancelled");
+                timeNeededTextField.setEditable(false);
+            }
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
+});
+
         // Table
         competitorList = globalState.getCompetitorList();
         competitorTableModel = competitorList.getCompetitorsAsTableModel();
@@ -146,6 +196,8 @@ public class ScoreEditor {
 
         competitorTable.getSelectionModel().addListSelectionListener(e -> {
             selectedRow = competitorTable.getSelectedRow();
+            /** Enable start button for stopwatch **/
+            start.setEnabled(true);
             // System.out.println("RowSelectionEvent fired. selectedRow: " + selectedRow);
         });
 
@@ -176,6 +228,8 @@ public class ScoreEditor {
             @Override
             public void mouseExited(MouseEvent e) {}
         });
+
+
 
         saveButton.addMouseListener(new MouseListener() {
             @Override
@@ -225,6 +279,7 @@ public class ScoreEditor {
             competitorTable.getRowSorter().setSortKeys(null);
 
             timeNeededTextField.setText("");
+            timeNeededTextField.setEditable(true);
             pointsAchievedTextField.setText("");
             isValidCheckBox.setSelected(true);
         });
@@ -376,4 +431,6 @@ public class ScoreEditor {
             }
         });
     }
+
+
 }
