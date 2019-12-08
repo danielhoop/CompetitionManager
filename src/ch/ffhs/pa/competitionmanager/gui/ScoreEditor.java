@@ -8,6 +8,7 @@ import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.table.TableRowSorter;
 import java.awt.event.*;
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.Timer;
+
 
 
 /**
@@ -52,7 +53,8 @@ public class ScoreEditor {
     private JButton start;
     private int selectedRow;
     private StopWatch stopWatch = new StopWatch();
-    private java.util.Timer timer = new Timer();
+    private Timer timer;
+
 
     /*public static ScoreEditor getInstance() {
         if (scoreEditor == null) {
@@ -61,16 +63,7 @@ public class ScoreEditor {
         return scoreEditor;
     }*/
 
-    private class RemindTask extends TimerTask {
 
-        public void run() {
-            timeNeededTextField.setText(stopWatch.toString());
-            System.out.println("Task running");
-
-
-
-        }
-    }
 
     public static ScoreEditor getInstanceAndSetVisible() {
         return getInstanceAndSetVisible(null, null);
@@ -103,12 +96,18 @@ public class ScoreEditor {
         });
         return scoreEditor;
     }
-    
+
+    ActionListener taskPerformer = new ActionListener() {
+        public void actionPerformed(ActionEvent evt) {
+            timeNeededTextField.setText(stopWatch.toString());
+        }
+    };
+
     private ScoreEditor(JFrame mainFrame) {
         this.scoreToEdit = null;
         this.editExisting = scoreToEdit != null;
         this.mainFrame = mainFrame;
-
+        Timer timer = new Timer(100 , taskPerformer );
         createUIComponents();
 
 
@@ -166,16 +165,20 @@ timeNeededTextField.addKeyListener(new KeyListener() {
             if (start.getText() == "Start") {
                 stopWatch.start();
                 start.setText("Stop");
-                timer.schedule(new RemindTask(),0,10);
-                System.out.println("Task started");
+                timer.start();
+             //   System.out.println("Task started");
+                competitorTable.setEnabled(false);
             } else {
                 timeNeededTextField.setText(stopWatch.toString());
-                stopWatch.stop();
-                start.setText("Start");
-                stopWatch.reset();
-                timer.cancel();
-                System.out.println("Task cancelled");
                 timeNeededTextField.setEditable(false);
+                stopWatch.stop();
+                stopWatch.reset();
+                start.setText("Start");
+                competitorTable.setEnabled(true);
+                timer.stop();
+
+             //   System.out.println("Task cancelled");
+
             }
         }
     }
