@@ -366,12 +366,12 @@ public class ScoreEditor {
         }
 
         // Continue only if time and double can be parsed.
-        Time timeNeeded = null;
+        LocalTime timeNeeded = null;
         Double pointsAchieved = null;
         if (shouldContinue) {
             if (globalState.getEvent().isTimeRelevant()) {
                 try {
-                    timeNeeded = Time.valueOf(timeNeededTextField.getText());
+                    timeNeeded = LocalTime.parse(timeNeededTextField.getText(), DateTimeFormatter.ISO_LOCAL_TIME);
                 } catch (DateTimeParseException ex) {
                     JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorTimeNotParsed"));
                     shouldContinue = false;

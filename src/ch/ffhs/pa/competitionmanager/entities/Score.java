@@ -8,6 +8,7 @@ import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * Contains information on one score of competition.
@@ -20,7 +21,7 @@ public class Score implements Comparable<Score>, ICRUD {
     private long eventId;
     private Competitor competitor;
     // Either 'timeNeeded' or 'pointsAchieved' must be filled, but not both!
-    private Time timeNeeded;
+    private LocalTime timeNeeded;
     // pointsAchieved is Double such that it can be null.
     private Double pointsAchieved;
     private int numberOfTries;
@@ -28,7 +29,7 @@ public class Score implements Comparable<Score>, ICRUD {
     private LocalDateTime timeOfRecording;
 
     public Score(long id, long eventId, Competitor competitor,
-                 Time timeNeeded, Double pointsAchieved, int numberOfTries, boolean isValid,
+                 LocalTime timeNeeded, Double pointsAchieved, int numberOfTries, boolean isValid,
                  LocalDateTime timeOfRecording) {
         this.id = id;
         this.eventId = eventId;
@@ -55,10 +56,10 @@ public class Score implements Comparable<Score>, ICRUD {
         this.competitor = competitor;
     }
     // timeNeeded
-    public Time getTimeNeeded() {
+    public LocalTime getTimeNeeded() {
         return timeNeeded;
     }
-    public void setTimeNeeded(Time timeNeeded) {
+    public void setTimeNeeded(LocalTime timeNeeded) {
         this.timeNeeded = timeNeeded;
     }
     // pointsAchieved

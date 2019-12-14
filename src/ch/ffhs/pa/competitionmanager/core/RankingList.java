@@ -68,6 +68,10 @@ public class RankingList implements INotifiable {
                 ResultSet rs = stmt.getResultSet();
 
                 while (rs.next()) {
+                    Time timeNeeded = rs.getTime("time_needed");
+                    int offsetInMinutes = timeNeeded.getTimezoneOffset();
+                    int numberOfHours = offsetInMinutes / 60;
+
                     Score score = new Score(
                             rs.getLong("id"),
                             rs.getLong("event_id"),
@@ -78,7 +82,7 @@ public class RankingList implements INotifiable {
                                     rs.getDate("date_of_birth").toLocalDate(),
                                     rs.getInt(Query.ageColumnName(rs.getLong("event_id")))
                             ),
-                            rs.getTime("time_needed"),
+                            timeNeeded.toLocalTime().plusHours(numberOfHours),
                             rs.getDouble("points_achieved"),
                             rs.getInt("number_of_tries"),
                             rs.getBoolean("is_valid"),
