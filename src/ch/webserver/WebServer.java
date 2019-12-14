@@ -1,5 +1,6 @@
 package ch.webserver;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -22,16 +23,16 @@ public class WebServer {
      *
      *
      */
-    public static void main(String[] args) throws Exception {
+    public static void startWebserver() throws IOException {
 
-        // Create ServerSocket on LocalHost, port 6789
-        ServerSocket serverSocket = new ServerSocket(6789);
-        System.out.println("Listening for connections on port 6789...\r\n");
+        // Create ServerSocket on LocalHost, port 80
+        ServerSocket serverSocket = new ServerSocket(80);
+        System.out.println("Listening for connections on port 80...");
 
         // Listen for new client connections
         while(true) {
-
             // Accept new client connection
+            // Hint: accept() is a blocking method. This loop will repeat only if a socket was accepted.
             Socket connectionSocket = serverSocket.accept();
 
             // Create new thread to handle client request
@@ -39,7 +40,7 @@ public class WebServer {
 
             // Start the connection thread
             connectionThread.start();
-            System.out.println("New connection on port 6789...\r\n");
+            System.out.println("New connection on port 80...");
         }
     }
 }

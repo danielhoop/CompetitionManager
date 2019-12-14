@@ -68,6 +68,7 @@ public class RankingList implements INotifiable {
                 String viewName = Query.categoryViewFullName(eventId, category.getId());
                 stmt.execute(Query.getScoresForCategory(eventId, viewName, event.isTimeRelevant()));
                 ResultSet rs = stmt.getResultSet();
+
                 while (rs.next()) {
                     Score score = new Score(
                             rs.getLong("id"),
@@ -86,6 +87,7 @@ public class RankingList implements INotifiable {
                             rs.getTimestamp("time_of_recording").toLocalDateTime()
                     );
                     listOfScores.add(score);
+                   //System.out.println(rs.getLong("id") + " " +  rs.getString("name") + " " +  rs.getTime("time_needed").toLocalTime() + " " + rs.getDouble("points_achieved") );
                 }
 
             } catch (SQLException e) {
@@ -96,6 +98,7 @@ public class RankingList implements INotifiable {
             }
 
             scores.put(category, listOfScores);
+            //System.out.println("CName:" + category.getName());
         }
 
         dbConnector.closeStatement(stmt);
@@ -107,13 +110,14 @@ public class RankingList implements INotifiable {
 //     * @return Boolean value indicating if the transaction was successful.
 //     */
 //    private Map<Category, List<Score>> getNewScoreFromDb(Event event, CategoryList categoryList) {
-//        // TODO Execute query to get newest Score of which the id is above the current 'highestScoreIdInList'. Really necessary? Only for performance. But let's not do it.
+//        // TO DO: Execute query to get newest Score of which the id is above the current 'highestScoreIdInList'. Really necessary? Only for performance. But let's not do it.
 //        return new HashMap<Category, List<Score>>();
 //    }
 
     @Override
     public void notifyMe() {
         System.out.print("Database has changed. Pulling newest results...");
+
         reloadFromDb(false);
         System.out.print(" Done.\n");
     }

@@ -53,6 +53,7 @@ public class CategoryList {
         try {
             stmt.execute(Query.getAllCategories(eventId));
             ResultSet rs = stmt.getResultSet();
+
             categories.clear();
             while (rs.next()) {
                 categories.add(new Category(
@@ -64,6 +65,7 @@ public class CategoryList {
                         rs.getInt("max_age_inclusive"),
                         Gender.valueOf(rs.getInt("gender"))
                 ));
+
             }
         } catch (SQLException e) {
             e.printStackTrace();

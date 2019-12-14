@@ -2,14 +2,10 @@ package ch.ffhs.pa.competitionmanager.core;
 
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.DbPreparator;
-import ch.ffhs.pa.competitionmanager.dto.Category;
-import ch.ffhs.pa.competitionmanager.dto.Competitor;
 import ch.ffhs.pa.competitionmanager.dto.Event;
-import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.enums.SupportedLocale;
-import ch.ffhs.pa.competitionmanager.gui.CompetitorEditor;
-import ch.ffhs.pa.competitionmanager.gui.EventSelector;
-import ch.ffhs.pa.competitionmanager.gui.ScoreEditor;
+import ch.webserver.CategoryHtmlUpdater;
+import ch.webserver.RankingHtmlUpdater;
 
 import java.util.*;
 
@@ -26,16 +22,15 @@ public class GlobalState {
     private Collection<SupportedLocale> allSupportedLocals;
     private ResourceBundle guiTextBundle;
 
-    private Category category;
-    private Competitor competitor;
     private Event event;
-    private Score score;
 
     private CategoryList categoryList;
     private CompetitorList competitorList;
     private EventList eventList;
     private RankingList rankingList;
     private DbMonitor dbMonitor;
+
+    private CategoryHtmlUpdater categoryHtmlUpdater;
 
     private GlobalState() {
         locales = new HashMap<>();
@@ -59,18 +54,6 @@ public class GlobalState {
         this.dbConnector = dbConnector;
     }
 
-    public Category getCategory() {
-        return category;
-    }
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-    public Competitor getCompetitor() {
-        return competitor;
-    }
-    public void setCompetitor(Competitor competitor) {
-        this.competitor = competitor;
-    }
     public Event getEvent() {
         return event;
     }
@@ -78,6 +61,7 @@ public class GlobalState {
         this.event = event;
         // CategoryList
         categoryList = new CategoryList(event);
+        categoryHtmlUpdater = new CategoryHtmlUpdater();
         // Prepare database for event.
         DbPreparator.prepare(event, categoryList);
         // RankingList
@@ -89,14 +73,8 @@ public class GlobalState {
             dbMonitor.stop();
         }
         dbMonitor = new DbMonitor(rankingList, 5, new DbPuller());
+        dbMonitor.addObjectToNotify(new RankingHtmlUpdater());
         dbMonitor.start();
-    }
-
-    public Score getScore() {
-        return score;
-    }
-    public void setScore(Score score) {
-        this.score = score;
     }
 
     // CategoryList: No setter!
@@ -122,10 +100,18 @@ public class GlobalState {
     public void reloadCompetitorListFromDb() {
         competitorList.reloadFromDb();
     }
+
     public void reloadCategoryListFromDb() {
         categoryList.reloadFromDb();
+        categoryHtmlUpdater.notifyMe();
     }
+
     public void reloadEventListFromDb() { eventList.reloadFromDb(); }
+
+    // DbMonitor: No setter!
+    public DbMonitor getDbMonitor() {
+        return dbMonitor;
+    }
 
     public Locale getLocale() {
         return this.locale;

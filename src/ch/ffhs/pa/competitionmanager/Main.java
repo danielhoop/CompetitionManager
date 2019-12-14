@@ -10,11 +10,17 @@ import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
 import ch.ffhs.pa.competitionmanager.gui.CompetitorEditor;
 import ch.ffhs.pa.competitionmanager.gui.EventSelector;
 import ch.ffhs.pa.competitionmanager.gui.PasswordGui;
+import ch.webserver.Connection;
+import ch.webserver.WebServer;
 
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.sql.SQLException;
 
+import java.io.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 /**
  * Main function of the project.
  * Must be called from the command line. Either start the application in editing mode or in displaying mode to show the ranking lists.
@@ -23,7 +29,7 @@ import java.sql.SQLException;
  */
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length == 0 || args[0].equals("-help") || args[0].equals("--help")) {
             System.out.println(
                     "*******************\n"
@@ -51,6 +57,8 @@ public class Main {
                 new String[]{"mode", "driverPath", "driverName", "address", "user", "password"},
                 false, false, true, true, false)
                 .readArgs(args);
+
+
 
         // Initialize objects
         GlobalState globalState = GlobalState.getInstance();
@@ -92,13 +100,7 @@ public class Main {
         // Open the EventSelector
         EventSelector.getInstanceAndSetVisible();
 
-        // Sleep and wait for changes in database.
-        // The dbMonitor thread will continue to run!
-        try {
-            Thread.sleep(360000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        // Start Webserver
+        WebServer.startWebserver();
     }
 }
