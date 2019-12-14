@@ -27,10 +27,11 @@ public class Score implements Comparable<Score>, ICRUD {
     private int numberOfTries;
     private boolean isValid;
     private LocalDateTime timeOfRecording;
+    private boolean deleted;
 
     public Score(long id, long eventId, Competitor competitor,
                  LocalTime timeNeeded, Double pointsAchieved, int numberOfTries, boolean isValid,
-                 LocalDateTime timeOfRecording) {
+                 LocalDateTime timeOfRecording, boolean deleted) {
         this.id = id;
         this.eventId = eventId;
         this.competitor = competitor;
@@ -39,6 +40,7 @@ public class Score implements Comparable<Score>, ICRUD {
         this.isValid = isValid;
         this.numberOfTries = numberOfTries;
         this.timeOfRecording = timeOfRecording;
+        this.deleted = deleted;
     }
 
     // id. No setter!
@@ -90,10 +92,16 @@ public class Score implements Comparable<Score>, ICRUD {
     public void setTimeOfRecording(LocalDateTime timeOfRecording) {
         this.timeOfRecording = timeOfRecording;
     }
+    public boolean isDeleted() {
+        return deleted;
+    }
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 
     @Override
     public Score clone() {
-        return new Score(id, eventId, competitor, timeNeeded, pointsAchieved, numberOfTries, isValid, timeOfRecording);
+        return new Score(id, eventId, competitor, timeNeeded, pointsAchieved, numberOfTries, isValid, timeOfRecording, deleted);
     }
 
     @Override
@@ -154,7 +162,7 @@ public class Score implements Comparable<Score>, ICRUD {
         Connection conn = dbConnector.getConnection();
 
         try (Statement stmt = dbConnector.createStatmentForConnection(conn)) {
-            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.updateScore(id, eventId, competitor.getId(), timeNeeded, pointsAchieved, numberOfTries, isValid, timeOfRecording))) {
+            try (PreparedStatement preparedStatement = conn.prepareStatement(Query.updateScore(id, eventId, competitor.getId(), timeNeeded, pointsAchieved, numberOfTries, isValid, timeOfRecording, deleted))) {
                 preparedStatement.executeUpdate();
             }
             dbConnector.closeStatement(stmt);
@@ -185,6 +193,7 @@ public class Score implements Comparable<Score>, ICRUD {
         }
 
         dbConnector.closeConnection(conn);
+        deleted = true;
         return true;
     }
 }

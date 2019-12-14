@@ -1,4 +1,4 @@
-package ch.ffhs.pa.competitionmanager.entities;
+package ch.ffhs.pa.competitionmanager.db;
 
 public class DbCredentials {
     private String username, password;

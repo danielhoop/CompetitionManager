@@ -10,6 +10,7 @@ import ch.ffhs.pa.competitionmanager.utils.AgeUtils;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * Contains information on a competitor.
@@ -58,6 +59,23 @@ public class Competitor implements ICRUD {
         return age;
     }
     public void setAge(int age) { this.age = age; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Competitor that = (Competitor) o;
+        return id == that.id &&
+                age == that.age &&
+                Objects.equals(name, that.name) &&
+                gender == that.gender &&
+                Objects.equals(dateOfBirth, that.dateOfBirth);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, gender, dateOfBirth, age);
+    }
 
     @Override
     public Competitor clone() {

@@ -111,6 +111,25 @@ public class Query {
         return queryPart1 + queryPart2;
     }
 
+    public static String getAllScores(long event_id, boolean withDeletedOnes, boolean orderByName) {
+        String sql =
+                "select s.*, c.`name`, c.`date_of_birth`, c.`gender`, c.`" + ageColumnName(event_id) + "`\n" +
+                " from `CompetitionManager`.`score` s\n" +
+                " left join `CompetitionManager`.`competitor` c\n" +
+                "    on s.`competitor_id` = c.`id`\n" +
+                " where s.`event_id` = " + event_id + "\n" +
+                "   and c.`deleted` = false";
+        if (!withDeletedOnes) {
+            sql += " and s.`deleted` = false";
+        }
+        if (orderByName) {
+            sql += " order by c.`name` asc;";
+        } else {
+            sql += " order by s.`time_needed` asc;";
+        }
+        return sql;
+    }
+
     public static String ageColumnName(long event_id) {
         return "age_" + event_id;
     }
@@ -152,17 +171,24 @@ public class Query {
         return "drop view `CompetitionManager`.`" + viewName + "`;";
     }
     public static String createScoreViewForCategory(long event_id, String viewName, int minAgeInclusive, int maxAgeInclusive, int gender) {
-        return "create view `CompetitionManager`.`" + viewName + "` as\n" +
+        String sql =
+                "create view `CompetitionManager`.`" + viewName + "` as\n" +
                 "select s.*, c.`name`, c.`gender`, c.`date_of_birth`, c.`" + ageColumnName(event_id) + "`\n" +
                 "from `CompetitionManager`.`score` s\n" +
                 "left join `CompetitionManager`.`competitor` c\n" +
                 "on s.`competitor_id` = c.`id`\n" +
-                "where     s.`deleted` = false\n" +
+                "where" +
+                "      s.`deleted` = false\n" +
                 "  AND s.`is_valid` = true\n" +
-                "  AND s.`event_id` = "+ event_id + "\n" +
-                "      AND c.`" + ageColumnName(event_id) + "` >= " + minAgeInclusive + "\n" +
-                "      AND c.`" + ageColumnName(event_id) + "` <= " + maxAgeInclusive + "\n" +
-                "      AND c.`gender` = " + gender + ";";
+                "  AND s.`event_id` = " + event_id + "\n" +
+                "  AND c.`" + ageColumnName(event_id) + "` >= " + minAgeInclusive + "\n" +
+                "  AND c.`" + ageColumnName(event_id) + "` <= " + maxAgeInclusive + "\n";
+        if (Gender.valueOf(gender) == Gender.NOT_RELEVANT) {
+            sql += ";";
+        } else {
+            sql += "  AND c.`gender` = " + gender + ";";
+        }
+        return sql;
     }
     public static String createScoreViewForAllCompetitors(String viewName, long event_id) {
         return "create view `CompetitionManager`.`" + viewName + "` as\n" +
@@ -264,7 +290,7 @@ public class Query {
                 "set `name` = '" + name + "', `date` = '" + date + "', `date_descr` = '" + date_descr + "', `description` = '" + description + "'\n" +
                 "where `id` = " + id + ";";
     }
-    public static String updateScore(long id, long event_id, long competitor_id, LocalTime time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording) {
+    public static String updateScore(long id, long event_id, long competitor_id, LocalTime time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording, boolean deleted) {
         String timeNeededString;
         if (time_needed == null) {
             timeNeededString = "null";
@@ -272,7 +298,7 @@ public class Query {
             timeNeededString = "'" + time_needed.toString() + "'";
         }
         return "update `CompetitionManager`.`score`\n" +
-                "set `event_id` = " + event_id + ", `competitor_id` = " + competitor_id + ", `time_needed` = " + timeNeededString + ", `points_achieved` = " + points_achieved + ", `number_of_tries` = " + number_of_tries + ", `is_valid` = " + is_valid + ", `time_of_recording` = '" + time_of_recording + "'\n" +
+                "set `event_id` = " + event_id + ", `competitor_id` = " + competitor_id + ", `time_needed` = " + timeNeededString + ", `points_achieved` = " + points_achieved + ", `number_of_tries` = " + number_of_tries + ", `is_valid` = " + is_valid + ", `time_of_recording` = '" + time_of_recording + "', deleted = " + deleted + "\n" +
                 "where `id` = " + id + ";";
     }
     public static String updateCategory(long id, long event_id, String name, String description, int minAgeInclusive, int maxAgeInclusive, Gender gender) {

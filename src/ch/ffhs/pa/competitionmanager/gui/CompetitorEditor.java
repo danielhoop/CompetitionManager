@@ -24,7 +24,7 @@ public class CompetitorEditor {
     private boolean shouldShowSuccessOrUpdateMessage;
 
     private JPanel outerPanel;
-    private JButton navigateToScoreEditor;
+    private JButton navigateToScoreCreator;
     private JButton navigateToEventSelector;
     private JLabel descriptionLabel;
     private JTextField competitorNameField;
@@ -86,8 +86,8 @@ public class CompetitorEditor {
             shouldShowSuccessOrUpdateMessage = true;
 
             if(noErrorHasOccurred) {
-                ScoreEditor.getInstanceAndSetVisible(null, competitor.clone());
-                ScoreEditor.focusOnScoreTextField();
+                ScoreCreator.getInstanceAndSetVisible(null, competitor.clone());
+                ScoreCreator.focusOnScoreTextField();
                 setInvisibleAndClearAllFields();
             }
         });
@@ -123,8 +123,8 @@ public class CompetitorEditor {
             });
         });
 
-        navigateToScoreEditor.addActionListener(e -> {
-            ScoreEditor.getInstanceAndSetVisible();
+        navigateToScoreCreator.addActionListener(e -> {
+            ScoreCreator.getInstanceAndSetVisible();
             setInvisibleAndClearAllFields();
         });
 

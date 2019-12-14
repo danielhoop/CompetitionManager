@@ -1,78 +1,69 @@
 package ch.ffhs.pa.competitionmanager.gui;
 
-import org.apache.commons.lang3.time.StopWatch;
 import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
+import ch.ffhs.pa.competitionmanager.core.Scores;
 import ch.ffhs.pa.competitionmanager.entities.Competitor;
 import ch.ffhs.pa.competitionmanager.entities.Score;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import javax.swing.table.TableRowSorter;
-import java.awt.event.*;
-import java.sql.Time;
-import java.time.LocalDateTime;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ResourceBundle;
 
-
-/**
- * Singleton.
- */
 public class ScoreEditor {
-
     private static ScoreEditor scoreEditor = null;
 
     private GlobalState globalState;
     private ResourceBundle bundle;
+    private Score score;
+    private Competitor competitor;
+    private Scores scores;
+    private ScoreTableModel scoreTableModel;
+    private TableRowSorter<ScoreTableModel> scoreTableSorter;
     private CompetitorTableModel competitorTableModel;
     private CompetitorList competitorList;
     private TableRowSorter<CompetitorTableModel> competitorTableSorter;
-    private Score scoreToEdit;
-    private boolean editExisting;
     private JFrame mainFrame;
 
     private JPanel outerPanel;
-    private JLabel text1;
     private JTextField nameTextField;
     private JTextField dateOfBirthTextField;
-    private JTable competitorTable;
-    private JTextField timeNeededTextField;
+    private JScrollPane scoreScrollPane;
+    private JTable scoreTable;
+    private JButton navigateToScoreEditor;
+    private JButton navigateToEventSelector;
+    private JPanel scorePanel;
     private JCheckBox isValidCheckBox;
     private JButton saveButton;
-    private JTextField pointsAchievedTextField;
     private JLabel timeNeededLabel;
+    private JTextField timeNeededTextField;
     private JLabel pointsAchievedLabel;
-    private JButton newCompetitorButton;
-    private JButton reloadCompetitorsButton;
+    private JTextField pointsAchievedTextField;
+    private JButton deleteButton;
+    private JLabel text1;
     private JScrollPane competitorScrollPane;
-    private JButton editCompetitorButton;
-    private JButton navigateToEventSelectorButton;
-    private JButton timerButton;
-    private JPanel scorePanel;
-    private JTextPane howToStartTimerTextArea;
-
-    private StopWatch stopWatch = new StopWatch();
-    private Timer timer;
-    private boolean isTimerRunning = false;
-    private int selectedRow;
+    private JTable competitorTable;
+    private JTextField compNameTextField;
+    private JTextField compDateOfBirthTextField;
+    private JCheckBox deletedCheckBox;
 
     public static ScoreEditor getInstanceAndSetVisible() {
-        return getInstanceAndSetVisible(null, null);
-    }
-
-    public static ScoreEditor getInstanceAndSetVisible(Score scoreToEdit, Competitor competitor) {
         if (scoreEditor == null) {
             scoreEditor = ScoreEditor.main(true);
         } else {
             scoreEditor.mainFrame.setVisible(true);
-            scoreEditor.reloadCompetitorsFromDb();
+            scoreEditor.reloadScoresFromDb();
         }
-        scoreEditor.setScore(scoreToEdit);
-        scoreEditor.setCompetitor(competitor);
         return scoreEditor;
     }
 
@@ -80,7 +71,7 @@ public class ScoreEditor {
 
         ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
 
-        JFrame frame = new JFrame(bundle.getString("ScoreEditor.title"));
+        JFrame frame = new JFrame(bundle.getString("ScoreSelector.title"));
         ScoreEditor scoreEditor = new ScoreEditor(frame);
         SwingUtilities.invokeLater(() -> {
             frame.setContentPane(scoreEditor.outerPanel);
@@ -92,45 +83,52 @@ public class ScoreEditor {
         return scoreEditor;
     }
 
-
-    public static void focusOnScoreTextField() {
-        if (scoreEditor != null) {
-            GlobalState globalState = GlobalState.getInstance();
-            if (globalState.getEvent().isTimeRelevant()) {
-                scoreEditor.timeNeededTextField.requestFocus();
-            } else {
-                scoreEditor.pointsAchievedTextField.requestFocus();
-            }
-        }
+    private ScoreEditor(JFrame mainFrame) {
+        this.mainFrame = mainFrame;
+        this.globalState = GlobalState.getInstance();
+        this.bundle = globalState.getGuiTextBundle();
+        createUIComponents();
     }
 
-    private ScoreEditor(JFrame mainFrame) {
-        this.scoreToEdit = null;
-        this.editExisting = scoreToEdit != null;
-        this.mainFrame = mainFrame;
-        this.timer = new Timer(100, evt -> {
-            timeNeededTextField.setText(stopWatch.toString());
-        });
-        createUIComponents();
+    private void createUIComponents() {
+        // Table for Scores
+        scores = new Scores(GlobalState.getInstance().getEvent(), true, true);
+        scoreTableModel = scores.getScoresAsTableModel(true,true);
+        scoreTable.setModel(scoreTableModel);
+        // Sorter & filter. See also filterCompetitorTable()
+        scoreTableSorter = new TableRowSorter<ScoreTableModel>(scoreTableModel);
+        scoreTable.setRowSorter(scoreTableSorter);
 
-
-        // Do not move the code below into createUIComponents() !
-        globalState = GlobalState.getInstance();
-        bundle = globalState.getGuiTextBundle();
-
-        // Create text1 string, depending on whether time is relevant or points.
-        SwingUtilities.invokeLater(() -> {
-            String text1String = bundle.getString("ScoreEditor.text1.start");
-            if (globalState.getEvent().isTimeRelevant()) {
-                text1String += bundle.getString("ScoreEditor.text1.time");
+        scoreTable.getSelectionModel().addListSelectionListener(e -> {
+            int selectedRow = getSelectedRowOfScoreTable();
+            if (selectedRow != -1) {
+                score = scoreTableModel.getScoreFromRow(selectedRow).clone();
+                competitor = score.getCompetitor().clone();
+                timeNeededTextField.setText(safeToString(score.getTimeNeeded()));
+                pointsAchievedTextField.setText(safeToString(score.getPointsAchieved()));
+                isValidCheckBox.setSelected(score.isValid());
+                deletedCheckBox.setSelected(score.isDeleted());
+                compNameTextField.setText(score.getCompetitor().getName());
+                compDateOfBirthTextField.setText(
+                        new DateStringConverter(globalState.getLocale()).asString(score.getCompetitor().getDateOfBirth()));
+                filterCompetitorTable();
+                if (competitorTable.getRowCount() == 1) {
+                    int compSelectedRow = competitorTable.convertRowIndexToModel(0);
+                    competitorTable.setRowSelectionInterval(0, 0);
+                }
             } else {
-                text1String += bundle.getString("ScoreEditor.text1.points");
+                clearAllFields();
             }
-            text1.setText(text1String);
         });
 
-        // Add listeners to text fields.
-        // It won't work in the createUIComponents() method!!!
+        // Table for Competitors
+        competitorList = globalState.getCompetitorList();
+        competitorTableModel = competitorList.getCompetitorsAsTableModel();
+        competitorTable.setModel(competitorTableModel);
+        // Sorter & filter. See also filterCompetitorTable()
+        competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
+        competitorTable.setRowSorter(competitorTableSorter);
+
         nameTextField.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) { }
@@ -138,7 +136,7 @@ public class ScoreEditor {
             public void keyPressed(KeyEvent e) { }
             @Override
             public void keyReleased(KeyEvent e) {
-                filterCompetitorTable();
+                filterScoreTable();
             }
         });
 
@@ -149,33 +147,30 @@ public class ScoreEditor {
             public void keyPressed(KeyEvent e) { }
             @Override
             public void keyReleased(KeyEvent e) {
+                filterScoreTable();
+            }
+        });
+
+        compNameTextField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) { }
+            @Override
+            public void keyPressed(KeyEvent e) { }
+            @Override
+            public void keyReleased(KeyEvent e) {
                 filterCompetitorTable();
             }
         });
 
-        timeNeededTextField.addKeyListener(new KeyListener() {
+        compDateOfBirthTextField.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) { }
             @Override
-            public void keyPressed(KeyEvent e) {
-                if (Character.toUpperCase(e.getKeyChar()) == 'S') {
-                    startStopTimer();
-                }
+            public void keyPressed(KeyEvent e) { }
+            @Override
+            public void keyReleased(KeyEvent e) {
+                filterCompetitorTable();
             }
-            @Override
-            public void keyReleased(KeyEvent e) {}
-        });
-
-        // Table
-        competitorList = globalState.getCompetitorList();
-        competitorTableModel = competitorList.getCompetitorsAsTableModel();
-        competitorTable.setModel(competitorTableModel);
-        // Sorter & filter. See also filterCompetitorTable()
-        competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
-        competitorTable.setRowSorter(competitorTableSorter);
-
-        competitorTable.getSelectionModel().addListSelectionListener(e -> {
-            selectedRow = competitorTable.getSelectedRow();
         });
 
         // Time needed or points achieved
@@ -186,60 +181,10 @@ public class ScoreEditor {
             } else {
                 timeNeededLabel.setVisible(false);
                 timeNeededTextField.setVisible(false);
-                timerButton.setVisible(false);
-                howToStartTimerTextArea.setVisible(false);
             }
         });
 
-        // Timer description
-        howToStartTimerTextArea.setBorder(null);
-        howToStartTimerTextArea.setEditable(false);
-        howToStartTimerTextArea.setBackground(outerPanel.getBackground());
-
-
-        // Timer button
-        timerButton.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) { }
-            @Override
-            public void keyPressed(KeyEvent e) {
-                startStopTimer();
-            }
-            @Override
-            public void keyReleased(KeyEvent e) { }
-        });
-        timerButton.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) { }
-            @Override
-            public void mousePressed(MouseEvent e) { }
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                startStopTimer();
-            }
-            @Override
-            public void mouseEntered(MouseEvent e) { }
-            @Override
-            public void mouseExited(MouseEvent e) { }
-        });
-
-        // Reload Competitors Button
-        reloadCompetitorsButton.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) { }
-            @Override
-            public void mousePressed(MouseEvent e) { }
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                reloadCompetitorsFromDb();
-            }
-            @Override
-            public void mouseEntered(MouseEvent e) { }
-            @Override
-            public void mouseExited(MouseEvent e) { }
-        });
-
-
+        // Save button
         saveButton.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) { }
@@ -247,12 +192,14 @@ public class ScoreEditor {
             public void mousePressed(MouseEvent e) { }
             @Override
             public void mouseReleased(MouseEvent e) {
-                boolean savingHasWorked = saveOrEditScore();
+                boolean savingHasWorked = saveScore();
                 if (savingHasWorked) {
                     // Success message, dispose old window and open new one.
                     JOptionPane.showMessageDialog(null, bundle.getString("savingToDbWorked"));
+                    scores.reloadFromDb();
+                    scoreTableModel.fireTableDataChanged();
                     clearAllFields();
-                } // else { JOptionPane.showMessageDialog(null, bundle.getString("savingToDbFailed")); }
+                }
             }
             @Override
             public void mouseEntered(MouseEvent e) { }
@@ -260,45 +207,36 @@ public class ScoreEditor {
             public void mouseExited(MouseEvent e) { }
         });
 
-        editCompetitorButton.addActionListener(e -> {
-            int selectedRow = getSelectedRowOfTable();
+        // Delete button
+        deleteButton.addActionListener(e -> {
+            int selectedRow = getSelectedRowOfScoreTable();
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
                 return;
             }
-            Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow).clone();
-            CompetitorEditor.getInstanceAndSetVisible(selectedCompetitor);
+
+            SwingUtilities.invokeLater(() -> {
+                int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreSelector.scoreDeleteAreYourSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (shouldBeZero != 0) {
+                    return;
+                }
+                Score score = scoreTableModel.getScoreFromRow(selectedRow).clone();
+                score.delete();
+                scores.reloadFromDb();
+                scoreTableModel.fireTableDataChanged();
+                clearAllFields();
+                JOptionPane.showMessageDialog(null, bundle.getString("ScoreSelector.deletedText"));
+            });
+        });
+
+        navigateToScoreEditor.addActionListener(e -> {
+            ScoreCreator.getInstanceAndSetVisible();
             setInvisibleAndClearAllFields();
         });
 
-        newCompetitorButton.addActionListener(e -> {
-            CompetitorEditor.getInstanceAndSetVisible();
-            setInvisibleAndClearAllFields();
-        });
-
-        // Navigate to event selector
-        navigateToEventSelectorButton.addActionListener(e -> {
-            setInvisibleAndClearAllFields();
+        navigateToEventSelector.addActionListener(e -> {
             EventSelector.getInstanceAndSetVisible();
-        });
-    }
-
-    private void createUIComponents() {
-    }
-
-    private void clearAllFields() {
-        scoreToEdit = null;
-        SwingUtilities.invokeLater(() -> {
-            nameTextField.setText("");
-            dateOfBirthTextField.setText("");
-            competitorTable.clearSelection();
-            competitorTableSorter.setRowFilter(null);
-            competitorTableModel.fireTableDataChanged();
-
-            timeNeededTextField.setText("");
-            timeNeededTextField.setEditable(true);
-            pointsAchievedTextField.setText("");
-            isValidCheckBox.setSelected(true);
+            setInvisibleAndClearAllFields();
         });
     }
 
@@ -309,7 +247,32 @@ public class ScoreEditor {
         clearAllFields();
     }
 
-    private void filterCompetitorTable() {
+    private void clearAllFields() {
+        score = null;
+        competitor = null;
+        SwingUtilities.invokeLater(() -> {
+            nameTextField.setText("");
+            dateOfBirthTextField.setText("");
+            compNameTextField.setText("");
+            compDateOfBirthTextField.setText("");
+            timeNeededTextField.setText("");
+            pointsAchievedTextField.setText("");
+            isValidCheckBox.setSelected(false);
+            deletedCheckBox.setSelected(false);
+
+            scoreTableSorter.setRowFilter(null);
+            scoreTableModel.fireTableDataChanged();
+            competitorTableSorter.setRowFilter(null);
+            competitorTableModel.fireTableDataChanged();
+        });
+    }
+
+    private void reloadScoresFromDb() {
+        scores.reloadFromDb();
+        scoreTableModel.fireTableDataChanged();
+    }
+
+    private void filterScoreTable() {
         List<RowFilter<Object, Object>> filters = new LinkedList<>();
         // First, filter on name
         try {
@@ -331,11 +294,50 @@ public class ScoreEditor {
         }
 
         // Combine filters and apply. https://stackoverflow.com/questions/31372553/jtable-rowfilter-between-two-dates-same-column
+        scoreTableSorter.setRowFilter(RowFilter.andFilter(filters));
+        scoreTableModel.fireTableDataChanged();
+    }
+
+    private void filterCompetitorTable() {
+        List<RowFilter<Object, Object>> filters = new LinkedList<>();
+        // First, filter on name
+        try {
+            // If current expression doesn't parse, don't update.
+            // https://stackoverflow.com/questions/7904695/java-escaping-meta-characters-and-in-regex
+            String name = "(?i)" + java.util.regex.Pattern.quote(compNameTextField.getText());
+            filters.add(RowFilter.regexFilter(name, 0));
+        } catch (java.util.regex.PatternSyntaxException e) {
+            return;
+        }
+        // Then filter on birthday
+        try {
+            // If current expression doesn't parse, don't update.
+            // https://stackoverflow.com/questions/7904695/java-escaping-meta-characters-and-in-regex
+            String dateOfBirth = java.util.regex.Pattern.quote(compDateOfBirthTextField.getText());
+            filters.add(RowFilter.regexFilter(dateOfBirth, 1));
+        } catch (java.util.regex.PatternSyntaxException e) {
+            return;
+        }
+
+        // Combine filters and apply. https://stackoverflow.com/questions/31372553/jtable-rowfilter-between-two-dates-same-column
         competitorTableSorter.setRowFilter(RowFilter.andFilter(filters));
         competitorTableModel.fireTableDataChanged();
     }
 
-    private int getSelectedRowOfTable() {
+    private int getSelectedRowOfScoreTable() {
+        int selectedRow = -1;
+        // Exception happens when competitorTable.getSelectedRow() is -1.
+        try {
+            selectedRow = scoreTable.convertRowIndexToModel(scoreTable.getSelectedRow());
+        } catch (IndexOutOfBoundsException ex) {
+            selectedRow = -1;
+        }
+        if (selectedRow == -1 && scoreTable.getRowCount() == 1) {
+            selectedRow = scoreTable.convertRowIndexToModel(0);
+        }
+        return selectedRow;
+    }
+    private int getSelectedRowOfCompetitorTable() {
         int selectedRow = -1;
         // Exception happens when competitorTable.getSelectedRow() is -1.
         try {
@@ -343,142 +345,82 @@ public class ScoreEditor {
         } catch (IndexOutOfBoundsException ex) {
             selectedRow = -1;
         }
-        if (!editExisting && selectedRow == -1 && competitorTable.getRowCount() == 1) {
+        if (selectedRow == -1 && competitorTable.getRowCount() == 1) {
             selectedRow = competitorTable.convertRowIndexToModel(0);
         }
         return selectedRow;
     }
 
-    public void reloadCompetitorsFromDb() {
-        globalState.reloadCompetitorListFromDb();
-        competitorTableModel.fireTableDataChanged();
-    }
+    private boolean saveScore() {
 
-    private boolean saveOrEditScore() {
-        boolean shouldContinue = true;
-        boolean isValid = isValidCheckBox.isSelected();
-        int selectedRow = getSelectedRowOfTable();
-
-        // Continue only if a row is selected or only 1 row is displayed
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
-            shouldContinue = false;
+        int selectedScoreRow = getSelectedRowOfScoreTable();
+        if (selectedScoreRow == -1) {
+            JOptionPane.showMessageDialog(null, bundle.getString("ScoreSelector.errorNoScoreSelected"));
+            return false;
         }
 
-        // Continue only if time and double can be parsed.
-        LocalTime timeNeeded = null;
-        Double pointsAchieved = null;
-        if (shouldContinue) {
-            if (globalState.getEvent().isTimeRelevant()) {
-                try {
-                    timeNeeded = LocalTime.parse(timeNeededTextField.getText(), DateTimeFormatter.ISO_LOCAL_TIME);
-                } catch (DateTimeParseException ex) {
-                    JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorTimeNotParsed"));
-                    shouldContinue = false;
-                }
-            } else {
-                try {
-                    pointsAchieved = Double.valueOf(pointsAchievedTextField.getText());
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorPointsNotParsed"));
-                    shouldContinue = false;
-                }
-            }
+        int selectedCompetitorRow = getSelectedRowOfCompetitorTable();
+        if (selectedCompetitorRow == -1) {
+            JOptionPane.showMessageDialog(null, bundle.getString("ScoreSelector.errorNoCompetitorSelected"));
+            return false;
         }
 
-        if (shouldContinue) {
-            // Get competitor
-            Competitor competitor;
-            if (editExisting && selectedRow == -1) {
-                competitor = scoreToEdit.getCompetitor();
-            } else {
-                competitor = competitorTableModel.getCompetitorFromRow(selectedRow);
-                //System.out.println("Selected competitor: " + competitor.getName());
+        Score newScore = scoreTableModel.getScoreFromRow(selectedScoreRow).clone();
+        Competitor newCompetitor = competitorTableModel.getCompetitorFromRow(selectedCompetitorRow).clone();
+        if (!competitor.equals(newCompetitor)) {
+            int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreSelector.competitorChangedAreYouSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (shouldBeZero != 0) {
+                return false;
             }
-
-            // Assert that competitor was not changed by by accident.
-            if (editExisting) {
-                if (scoreToEdit.getCompetitor() != competitor) {
-                    int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.hintCompetitorIsNotTheSame"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-                    shouldContinue = shouldBeZero == 0;
-                }
-                if (shouldContinue) {
-                    scoreToEdit.setCompetitor(competitor);
-                    scoreToEdit.setTimeNeeded(timeNeeded);
-                    scoreToEdit.setPointsAchieved(pointsAchieved);
-                    scoreToEdit.setNumberOfTries(1);
-                    scoreToEdit.setValid(isValid);
-                    // Update in database.
-                    return scoreToEdit.update();
-                }
-            } else {
-                // Create object and save into database (score.create()).
-                Score score = new Score(-1, globalState.getEvent().getId(), competitor, timeNeeded, pointsAchieved, 1, isValid, LocalDateTime.now());
-                return score.create();
-            }
+            newScore.setCompetitor(newCompetitor);
         }
-        return false;
-    }
 
-    private void setCompetitor(Competitor competitor) {
-        if (competitor != null) {
-            SwingUtilities.invokeLater(() -> {
-                this.nameTextField.setText(competitor.getName());
-                this.dateOfBirthTextField.setText(new DateStringConverter(globalState.getLocale()).asString(competitor.getDateOfBirth()));
-
-                filterCompetitorTable();
-                if (getSelectedRowOfTable() == -1) {
-                    reloadCompetitorsFromDb();
-                    filterCompetitorTable();
-                }
-            });
-        }
-    }
-
-    private void setScore(Score score) {
-        this.editExisting = score != null;
-        this.scoreToEdit = score;
-
-        // Button must either say "save" or "save changes".
-        SwingUtilities.invokeLater(() -> {
-            if (editExisting) {
-                saveButton.setText(bundle.getString("change"));
-            } else {
-                saveButton.setText(bundle.getString("save"));
-            }
-        });
-    }
-
-    private void startStopTimer() {
-
-        if (!isTimerRunning) {
-            if (!timeNeededTextField.getText().equals(""))
-                return;
-            isTimerRunning = true;
-            stopWatch.start();
-            timer.start();
-            SwingUtilities.invokeLater(() -> {
-                String stopString = globalState.getGuiTextBundle().getString("ScoreEditor.timerButtonStop");
-                timerButton.setText(stopString);
-                competitorTable.setEnabled(false);
-                outerPanel.setBackground(new java.awt.Color(154, 205, 50, 255));
-            });
-
+        if (timeNeededTextField.getText().equals("")) {
+            newScore.setTimeNeeded(null);
         } else {
-            isTimerRunning = false;
-            stopWatch.stop();
-            timer.stop();
-            SwingUtilities.invokeLater(() -> {
-                String startString = globalState.getGuiTextBundle().getString("ScoreEditor.timerButtonStart");
-                timerButton.setText(startString);
-                timeNeededTextField.setText(stopWatch.toString());
-                timeNeededTextField.setEditable(false);
-                competitorTable.setEnabled(true);
-                outerPanel.setBackground(scorePanel.getBackground());
-                // Reset must come after writing into timeNeededTextField. Otherwise it will be 00:00:00
-                stopWatch.reset();
-            });
+            LocalTime timeNeeded;
+            try {
+                timeNeeded = LocalTime.parse(timeNeededTextField.getText(), DateTimeFormatter.ISO_LOCAL_TIME);
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorTimeNotParsed"));
+                return false;
+            }
+            newScore.setTimeNeeded(timeNeeded);
         }
+
+        if (pointsAchievedTextField.getText().equals("")) {
+            newScore.setPointsAchieved(null);
+        } else {
+            double pointsAchieved;
+            try {
+                pointsAchieved = Double.valueOf(pointsAchievedTextField.getText());
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorPointsNotParsed"));
+                return false;
+            }
+        }
+
+        newScore.setValid(isValidCheckBox.isSelected());
+
+        boolean shouldDelete = false;
+        if (!newScore.isDeleted() && deletedCheckBox.isSelected()) {
+            int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreSelector.scoreDeleteAreYourSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (shouldBeZero == 0) {
+                shouldDelete = true;
+            }
+        }
+        newScore.setDeleted(deletedCheckBox.isSelected());
+
+        boolean hasWorked = newScore.update();
+        if (shouldDelete)
+            hasWorked = hasWorked && newScore.delete();
+
+        return hasWorked;
     }
 
+    private String safeToString(Object o) {
+        if (o == null)
+            return "";
+        return o.toString();
+    }
 }

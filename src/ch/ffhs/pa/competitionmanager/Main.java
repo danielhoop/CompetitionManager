@@ -6,7 +6,7 @@ import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.danielhoop.utils.GuiLookAndFeelUtils;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
-import ch.ffhs.pa.competitionmanager.entities.DbCredentials;
+import ch.ffhs.pa.competitionmanager.db.DbCredentials;
 import ch.ffhs.pa.competitionmanager.gui.EventSelector;
 import ch.ffhs.pa.competitionmanager.gui.PasswordGui;
 import ch.ffhs.pa.competitionmanager.webserver.WebServer;
