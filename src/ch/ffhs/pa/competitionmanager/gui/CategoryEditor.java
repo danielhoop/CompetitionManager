@@ -9,6 +9,8 @@ import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ResourceBundle;
@@ -44,6 +46,8 @@ public class CategoryEditor {
             categoryEditor = categoryEditor.main();
         }
         SwingUtilities.invokeLater(() -> {
+            // The table has to be created each time the window opens, because the event could have changed.
+            categoryEditor.createCategoryTable();
             categoryEditor.mainFrame.pack();
             categoryEditor.mainFrame.setVisible(true);
         });
@@ -55,6 +59,15 @@ public class CategoryEditor {
         SwingUtilities.invokeLater(() -> {
             createUIComponents();
         });
+    }
+
+    private void createCategoryTable() {
+        categoryList = globalState.getCategoryList();
+        categoryTableModel = categoryList.getCategoriesAsTableModel();
+        categoryTable.setModel(categoryTableModel);
+        // Sorter & filter. See also filterCategoryTable()
+        categoryTableSorter = new TableRowSorter<CategoryTableModel>(categoryTableModel);
+        categoryTable.setRowSorter(categoryTableSorter);
     }
 
     private void createUIComponents() {
@@ -69,26 +82,10 @@ public class CategoryEditor {
                 event.getName() + " (" +  eventDate + ")");
 
         // Table
-        categoryList = globalState.getCategoryList();
-        categoryTableModel = categoryList.getCategoriesAsTableModel();
-        categoryTable.setModel(categoryTableModel);
-        // Sorter & filter. See also filterCategoryTable()
-        categoryTableSorter = new TableRowSorter<CategoryTableModel>(categoryTableModel);
-        categoryTable.setRowSorter(categoryTableSorter);
+        createCategoryTable();
 
-        categoryTable.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {}
-            @Override
-            public void mousePressed(MouseEvent e) {}
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                setSelectedCategory();
-            }
-            @Override
-            public void mouseEntered(MouseEvent e) {}
-            @Override
-            public void mouseExited(MouseEvent e) {}
+        categoryTable.getSelectionModel().addListSelectionListener(e -> {
+            setSelectedCategory();
         });
 
         // Radio buttons
@@ -112,13 +109,10 @@ public class CategoryEditor {
         saveButton.addActionListener(e -> {
             boolean editExisting = category != null;
 
-            if (!maleRadioButton.isSelected() && !femaleRadioButton.isSelected() && !notRelevantRadioButton.isSelected()) {
-                JOptionPane.showMessageDialog(null, bundle.getString("Category.errorNoGenderSelected"));
-                return;
-            }
-
             // This method call will set this.category! I.e., it will not be null anymore!
-            fillCategoryFromFields();
+            boolean isCategoryInputValid = fillCategoryFromFields();
+            if (!isCategoryInputValid)
+                return;
 
             if (editExisting) {
                 if (category.update()) {
@@ -139,15 +133,17 @@ public class CategoryEditor {
         deleteButton.addActionListener(e -> {
             int selectedRow = getSelectedRowOfTable();
             if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(null, bundle.getString("Category.noCategorySelected"));
+                JOptionPane.showMessageDialog(null, bundle.getString("CategoryEditor.noCategorySelected"));
             } else {
-                int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("Category.sureToDelete"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("CategoryEditor.sureToDelete"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (shouldBeZero == 0) {
                     if (category.delete()) {
                         JOptionPane.showMessageDialog(null, bundle.getString("deletingInDbWorked"));
                     }
                 }
             }
+            globalState.reloadCategoryListFromDb();
+            categoryTableModel.fireTableDataChanged();
         });
 
         // Navigate to event selector
@@ -200,10 +196,13 @@ public class CategoryEditor {
             maleRadioButton.setSelected(false);
             femaleRadioButton.setSelected(false);
             notRelevantRadioButton.setSelected(false);
-            saveButton.setText(bundle.getString("Category.buttonSaveNew"));
+            saveButton.setText(bundle.getString("CategoryEditor.buttonSaveNew"));
             if (clearTableSorting) {
-                categoryTable.getRowSorter().setSortKeys(null);
+                categoryTableSorter.setRowFilter(null);
+                categoryTableModel.fireTableDataChanged();
             }
+            globalState.reloadCategoryListFromDb();
+            categoryTableModel.fireTableDataChanged();
         });
     }
 
@@ -247,12 +246,31 @@ public class CategoryEditor {
         }
     }
 
-    private void fillCategoryFromFields() {
+    private boolean fillCategoryFromFields() {
         String name = nameTextField.getText();
         String description = descriptionTextField.getText();
-        int minAgeInclusive = Integer.valueOf(minAgeTextField.getText());
-        int maxAgeInclusive = Integer.valueOf(maxAgeTextField.getText());
+        int minAgeInclusive;
+        int maxAgeInclusive;
+
+        try {
+            minAgeInclusive = Integer.valueOf(minAgeTextField.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, bundle.getString("CategoryEditor.minAgeIsEmpty"));
+            return false;
+        }
+
+        try {
+            maxAgeInclusive = Integer.valueOf(maxAgeTextField.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, bundle.getString("CategoryEditor.maxAgeIsEmpty"));
+            return false;
+        }
         Gender gender = getSelectedGender();
+        if (gender == null) {
+            JOptionPane.showMessageDialog(null, bundle.getString("CategoryEditor.errorNoGenderSelected"));
+            return false;
+        }
+
         if (category == null) {
             category = new Category(-1, globalState.getEvent().getId(), name, description, minAgeInclusive, maxAgeInclusive, gender);
         } else {
@@ -262,6 +280,7 @@ public class CategoryEditor {
             category.setMaxAgeInclusive(maxAgeInclusive);
             category.setGender(gender);
         }
+        return true;
     }
 
     private void setGenderButton(Gender gender) {
@@ -309,14 +328,14 @@ public class CategoryEditor {
             return Gender.FEMALE;
         if (notRelevantRadioButton.isSelected())
             return Gender.NOT_RELEVANT;
-        return Gender.NOT_RELEVANT;
+        return null;
     }
 
     private void setSaveButtonText() {
         if (category == null) {
-            saveButton.setText(bundle.getString("Category.buttonSaveNew"));
+            saveButton.setText(bundle.getString("CategoryEditor.buttonSaveNew"));
         } else {
-            saveButton.setText(bundle.getString("Category.buttonSaveChanges"));
+            saveButton.setText(bundle.getString("CategoryEditor.buttonSaveChanges"));
         }
     }
 }

@@ -33,6 +33,7 @@ public class GlobalState {
 
     private CategoryList categoryList;
     private CompetitorList competitorList;
+    private EventList eventList;
     private RankingList rankingList;
     private DbMonitor dbMonitor;
 
@@ -111,12 +112,20 @@ public class GlobalState {
         return competitorList;
     }
 
+    public EventList getEventList() {
+        return eventList;
+    }
+    public void setEventList(EventList eventList) {
+        this.eventList = eventList;
+    }
+
     public void reloadCompetitorListFromDb() {
         competitorList.reloadFromDb();
     }
     public void reloadCategoryListFromDb() {
         categoryList.reloadFromDb();
     }
+    public void reloadEventListFromDb() { eventList.reloadFromDb(); }
 
     public Locale getLocale() {
         return this.locale;

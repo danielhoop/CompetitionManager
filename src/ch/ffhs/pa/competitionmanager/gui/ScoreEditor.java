@@ -48,6 +48,7 @@ public class ScoreEditor {
     private JButton reloadCompetitorsButton;
     private JScrollPane competitorScrollPane;
     private JButton editCompetitorButton;
+    private JButton navigateToEventSelectorButton;
     private int selectedRow;
 
     /*public static ScoreEditor getInstance() {
@@ -87,6 +88,17 @@ public class ScoreEditor {
             frame.setVisible(setVisible);
         });
         return scoreEditor;
+    }
+
+    public static void focusOnScoreTextField() {
+        if (scoreEditor != null) {
+            GlobalState globalState = GlobalState.getInstance();
+            if (globalState.getEvent().isTimeRelevant()) {
+                scoreEditor.timeNeededTextField.requestFocus();
+            } else {
+                scoreEditor.pointsAchievedTextField.requestFocus();
+            }
+        }
     }
     
     private ScoreEditor(JFrame mainFrame) {
@@ -146,7 +158,6 @@ public class ScoreEditor {
 
         competitorTable.getSelectionModel().addListSelectionListener(e -> {
             selectedRow = competitorTable.getSelectedRow();
-            // System.out.println("RowSelectionEvent fired. selectedRow: " + selectedRow);
         });
 
         // Time needed or points achieved
@@ -212,6 +223,12 @@ public class ScoreEditor {
             CompetitorEditor.getInstanceAndSetVisible();
             setInvisibleAndClearAllFields();
         });
+
+        // Navigate to event selector
+        navigateToEventSelectorButton.addActionListener(e -> {
+            setInvisibleAndClearAllFields();
+            EventSelector.getInstanceAndSetVisible();
+        });
     }
 
     private void createUIComponents() {
@@ -223,7 +240,8 @@ public class ScoreEditor {
             nameTextField.setText("");
             dateOfBirthTextField.setText("");
             competitorTable.clearSelection();
-            competitorTable.getRowSorter().setSortKeys(null);
+            competitorTableSorter.setRowFilter(null);
+            competitorTableModel.fireTableDataChanged();
 
             timeNeededTextField.setText("");
             pointsAchievedTextField.setText("");

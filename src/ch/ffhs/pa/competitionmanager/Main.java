@@ -83,6 +83,9 @@ public class Main {
             ExceptionVisualizer.showAndAddMessage(e, "The database connection could not be established\n");
         }
 
+        // EventList can be set only after the database connector has been established!
+        globalState.setEventList(new EventList());
+
         // Set Gui Look and feel
         GuiLookAndFeelUtils.set();
 
