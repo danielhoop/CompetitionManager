@@ -19,6 +19,32 @@ public class DbPreparator {
 
     private static GlobalState globalState = GlobalState.getInstance();
 
+    public static void createSchemaIfNotExists() {
+        DbConnector dbConnector = globalState.getDbConnector();
+        Connection conn = dbConnector.getConnection();
+        Statement stmt = dbConnector.createStatmentForConnection(conn);
+
+        try {
+            stmt.execute(Query.doesDatabaseSchemaExist());
+            ResultSet rs = stmt.getResultSet();
+            // If there are no rows in that query, then the schema does not exist.
+            if (!rs.next()) {
+                for (String query : Query.createDatabaseSchema()) {
+                    if (!query.equals(";") && !query.equals("\n;")) {
+                        stmt.execute(query);
+                        System.out.print(query);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ExceptionVisualizer.showAndAddMessage(e, "When trying to create the database schema, the following error occurred: ");
+        }
+
+        dbConnector.closeStatement(stmt);
+        dbConnector.closeConnection(conn);
+    }
+
     public static boolean prepare(Event event, CategoryList categoryList) {
         boolean hasWorked = true;
         hasWorked = hasWorked & createAgeColumn(event);

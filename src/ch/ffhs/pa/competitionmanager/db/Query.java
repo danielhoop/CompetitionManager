@@ -349,4 +349,121 @@ public class Query {
         return "UPDATE category SET deleted = 1, deleted_datetime = '"
                 + deleted_datetime + "' WHERE id = " + id + ";";
     }
+
+    public static String doesDatabaseSchemaExist() {
+        return  "SELECT SCHEMA_NAME\n" +
+                "FROM INFORMATION_SCHEMA.SCHEMATA\n" +
+                "WHERE SCHEMA_NAME = 'CompetitionManager'";
+    }
+
+    public static String[] createDatabaseSchema() {
+        String sql = "SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;\n" +
+                "SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;\n" +
+                "SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';\n" +
+                "\n" +
+                "-- -----------------------------------------------------\n" +
+                "-- Schema CompetitionManager\n" +
+                "-- -----------------------------------------------------\n" +
+                "\n" +
+                "-- -----------------------------------------------------\n" +
+                "-- Schema CompetitionManager\n" +
+                "-- -----------------------------------------------------\n" +
+                "CREATE SCHEMA IF NOT EXISTS `CompetitionManager` DEFAULT CHARACTER SET utf8 ;\n" +
+                "USE `CompetitionManager` ;\n" +
+                "\n" +
+                "-- -----------------------------------------------------\n" +
+                "-- Table `CompetitionManager`.`event`\n" +
+                "-- -----------------------------------------------------\n" +
+                "CREATE TABLE IF NOT EXISTS `CompetitionManager`.`event` (\n" +
+                "  `id` INT NOT NULL AUTO_INCREMENT,\n" +
+                "  `name` VARCHAR(90) NOT NULL,\n" +
+                "  `date` DATE NOT NULL,\n" +
+                "  `date_descr` VARCHAR(90) NULL,\n" +
+                "  `description` VARCHAR(1024) NULL,\n" +
+                "  `is_time_relevant` TINYINT NOT NULL,\n" +
+                "  `created_datetime` DATETIME NOT NULL,\n" +
+                "  `deleted` BIT NOT NULL,\n" +
+                "  `deleted_datetime` DATETIME NULL,\n" +
+                "  PRIMARY KEY (`id`))\n" +
+                "ENGINE = InnoDB;\n" +
+                "\n" +
+                "\n" +
+                "-- -----------------------------------------------------\n" +
+                "-- Table `CompetitionManager`.`competitor`\n" +
+                "-- -----------------------------------------------------\n" +
+                "CREATE TABLE IF NOT EXISTS `CompetitionManager`.`competitor` (\n" +
+                "  `id` INT NOT NULL AUTO_INCREMENT,\n" +
+                "  `name` VARCHAR(90) NOT NULL,\n" +
+                "  `gender` TINYINT NOT NULL,\n" +
+                "  `date_of_birth` DATE NOT NULL,\n" +
+                "  `created_datetime` DATETIME NOT NULL,\n" +
+                "  `deleted` BIT NOT NULL,\n" +
+                "  `deleted_datetime` DATETIME NULL,\n" +
+                "  PRIMARY KEY (`id`))\n" +
+                "ENGINE = InnoDB;\n" +
+                "\n" +
+                "\n" +
+                "-- -----------------------------------------------------\n" +
+                "-- Table `CompetitionManager`.`score`\n" +
+                "-- -----------------------------------------------------\n" +
+                "CREATE TABLE IF NOT EXISTS `CompetitionManager`.`score` (\n" +
+                "  `id` INT NOT NULL AUTO_INCREMENT,\n" +
+                "  `event_id` INT NOT NULL,\n" +
+                "  `competitor_id` INT NOT NULL,\n" +
+                "  `time_needed` TIME(3) NULL,\n" +
+                "  `points_achieved` DOUBLE NULL,\n" +
+                "  `number_of_tries` INT NOT NULL,\n" +
+                "  `is_valid` BIT NOT NULL,\n" +
+                "  `time_of_recording` DATETIME NOT NULL,\n" +
+                "  `created_datetime` DATETIME NOT NULL,\n" +
+                "  `deleted` BIT NOT NULL,\n" +
+                "  `deleted_datetime` DATETIME NULL,\n" +
+                "  PRIMARY KEY (`id`, `event_id`, `competitor_id`),\n" +
+                "  INDEX `fk_score_event1_idx` (`event_id` ASC) VISIBLE,\n" +
+                "  INDEX `fk_score_competitor1_idx` (`competitor_id` ASC) VISIBLE,\n" +
+                "  CONSTRAINT `fk_score_event1`\n" +
+                "    FOREIGN KEY (`event_id`)\n" +
+                "    REFERENCES `CompetitionManager`.`event` (`id`)\n" +
+                "    ON DELETE NO ACTION\n" +
+                "    ON UPDATE NO ACTION,\n" +
+                "  CONSTRAINT `fk_score_competitor1`\n" +
+                "    FOREIGN KEY (`competitor_id`)\n" +
+                "    REFERENCES `CompetitionManager`.`competitor` (`id`)\n" +
+                "    ON DELETE NO ACTION\n" +
+                "    ON UPDATE NO ACTION)\n" +
+                "ENGINE = InnoDB;\n" +
+                "\n" +
+                "\n" +
+                "-- -----------------------------------------------------\n" +
+                "-- Table `CompetitionManager`.`category`\n" +
+                "-- -----------------------------------------------------\n" +
+                "CREATE TABLE IF NOT EXISTS `CompetitionManager`.`category` (\n" +
+                "  `id` INT NOT NULL AUTO_INCREMENT,\n" +
+                "  `event_id` INT NOT NULL,\n" +
+                "  `name` VARCHAR(90) NOT NULL,\n" +
+                "  `description` VARCHAR(1024) NULL,\n" +
+                "  `min_age_inclusive` INT NOT NULL,\n" +
+                "  `max_age_inclusive` INT NOT NULL,\n" +
+                "  `gender` TINYINT NOT NULL,\n" +
+                "  `deleted` BIT NOT NULL,\n" +
+                "  `deleted_datetime` DATETIME NULL,\n" +
+                "  PRIMARY KEY (`id`, `event_id`),\n" +
+                "  INDEX `fk_category_event1_idx` (`event_id` ASC) VISIBLE,\n" +
+                "  CONSTRAINT `fk_category_event1`\n" +
+                "    FOREIGN KEY (`event_id`)\n" +
+                "    REFERENCES `CompetitionManager`.`event` (`id`)\n" +
+                "    ON DELETE NO ACTION\n" +
+                "    ON UPDATE NO ACTION)\n" +
+                "ENGINE = InnoDB;\n" +
+                "\n" +
+                "\n" +
+                "SET SQL_MODE=@OLD_SQL_MODE;\n" +
+                "SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;\n" +
+                "SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;\n";
+        String[] sqlSplitted = sql.split(";");
+        for (int i = 0; i<sqlSplitted.length; i++) {
+            sqlSplitted[i] = sqlSplitted[i] + ";";
+        }
+        return sqlSplitted;
+    }
 }
