@@ -100,6 +100,7 @@ public class CompetitorEditor {
                 }
                 competitor.delete();
                 clearAllFields();
+                editExisting = false;
                 JOptionPane.showMessageDialog(null, bundle.getString("CompetitorEditor.deletedText"));
             });
         });
