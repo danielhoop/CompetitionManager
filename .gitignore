@@ -1,4 +1,7 @@
 out/
+html/categories.txt
+html/category_content.txt
+html/content.txt
 *.plantuml
 
 # gitignore from standard template. Source is:
