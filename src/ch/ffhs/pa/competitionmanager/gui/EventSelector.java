@@ -16,6 +16,7 @@ public class EventSelector {
 
     private static EventSelector eventSelector = null;
 
+    private EventList eventList;
     private EventTableModel eventTableModel;
     private JFrame mainFrame;
     private int selectedRow;
@@ -35,6 +36,7 @@ public class EventSelector {
             eventSelector = EventSelector.main();
         } else {
             eventSelector.mainFrame.setVisible(true);
+            eventSelector.reloadEventsFromDb();
         }
         return eventSelector;
     }
@@ -68,7 +70,7 @@ public class EventSelector {
         });
 
         // Table
-        EventList eventList = globalState.getEventList();
+        eventList = globalState.getEventList();
         eventTableModel = eventList.getEventsAsTableModel();
         eventTable.setModel(eventTableModel);
         selectedRow = -1;
@@ -176,5 +178,10 @@ public class EventSelector {
             SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
             CategoryEditor.getInstanceAndSetVisible();
         }
+    }
+
+    private void reloadEventsFromDb() {
+        eventList.reloadFromDb();
+        eventSelector.eventTableModel.fireTableDataChanged();
     }
 }
