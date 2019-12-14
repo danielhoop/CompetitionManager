@@ -1,5 +1,6 @@
 package ch.ffhs.pa.competitionmanager.gui;
 
+import org.apache.commons.lang3.time.StopWatch;
 import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.dto.Competitor;
@@ -7,15 +8,15 @@ import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.table.TableRowSorter;
 import java.awt.event.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+
 
 /**
  * Singleton.
@@ -49,19 +50,18 @@ public class ScoreEditor {
     private JScrollPane competitorScrollPane;
     private JButton editCompetitorButton;
     private JButton navigateToEventSelectorButton;
-    private int selectedRow;
+    private JButton timerButton;
+    private JPanel scorePanel;
 
-    /*public static ScoreEditor getInstance() {
-        if (scoreEditor == null) {
-            scoreEditor = ScoreEditor.main(false);
-        }
-        return scoreEditor;
-    }*/
+    private StopWatch stopWatch = new StopWatch();
+    private Timer timer;
+    private boolean isTimerRunning = false;
+    private int selectedRow;
 
     public static ScoreEditor getInstanceAndSetVisible() {
         return getInstanceAndSetVisible(null, null);
     }
-    
+
     public static ScoreEditor getInstanceAndSetVisible(Score scoreToEdit, Competitor competitor) {
         if (scoreEditor == null) {
             scoreEditor = ScoreEditor.main(true);
@@ -90,6 +90,7 @@ public class ScoreEditor {
         return scoreEditor;
     }
 
+
     public static void focusOnScoreTextField() {
         if (scoreEditor != null) {
             GlobalState globalState = GlobalState.getInstance();
@@ -100,12 +101,14 @@ public class ScoreEditor {
             }
         }
     }
-    
+
     private ScoreEditor(JFrame mainFrame) {
         this.scoreToEdit = null;
         this.editExisting = scoreToEdit != null;
         this.mainFrame = mainFrame;
-
+        this.timer = new Timer(100, evt -> {
+            timeNeededTextField.setText(stopWatch.toString());
+        });
         createUIComponents();
 
 
@@ -148,6 +151,19 @@ public class ScoreEditor {
             }
         });
 
+        timeNeededTextField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (Character.toUpperCase(e.getKeyChar()) == 'S') {
+                    startStopTimer();
+                }
+            }
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
+
         // Table
         competitorList = globalState.getCompetitorList();
         competitorTableModel = competitorList.getCompetitorsAsTableModel();
@@ -171,28 +187,54 @@ public class ScoreEditor {
             }
         });
 
+        // Timer button
+        timerButton.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) { }
+            @Override
+            public void keyPressed(KeyEvent e) {
+                startStopTimer();
+            }
+            @Override
+            public void keyReleased(KeyEvent e) { }
+        });
+        timerButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) { }
+            @Override
+            public void mousePressed(MouseEvent e) { }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                startStopTimer();
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) { }
+            @Override
+            public void mouseExited(MouseEvent e) { }
+        });
+
         // Reload Competitors Button
-        reloadCompetitorsButton = new JButton();
         reloadCompetitorsButton.addMouseListener(new MouseListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) { }
             @Override
-            public void mousePressed(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) { }
             @Override
             public void mouseReleased(MouseEvent e) {
                 reloadCompetitorsFromDb();
             }
             @Override
-            public void mouseEntered(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) { }
             @Override
-            public void mouseExited(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) { }
         });
+
 
         saveButton.addMouseListener(new MouseListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) { }
             @Override
-            public void mousePressed(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) { }
             @Override
             public void mouseReleased(MouseEvent e) {
                 boolean savingHasWorked = saveOrEditScore();
@@ -203,9 +245,9 @@ public class ScoreEditor {
                 } // else { JOptionPane.showMessageDialog(null, bundle.getString("savingToDbFailed")); }
             }
             @Override
-            public void mouseEntered(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) { }
             @Override
-            public void mouseExited(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) { }
         });
 
         editCompetitorButton.addActionListener(e -> {
@@ -244,6 +286,7 @@ public class ScoreEditor {
             competitorTableModel.fireTableDataChanged();
 
             timeNeededTextField.setText("");
+            timeNeededTextField.setEditable(true);
             pointsAchievedTextField.setText("");
             isValidCheckBox.setSelected(true);
         });
@@ -251,13 +294,13 @@ public class ScoreEditor {
 
     private void setInvisibleAndClearAllFields() {
         SwingUtilities.invokeLater(() -> {
-                mainFrame.setVisible(false);
+            mainFrame.setVisible(false);
         });
         clearAllFields();
     }
 
     private void filterCompetitorTable() {
-        List<RowFilter<Object,Object>> filters = new LinkedList<>();
+        List<RowFilter<Object, Object>> filters = new LinkedList<>();
         // First, filter on name
         try {
             // If current expression doesn't parse, don't update.
@@ -395,4 +438,38 @@ public class ScoreEditor {
             }
         });
     }
+
+    private void startStopTimer() {
+
+        if (!isTimerRunning) {
+            if (!timeNeededTextField.getText().equals(""))
+                return;
+            isTimerRunning = true;
+            stopWatch.start();
+            timer.start();
+            SwingUtilities.invokeLater(() -> {
+                String stopString = globalState.getGuiTextBundle().getString("ScoreEditor.timerButtonStop");
+                timerButton.setText(stopString);
+                competitorTable.setEnabled(false);
+                outerPanel.setBackground(new java.awt.Color(154, 205, 50, 255));
+            });
+
+        } else {
+            System.out.println("debug");
+            isTimerRunning = false;
+            stopWatch.stop();
+            timer.stop();
+            SwingUtilities.invokeLater(() -> {
+                String startString = globalState.getGuiTextBundle().getString("ScoreEditor.timerButtonStart");
+                timerButton.setText(startString);
+                timeNeededTextField.setText(stopWatch.toString());
+                timeNeededTextField.setEditable(false);
+                competitorTable.setEnabled(true);
+                outerPanel.setBackground(scorePanel.getBackground());
+                // Reset must come after writing into timeNeededTextField. Otherwise it will be 00:00:00
+                stopWatch.reset();
+            });
+        }
+    }
+
 }

@@ -40,7 +40,7 @@ public class WebServer {
 
             // Start the connection thread
             connectionThread.start();
-            System.out.println("New connection on port 80...");
+            //System.out.println("New connection on port 80...");
         }
     }
 }
