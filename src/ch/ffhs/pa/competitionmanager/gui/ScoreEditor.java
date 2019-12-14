@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.table.TableRowSorter;
 import java.awt.event.*;
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -184,6 +185,7 @@ public class ScoreEditor {
             } else {
                 timeNeededLabel.setVisible(false);
                 timeNeededTextField.setVisible(false);
+                timerButton.setVisible(false);
             }
         });
 
@@ -356,12 +358,12 @@ public class ScoreEditor {
         }
 
         // Continue only if time and double can be parsed.
-        LocalTime timeNeeded = null;
+        Time timeNeeded = null;
         Double pointsAchieved = null;
         if (shouldContinue) {
             if (globalState.getEvent().isTimeRelevant()) {
                 try {
-                    timeNeeded = LocalTime.parse(timeNeededTextField.getText(), DateTimeFormatter.ISO_LOCAL_TIME);
+                    timeNeeded = Time.valueOf(timeNeededTextField.getText());
                 } catch (DateTimeParseException ex) {
                     JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorTimeNotParsed"));
                     shouldContinue = false;
@@ -403,7 +405,7 @@ public class ScoreEditor {
                 }
             } else {
                 // Create object and save into database (score.create()).
-                Score score = new Score(-1, globalState.getEvent().getId(), competitor, timeNeeded, null, 1, isValid, LocalDateTime.now());
+                Score score = new Score(-1, globalState.getEvent().getId(), competitor, timeNeeded, pointsAchieved, 1, isValid, LocalDateTime.now());
                 return score.create();
             }
         }

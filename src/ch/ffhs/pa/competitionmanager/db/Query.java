@@ -6,7 +6,6 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 /**
  * Contains strings for querying the database.
@@ -237,13 +236,20 @@ public class Query {
      * @param time_of_recording When the Score has been recorded
      * @return A SQL String which creates a Score Entry in Database
      */
-    public static String createScore(long event_id, long competitor_id, LocalTime time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording){
+    public static String createScore(long event_id, long competitor_id, Time time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String created_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
+
+        String timeNeededString;
+        if (time_needed == null) {
+            timeNeededString = "null";
+        } else {
+            timeNeededString = "'" + time_needed.toString() + "'";
+        }
         return "INSERT INTO CompetitionManager.score" +
                 "(event_id,competitor_id,time_needed,points_achieved, number_of_tries," +
                 "is_valid, time_of_recording, created_datetime, deleted) VALUES" +
-                "(" + event_id + ", " + competitor_id + ", '" + time_needed + "', " + points_achieved  + ", " + number_of_tries +
+                "(" + event_id + ", " + competitor_id + ", " + timeNeededString + ", " + points_achieved  + ", " + number_of_tries +
                 ", " + is_valid + ", '" + time_of_recording + "', '" + created_datetime + "',0);";
     }
 
@@ -257,7 +263,7 @@ public class Query {
                 "set `name` = '" + name + "', `date` = '" + date + "', `date_descr` = '" + date_descr + "', `description` = '" + description + "'\n" +
                 "where `id` = " + id + ";";
     }
-    public static String updateScore(long id, long event_id, long competitor_id, LocalTime time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording) {
+    public static String updateScore(long id, long event_id, long competitor_id, Time time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording) {
         return "update `CompetitionManager`.`score`\n" +
                 "set `event_id` = " + event_id + ", `competitor_id` = " + competitor_id + ", `time_needed` = '" + time_needed + "', `points_achieved` = " + points_achieved + ", `number_of_tries` = " + number_of_tries + ", `is_valid` = " + is_valid + ", `time_of_recording` = '" + time_of_recording + "'\n" +
                 "where `id` = " + id + ";";
