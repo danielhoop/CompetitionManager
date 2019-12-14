@@ -3,15 +3,13 @@ package ch.ffhs.pa.competitionmanager.core;
 import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.Query;
+import ch.ffhs.pa.competitionmanager.db.ResultSetConverter;
 import ch.ffhs.pa.competitionmanager.entities.Category;
-import ch.ffhs.pa.competitionmanager.entities.Competitor;
 import ch.ffhs.pa.competitionmanager.entities.Event;
 import ch.ffhs.pa.competitionmanager.entities.Score;
-import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.interfaces.INotifiable;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -68,27 +66,7 @@ public class RankingList implements INotifiable {
                 ResultSet rs = stmt.getResultSet();
 
                 while (rs.next()) {
-                    Time timeNeeded = rs.getTime("time_needed");
-                    int offsetInMinutes = timeNeeded.getTimezoneOffset();
-                    int numberOfHours = offsetInMinutes / 60;
-
-                    Score score = new Score(
-                            rs.getLong("id"),
-                            rs.getLong("event_id"),
-                            new Competitor(
-                                    rs.getLong("competitor_id"),
-                                    rs.getString("name"),
-                                    Gender.valueOf(rs.getInt("gender")),
-                                    rs.getDate("date_of_birth").toLocalDate(),
-                                    rs.getInt(Query.ageColumnName(rs.getLong("event_id")))
-                            ),
-                            timeNeeded.toLocalTime().plusHours(numberOfHours),
-                            rs.getDouble("points_achieved"),
-                            rs.getInt("number_of_tries"),
-                            rs.getBoolean("is_valid"),
-                            rs.getTimestamp("time_of_recording").toLocalDateTime()
-                    );
-                    listOfScores.add(score);
+                    listOfScores.add(ResultSetConverter.toScore(rs));
                 }
 
             } catch (SQLException e) {

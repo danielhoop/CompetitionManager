@@ -6,16 +6,21 @@ import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.danielhoop.utils.GuiLookAndFeelUtils;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
-import ch.ffhs.pa.competitionmanager.entities.DbCredentials;
+import ch.ffhs.pa.competitionmanager.db.DbCredentials;
+import ch.ffhs.pa.competitionmanager.db.DbPreparator;
 import ch.ffhs.pa.competitionmanager.gui.EventSelector;
 import ch.ffhs.pa.competitionmanager.gui.PasswordGui;
 import ch.ffhs.pa.competitionmanager.webserver.WebServer;
 
+import javax.swing.*;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import java.io.IOException;
+import java.sql.SQLNonTransientConnectionException;
+import java.util.ResourceBundle;
 
 /**
  * Main function of the project.
@@ -85,6 +90,21 @@ public class Main {
             System.out.println(" Done.");
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | MalformedURLException | FileNotFoundException e) {
             ExceptionVisualizer.showAndAddMessage(e, "The database connection could not be established\n");
+        }
+
+        // If database connection cannot be established, try to create the schema.
+        try {
+            DriverManager.getConnection(address, user, password);
+        } catch (SQLException e) {
+            ResourceBundle bundle = globalState.getGuiTextBundle();
+            int shouldBeZero = JOptionPane.showConfirmDialog(null,
+                    bundle.getString("Main.dbErrorShouldSchemaBeCreated") + e.getMessage(),
+                    bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (shouldBeZero == 0) {
+                address = address.replaceAll("CompetitionManager", "");
+                globalState.setDbConnector(new DbConnector(address, user, password));
+                DbPreparator.createSchemaIfNotExists();
+            }
         }
 
         // EventList can be set only after the database connector has been established!
