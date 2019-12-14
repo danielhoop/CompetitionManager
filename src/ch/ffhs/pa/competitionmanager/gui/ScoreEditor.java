@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.table.TableRowSorter;
 import java.awt.event.*;
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -52,6 +53,7 @@ public class ScoreEditor {
     private JButton navigateToEventSelectorButton;
     private JButton timerButton;
     private JPanel scorePanel;
+    private JTextPane howToStartTimerTextArea;
 
     private StopWatch stopWatch = new StopWatch();
     private Timer timer;
@@ -184,8 +186,16 @@ public class ScoreEditor {
             } else {
                 timeNeededLabel.setVisible(false);
                 timeNeededTextField.setVisible(false);
+                timerButton.setVisible(false);
+                howToStartTimerTextArea.setVisible(false);
             }
         });
+
+        // Timer description
+        howToStartTimerTextArea.setBorder(null);
+        howToStartTimerTextArea.setEditable(false);
+        howToStartTimerTextArea.setBackground(outerPanel.getBackground());
+
 
         // Timer button
         timerButton.addKeyListener(new KeyListener() {
@@ -403,7 +413,7 @@ public class ScoreEditor {
                 }
             } else {
                 // Create object and save into database (score.create()).
-                Score score = new Score(-1, globalState.getEvent().getId(), competitor, timeNeeded, null, 1, isValid, LocalDateTime.now());
+                Score score = new Score(-1, globalState.getEvent().getId(), competitor, timeNeeded, pointsAchieved, 1, isValid, LocalDateTime.now());
                 return score.create();
             }
         }
@@ -455,7 +465,6 @@ public class ScoreEditor {
             });
 
         } else {
-            System.out.println("debug");
             isTimerRunning = false;
             stopWatch.stop();
             timer.stop();

@@ -10,10 +10,8 @@ import ch.ffhs.pa.competitionmanager.entities.Score;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.interfaces.INotifiable;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -70,6 +68,10 @@ public class RankingList implements INotifiable {
                 ResultSet rs = stmt.getResultSet();
 
                 while (rs.next()) {
+                    Time timeNeeded = rs.getTime("time_needed");
+                    int offsetInMinutes = timeNeeded.getTimezoneOffset();
+                    int numberOfHours = offsetInMinutes / 60;
+
                     Score score = new Score(
                             rs.getLong("id"),
                             rs.getLong("event_id"),
@@ -80,14 +82,13 @@ public class RankingList implements INotifiable {
                                     rs.getDate("date_of_birth").toLocalDate(),
                                     rs.getInt(Query.ageColumnName(rs.getLong("event_id")))
                             ),
-                            rs.getTime("time_needed").toLocalTime(),
+                            timeNeeded.toLocalTime().plusHours(numberOfHours),
                             rs.getDouble("points_achieved"),
                             rs.getInt("number_of_tries"),
                             rs.getBoolean("is_valid"),
                             rs.getTimestamp("time_of_recording").toLocalDateTime()
                     );
                     listOfScores.add(score);
-                   //System.out.println(rs.getLong("id") + " " +  rs.getString("name") + " " +  rs.getTime("time_needed").toLocalTime() + " " + rs.getDouble("points_achieved") );
                 }
 
             } catch (SQLException e) {
