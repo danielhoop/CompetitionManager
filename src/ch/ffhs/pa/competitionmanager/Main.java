@@ -6,21 +6,17 @@ import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.danielhoop.utils.GuiLookAndFeelUtils;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
-import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
-import ch.ffhs.pa.competitionmanager.gui.CompetitorEditor;
+import ch.ffhs.pa.competitionmanager.entities.DbCredentials;
 import ch.ffhs.pa.competitionmanager.gui.EventSelector;
 import ch.ffhs.pa.competitionmanager.gui.PasswordGui;
-import ch.webserver.Connection;
-import ch.webserver.WebServer;
+import ch.ffhs.pa.competitionmanager.webserver.WebServer;
 
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.sql.SQLException;
 
-import java.io.*;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+
 /**
  * Main function of the project.
  * Must be called from the command line. Either start the application in editing mode or in displaying mode to show the ranking lists.

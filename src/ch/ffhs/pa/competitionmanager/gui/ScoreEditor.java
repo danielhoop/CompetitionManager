@@ -3,8 +3,8 @@ package ch.ffhs.pa.competitionmanager.gui;
 import org.apache.commons.lang3.time.StopWatch;
 import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
-import ch.ffhs.pa.competitionmanager.dto.Competitor;
-import ch.ffhs.pa.competitionmanager.dto.Score;
+import ch.ffhs.pa.competitionmanager.entities.Competitor;
+import ch.ffhs.pa.competitionmanager.entities.Score;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.*;

@@ -2,7 +2,7 @@ package ch.ffhs.pa.competitionmanager.gui;
 
 import ch.ffhs.pa.competitionmanager.core.EventList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
-import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.entities.Event;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;

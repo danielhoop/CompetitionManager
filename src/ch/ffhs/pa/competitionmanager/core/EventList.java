@@ -3,7 +3,7 @@ package ch.ffhs.pa.competitionmanager.core;
 import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.Query;
-import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.entities.Event;
 import ch.ffhs.pa.competitionmanager.gui.EventTableModel;
 
 import java.sql.Connection;

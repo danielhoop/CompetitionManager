@@ -1,6 +1,6 @@
 package ch.ffhs.pa.competitionmanager.gui;
 
-import ch.ffhs.pa.competitionmanager.dto.DbCredentials;
+import ch.ffhs.pa.competitionmanager.entities.DbCredentials;
 
 import javax.swing.*;
 

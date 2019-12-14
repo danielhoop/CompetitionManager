@@ -2,7 +2,7 @@ package ch.ffhs.pa.competitionmanager.gui;
 
 import ch.ffhs.pa.competitionmanager.core.CategoryList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
-import ch.ffhs.pa.competitionmanager.dto.Category;
+import ch.ffhs.pa.competitionmanager.entities.Category;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 import ch.ffhs.pa.competitionmanager.utils.GenderStringConverter;
 

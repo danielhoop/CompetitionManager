@@ -2,10 +2,10 @@ package ch.ffhs.pa.competitionmanager.core;
 
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.DbPreparator;
-import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.entities.Event;
 import ch.ffhs.pa.competitionmanager.enums.SupportedLocale;
-import ch.webserver.CategoryHtmlUpdater;
-import ch.webserver.RankingHtmlUpdater;
+import ch.ffhs.pa.competitionmanager.webserver.CategoryHtmlUpdater;
+import ch.ffhs.pa.competitionmanager.webserver.RankingHtmlUpdater;
 
 import java.util.*;
 

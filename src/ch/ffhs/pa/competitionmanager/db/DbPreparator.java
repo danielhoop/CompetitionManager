@@ -3,8 +3,8 @@ package ch.ffhs.pa.competitionmanager.db;
 import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.ffhs.pa.competitionmanager.core.CategoryList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
-import ch.ffhs.pa.competitionmanager.dto.Category;
-import ch.ffhs.pa.competitionmanager.dto.Event;
+import ch.ffhs.pa.competitionmanager.entities.Category;
+import ch.ffhs.pa.competitionmanager.entities.Event;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

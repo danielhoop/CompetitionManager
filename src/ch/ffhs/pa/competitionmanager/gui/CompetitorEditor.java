@@ -1,14 +1,13 @@
 package ch.ffhs.pa.competitionmanager.gui;
 
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
-import ch.ffhs.pa.competitionmanager.dto.Competitor;
+import ch.ffhs.pa.competitionmanager.entities.Competitor;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
 
 import ch.ffhs.pa.competitionmanager.utils.AgeUtils;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
 import javax.swing.*;
-import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ResourceBundle;

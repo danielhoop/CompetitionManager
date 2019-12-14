@@ -2,12 +2,11 @@ package ch.ffhs.pa.competitionmanager.gui;
 
 import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
-import ch.ffhs.pa.competitionmanager.dto.Competitor;
+import ch.ffhs.pa.competitionmanager.entities.Competitor;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 import ch.ffhs.pa.competitionmanager.utils.GenderStringConverter;
 
 import javax.swing.table.AbstractTableModel;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 
