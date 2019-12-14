@@ -35,9 +35,10 @@ public class Connection implements Runnable {
 
         // Add key/value pairs to the redirect HashMap
         // The key represents the URL value used by the user and the value is the URL value to redirect to
-        redirect.put("/", "/index.html");
-        redirect.put("/index.htm", "/index.html");
-        redirect.put("/index", "/index.html");
+        redirect.put("/index.html", "/html/index.html");
+        redirect.put("/", "/html/index.html");
+        redirect.put("/index.htm", "/html/index.html");
+        redirect.put("/index", "/html/index.html");
     }
 
     /**

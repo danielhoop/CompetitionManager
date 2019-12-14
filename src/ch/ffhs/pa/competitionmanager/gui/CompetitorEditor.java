@@ -88,6 +88,7 @@ public class CompetitorEditor {
 
             if(noErrorHasOccurred) {
                 ScoreEditor.getInstanceAndSetVisible(null, competitor.clone());
+                ScoreEditor.focusOnScoreTextField();
                 setInvisibleAndClearAllFields();
             }
         });

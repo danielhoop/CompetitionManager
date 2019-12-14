@@ -9,7 +9,6 @@ import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.dto.Score;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
 import ch.ffhs.pa.competitionmanager.interfaces.INotifiable;
-import ch.webserver.HtmlPage;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -104,12 +103,6 @@ public class RankingList implements INotifiable {
 
         dbConnector.closeStatement(stmt);
         dbConnector.closeConnection(conn);
-        HtmlPage.writetoHTML(HtmlPage.FullContent(scores).render(),"content.txt");
-       System.out.println(HtmlPage.FullContent(scores).render());
-
-
-
-
     }
 
 //    /**
@@ -117,7 +110,7 @@ public class RankingList implements INotifiable {
 //     * @return Boolean value indicating if the transaction was successful.
 //     */
 //    private Map<Category, List<Score>> getNewScoreFromDb(Event event, CategoryList categoryList) {
-//        // TODO Execute query to get newest Score of which the id is above the current 'highestScoreIdInList'. Really necessary? Only for performance. But let's not do it.
+//        // TO DO: Execute query to get newest Score of which the id is above the current 'highestScoreIdInList'. Really necessary? Only for performance. But let's not do it.
 //        return new HashMap<Category, List<Score>>();
 //    }
 

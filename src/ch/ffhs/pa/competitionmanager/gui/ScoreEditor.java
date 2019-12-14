@@ -18,7 +18,6 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 
 
-
 /**
  * Singleton.
  */
@@ -50,25 +49,19 @@ public class ScoreEditor {
     private JButton reloadCompetitorsButton;
     private JScrollPane competitorScrollPane;
     private JButton editCompetitorButton;
-    private JButton start;
-    private int selectedRow;
+    private JButton navigateToEventSelectorButton;
+    private JButton timerButton;
+    private JPanel scorePanel;
+
     private StopWatch stopWatch = new StopWatch();
     private Timer timer;
-
-
-    /*public static ScoreEditor getInstance() {
-        if (scoreEditor == null) {
-            scoreEditor = ScoreEditor.main(false);
-        }
-        return scoreEditor;
-    }*/
-
-
+    private boolean isTimerRunning = false;
+    private int selectedRow;
 
     public static ScoreEditor getInstanceAndSetVisible() {
         return getInstanceAndSetVisible(null, null);
     }
-    
+
     public static ScoreEditor getInstanceAndSetVisible(Score scoreToEdit, Competitor competitor) {
         if (scoreEditor == null) {
             scoreEditor = ScoreEditor.main(true);
@@ -97,17 +90,25 @@ public class ScoreEditor {
         return scoreEditor;
     }
 
-    ActionListener taskPerformer = new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-            timeNeededTextField.setText(stopWatch.toString());
+
+    public static void focusOnScoreTextField() {
+        if (scoreEditor != null) {
+            GlobalState globalState = GlobalState.getInstance();
+            if (globalState.getEvent().isTimeRelevant()) {
+                scoreEditor.timeNeededTextField.requestFocus();
+            } else {
+                scoreEditor.pointsAchievedTextField.requestFocus();
+            }
         }
-    };
+    }
 
     private ScoreEditor(JFrame mainFrame) {
         this.scoreToEdit = null;
         this.editExisting = scoreToEdit != null;
         this.mainFrame = mainFrame;
-        Timer timer = new Timer(100 , taskPerformer );
+        this.timer = new Timer(100, evt -> {
+            timeNeededTextField.setText(stopWatch.toString());
+        });
         createUIComponents();
 
 
@@ -150,44 +151,18 @@ public class ScoreEditor {
             }
         });
 
-timeNeededTextField.addKeyListener(new KeyListener() {
-    @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-
-        if (Character.toUpperCase(e.getKeyChar()) == 'S')
-        {
-
-            if (start.getText() == "Start") {
-                stopWatch.start();
-                start.setText("Stop");
-                timer.start();
-             //   System.out.println("Task started");
-                competitorTable.setEnabled(false);
-            } else {
-                timeNeededTextField.setText(stopWatch.toString());
-                timeNeededTextField.setEditable(false);
-                stopWatch.stop();
-                stopWatch.reset();
-                start.setText("Start");
-                competitorTable.setEnabled(true);
-                timer.stop();
-
-             //   System.out.println("Task cancelled");
-
+        timeNeededTextField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (Character.toUpperCase(e.getKeyChar()) == 'S') {
+                    startStopTimer();
+                }
             }
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
-    }
-});
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
 
         // Table
         competitorList = globalState.getCompetitorList();
@@ -199,9 +174,6 @@ timeNeededTextField.addKeyListener(new KeyListener() {
 
         competitorTable.getSelectionModel().addListSelectionListener(e -> {
             selectedRow = competitorTable.getSelectedRow();
-            /** Enable start button for stopwatch **/
-            start.setEnabled(true);
-            // System.out.println("RowSelectionEvent fired. selectedRow: " + selectedRow);
         });
 
         // Time needed or points achieved
@@ -215,30 +187,54 @@ timeNeededTextField.addKeyListener(new KeyListener() {
             }
         });
 
+        // Timer button
+        timerButton.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) { }
+            @Override
+            public void keyPressed(KeyEvent e) {
+                startStopTimer();
+            }
+            @Override
+            public void keyReleased(KeyEvent e) { }
+        });
+        timerButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) { }
+            @Override
+            public void mousePressed(MouseEvent e) { }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                startStopTimer();
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) { }
+            @Override
+            public void mouseExited(MouseEvent e) { }
+        });
+
         // Reload Competitors Button
-        reloadCompetitorsButton = new JButton();
         reloadCompetitorsButton.addMouseListener(new MouseListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) { }
             @Override
-            public void mousePressed(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) { }
             @Override
             public void mouseReleased(MouseEvent e) {
                 reloadCompetitorsFromDb();
             }
             @Override
-            public void mouseEntered(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) { }
             @Override
-            public void mouseExited(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) { }
         });
-
 
 
         saveButton.addMouseListener(new MouseListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {}
+            public void mouseClicked(MouseEvent e) { }
             @Override
-            public void mousePressed(MouseEvent e) {}
+            public void mousePressed(MouseEvent e) { }
             @Override
             public void mouseReleased(MouseEvent e) {
                 boolean savingHasWorked = saveOrEditScore();
@@ -249,9 +245,9 @@ timeNeededTextField.addKeyListener(new KeyListener() {
                 } // else { JOptionPane.showMessageDialog(null, bundle.getString("savingToDbFailed")); }
             }
             @Override
-            public void mouseEntered(MouseEvent e) {}
+            public void mouseEntered(MouseEvent e) { }
             @Override
-            public void mouseExited(MouseEvent e) {}
+            public void mouseExited(MouseEvent e) { }
         });
 
         editCompetitorButton.addActionListener(e -> {
@@ -269,17 +265,25 @@ timeNeededTextField.addKeyListener(new KeyListener() {
             CompetitorEditor.getInstanceAndSetVisible();
             setInvisibleAndClearAllFields();
         });
+
+        // Navigate to event selector
+        navigateToEventSelectorButton.addActionListener(e -> {
+            setInvisibleAndClearAllFields();
+            EventSelector.getInstanceAndSetVisible();
+        });
     }
 
     private void createUIComponents() {
     }
 
     private void clearAllFields() {
+        scoreToEdit = null;
         SwingUtilities.invokeLater(() -> {
             nameTextField.setText("");
             dateOfBirthTextField.setText("");
             competitorTable.clearSelection();
-            competitorTable.getRowSorter().setSortKeys(null);
+            competitorTableSorter.setRowFilter(null);
+            competitorTableModel.fireTableDataChanged();
 
             timeNeededTextField.setText("");
             timeNeededTextField.setEditable(true);
@@ -290,13 +294,13 @@ timeNeededTextField.addKeyListener(new KeyListener() {
 
     private void setInvisibleAndClearAllFields() {
         SwingUtilities.invokeLater(() -> {
-                mainFrame.setVisible(false);
+            mainFrame.setVisible(false);
         });
         clearAllFields();
     }
 
     private void filterCompetitorTable() {
-        List<RowFilter<Object,Object>> filters = new LinkedList<>();
+        List<RowFilter<Object, Object>> filters = new LinkedList<>();
         // First, filter on name
         try {
             // If current expression doesn't parse, don't update.
@@ -435,5 +439,37 @@ timeNeededTextField.addKeyListener(new KeyListener() {
         });
     }
 
+    private void startStopTimer() {
+
+        if (!isTimerRunning) {
+            if (!timeNeededTextField.getText().equals(""))
+                return;
+            isTimerRunning = true;
+            stopWatch.start();
+            timer.start();
+            SwingUtilities.invokeLater(() -> {
+                String stopString = globalState.getGuiTextBundle().getString("ScoreEditor.timerButtonStop");
+                timerButton.setText(stopString);
+                competitorTable.setEnabled(false);
+                outerPanel.setBackground(new java.awt.Color(154, 205, 50, 255));
+            });
+
+        } else {
+            System.out.println("debug");
+            isTimerRunning = false;
+            stopWatch.stop();
+            timer.stop();
+            SwingUtilities.invokeLater(() -> {
+                String startString = globalState.getGuiTextBundle().getString("ScoreEditor.timerButtonStart");
+                timerButton.setText(startString);
+                timeNeededTextField.setText(stopWatch.toString());
+                timeNeededTextField.setEditable(false);
+                competitorTable.setEnabled(true);
+                outerPanel.setBackground(scorePanel.getBackground());
+                // Reset must come after writing into timeNeededTextField. Otherwise it will be 00:00:00
+                stopWatch.reset();
+            });
+        }
+    }
 
 }

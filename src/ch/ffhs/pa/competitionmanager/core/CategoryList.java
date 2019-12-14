@@ -6,7 +6,7 @@ import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.dto.Category;
 import ch.ffhs.pa.competitionmanager.dto.Event;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
-import ch.webserver.HtmlPage;
+import ch.ffhs.pa.competitionmanager.gui.CategoryTableModel;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -38,6 +38,11 @@ public class CategoryList {
         return categories;
     }
 
+    public CategoryTableModel getCategoriesAsTableModel() {
+        CategoryTableModel categoryTableModel = new CategoryTableModel(this);
+        return categoryTableModel;
+    }
+
     private void getCategoriesFromDb(Event event) {
 
         long eventId = event.getId();
@@ -66,9 +71,7 @@ public class CategoryList {
             e.printStackTrace();
             ExceptionVisualizer.showAndAddMessage(e, "When getting all categories from the database and storing them into a list, the following error occurred: ");
         }
-        //System.out.println("Categories:" + categories.size());
-        //System.out.println("C HTML:" + HtmlPage.CategoryIDs(categories).render());
-        HtmlPage.writetoHTML(HtmlPage.CategoryIDs(categories).render(),"category_content.txt");
+
         dbConnector.closeStatement(stmt);
         dbConnector.closeConnection(conn);
     }

@@ -3,7 +3,7 @@ package ch.webserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.lang.Object;
+
 /**
  * WebServer Object.
  *
@@ -23,17 +23,16 @@ public class WebServer {
      *
      *
      */
-
-
     public static void startWebserver() throws IOException {
+
         // Create ServerSocket on LocalHost, port 80
         ServerSocket serverSocket = new ServerSocket(80);
-        System.out.println("Listening for connections on port 80...\r\n");
+        System.out.println("Listening for connections on port 80...");
 
         // Listen for new client connections
         while(true) {
-
             // Accept new client connection
+            // Hint: accept() is a blocking method. This loop will repeat only if a socket was accepted.
             Socket connectionSocket = serverSocket.accept();
 
             // Create new thread to handle client request
@@ -41,9 +40,7 @@ public class WebServer {
 
             // Start the connection thread
             connectionThread.start();
-            System.out.println("New connection on port 80...\r\n");
-
-
+            //System.out.println("New connection on port 80...");
         }
     }
 }

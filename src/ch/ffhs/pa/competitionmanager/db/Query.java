@@ -136,7 +136,8 @@ public class Query {
     public static String getAllCategories(long event_id) {
         return "select *\n" +
                 "from `CompetitionManager`.`category`\n" +
-                "where `event_id` = " + event_id + ";";
+                "where `event_id` = " + event_id + "\n" +
+                "  and `deleted` = false;";
     }
     public static String getAllViewNames() {
         return "SHOW FULL TABLES IN `CompetitionManager` WHERE TABLE_TYPE LIKE '%VIEW%';";
@@ -185,8 +186,8 @@ public class Query {
      */
     public static String createCategory(long event_id, String name, String description, int minAgeInclusive, int maxAgeInclusive, Gender gender){
         return "INSERT INTO CompetitionManager.category" +
-                "(event_id, name, description, min_age_inclusive, max_age_inclusive, gender)" +
-                " values (" + event_id + ", '" + name + "', '" + description + "', " + minAgeInclusive + ", " + maxAgeInclusive + ", " + gender.getValue() + ");";
+                "(event_id, name, description, min_age_inclusive, max_age_inclusive, gender, deleted)" +
+                " values (" + event_id + ", '" + name + "', '" + description + "', " + minAgeInclusive + ", " + maxAgeInclusive + ", " + gender.getValue() + ", false);";
     }
 
     /**
