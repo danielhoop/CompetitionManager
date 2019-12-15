@@ -71,7 +71,7 @@ public class ScoreEditor {
 
         ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
 
-        JFrame frame = new JFrame(bundle.getString("ScoreSelector.title"));
+        JFrame frame = new JFrame(bundle.getString("ScoreEditor.title"));
         ScoreEditor scoreEditor = new ScoreEditor(frame);
         SwingUtilities.invokeLater(() -> {
             frame.setContentPane(scoreEditor.outerPanel);
@@ -211,12 +211,12 @@ public class ScoreEditor {
         deleteButton.addActionListener(e -> {
             int selectedRow = getSelectedRowOfScoreTable();
             if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
+                JOptionPane.showMessageDialog(null, bundle.getString("ScoreCreator.errorNoCompetitorSelected"));
                 return;
             }
 
             SwingUtilities.invokeLater(() -> {
-                int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreSelector.scoreDeleteAreYourSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.scoreDeleteAreYourSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (shouldBeZero != 0) {
                     return;
                 }
@@ -225,7 +225,7 @@ public class ScoreEditor {
                 scores.reloadFromDb();
                 scoreTableModel.fireTableDataChanged();
                 clearAllFields();
-                JOptionPane.showMessageDialog(null, bundle.getString("ScoreSelector.deletedText"));
+                JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.deletedText"));
             });
         });
 
@@ -355,20 +355,20 @@ public class ScoreEditor {
 
         int selectedScoreRow = getSelectedRowOfScoreTable();
         if (selectedScoreRow == -1) {
-            JOptionPane.showMessageDialog(null, bundle.getString("ScoreSelector.errorNoScoreSelected"));
+            JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoScoreSelected"));
             return false;
         }
 
         int selectedCompetitorRow = getSelectedRowOfCompetitorTable();
         if (selectedCompetitorRow == -1) {
-            JOptionPane.showMessageDialog(null, bundle.getString("ScoreSelector.errorNoCompetitorSelected"));
+            JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
             return false;
         }
 
         Score newScore = scoreTableModel.getScoreFromRow(selectedScoreRow).clone();
         Competitor newCompetitor = competitorTableModel.getCompetitorFromRow(selectedCompetitorRow).clone();
         if (!competitor.equals(newCompetitor)) {
-            int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreSelector.competitorChangedAreYouSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.competitorChangedAreYouSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (shouldBeZero != 0) {
                 return false;
             }
@@ -382,7 +382,7 @@ public class ScoreEditor {
             try {
                 timeNeeded = LocalTime.parse(timeNeededTextField.getText(), DateTimeFormatter.ISO_LOCAL_TIME);
             } catch (DateTimeParseException ex) {
-                JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorTimeNotParsed"));
+                JOptionPane.showMessageDialog(null, bundle.getString("ScoreCreator.errorTimeNotParsed"));
                 return false;
             }
             newScore.setTimeNeeded(timeNeeded);
@@ -395,7 +395,7 @@ public class ScoreEditor {
             try {
                 pointsAchieved = Double.valueOf(pointsAchievedTextField.getText());
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorPointsNotParsed"));
+                JOptionPane.showMessageDialog(null, bundle.getString("ScoreCreator.errorPointsNotParsed"));
                 return false;
             }
         }
@@ -404,7 +404,7 @@ public class ScoreEditor {
 
         boolean shouldDelete = false;
         if (!newScore.isDeleted() && deletedCheckBox.isSelected()) {
-            int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreSelector.scoreDeleteAreYourSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.scoreDeleteAreYourSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (shouldBeZero == 0) {
                 shouldDelete = true;
             }
