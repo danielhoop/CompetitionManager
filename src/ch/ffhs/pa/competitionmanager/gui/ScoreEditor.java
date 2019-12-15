@@ -272,7 +272,7 @@ public class ScoreEditor {
         }
         if (competitorTableModel == null
                 || competitorTableModel.getRowCount() != competitorList.getCompetitors().size()) {
-            System.out.println("ScoreEditor: Loading competitors table completely new.");
+            // System.out.println("ScoreEditor: Loading competitors table completely new.");
             competitorTableModel = competitorList.getCompetitorsAsTableModel();
             competitorTable.setModel(competitorTableModel);
             // Sorter & filter. See also filterCompetitorTable()

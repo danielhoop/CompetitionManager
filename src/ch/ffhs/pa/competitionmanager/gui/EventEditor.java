@@ -316,7 +316,7 @@ public class EventEditor {
         }
         if (eventTableModel == null
                 || eventTableModel.getRowCount() != eventList.getEvents().size()) {
-            System.out.println("ScoreEditor: Loading events table completely new.");
+            // System.out.println("EventEditor: Loading events table completely new.");
             eventTableModel = eventList.getEventsAsTableModel();
             eventTable.setModel(eventTableModel);
             // Sorter & filter. See also filtereventTable()

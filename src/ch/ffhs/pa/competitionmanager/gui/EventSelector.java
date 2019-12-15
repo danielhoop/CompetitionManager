@@ -228,7 +228,7 @@ public class EventSelector {
         }
         if (eventTableModel == null
                 || eventTableModel.getRowCount() != eventList.getEvents().size()) {
-            System.out.println("ScoreEditor: Loading events table completely new.");
+            // System.out.println("EventSelector: Loading events table completely new.");
             eventTableModel = eventList.getEventsAsTableModel();
             eventTable.setModel(eventTableModel);
         }
