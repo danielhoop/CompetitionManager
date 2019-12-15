@@ -23,11 +23,11 @@ public class WebServer {
      *
      *
      */
-    public static void startWebserver() throws IOException {
+    public static void startWebserver(int port) throws IOException {
 
         // Create ServerSocket on LocalHost, port 80
-        ServerSocket serverSocket = new ServerSocket(80);
-        System.out.println("Listening for connections on port 80...");
+        ServerSocket serverSocket = new ServerSocket(port);
+        System.out.println("Listening for connections on port " + port + "...");
 
         // Listen for new client connections
         while(true) {

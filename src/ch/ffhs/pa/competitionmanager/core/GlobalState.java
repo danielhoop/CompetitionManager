@@ -61,13 +61,15 @@ public class GlobalState {
         this.event = event;
         // CategoryList
         categoryList = new CategoryList(event);
-        categoryHtmlUpdater = new CategoryHtmlUpdater();
         // Prepare database for event.
         DbPreparator.prepare(event, categoryList);
         // RankingList
         rankingList = new RankingList(event, categoryList);
         // CompetitorList
         competitorList = CompetitorList.Build.withAllCompetitors(event);
+        // CategoryHtmlUpdater
+        categoryHtmlUpdater = new CategoryHtmlUpdater();
+        categoryHtmlUpdater.notifyMe();
         // Start DbMonitor
         if (dbMonitor != null) {
             dbMonitor.stop();

@@ -19,7 +19,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import java.io.IOException;
-import java.sql.SQLNonTransientConnectionException;
 import java.util.ResourceBundle;
 
 /**
@@ -38,26 +37,33 @@ public class Main {
                             + "*******************\n"
                             + "Daniel Hoop, Cristian Ion, Reto Laesser\n"
                             + "\nMandatory arguments:"
-                            + "\n  --mode \"edit\" OR \"display\""
-                            + "\n  --driverPath \"driverPath\""
-                            + "\n  --driverName \"driverClassName\""
+                            + "\n  --driverPath \"databaseDriverPath\""
+                            + "\n  --driverName \"databaseDriverClassName\""
                             + "\n  --address \"databaseAddress\""
-                            + "\n  --user \"user\""
-                            + "\n  --password \"password\""
+                            + "\n  --user \"databaseUser\""
+                            + "\n  --password \"databasePassword\""
+                            + "\nOptional arguments:"
+                            + "\n  --httpPort \"portForHttpServer\" -> If not specified, then port 80 will be used"
                             + "\nExample:"
-                            + "\n  --mode \"edit\" --driverPath \"C:/path/ojdbc6.jar\" --driverName \"oracle.jdbc.driver.OracleDriver\" --address \"jdbc:oracle:thin:@//www.databaseServer.com:1521/schemaName\" --user \"anyUser\" --password \"secret\""
-                            + "\n  --mode \"display\" --driverPath \"C:/path/mysql-connector-java-8.0.17.jar\" --driverName \"com.mysql.cj.jdbc.Driver\" --address \"jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true\" --user \"anyUser\" --password \"secret\""
+                            + "\n  --driverPath \"C:/path/ojdbc6.jar\" --driverName \"oracle.jdbc.driver.OracleDriver\" --address \"jdbc:oracle:thin:@//www.databaseServer.com:1521/schemaName\" --user \"anyUser\" --password \"secret\" --httpPort 88"
+                            + "\n  --driverPath \"C:/path/mysql-connector-java-8.0.17.jar\" --driverName \"com.mysql.cj.jdbc.Driver\" --address \"jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true\" --user \"anyUser\" --password \"secret\" --httpPort 88"
                             + "\nHints:"
                             + "\n  No hints at the time.");
             System.exit(0);
         }
 
         // Evaluate arguments and store in map-like structure.
-        ArgumentInterpreter args1 = new ArgumentInterpreter(
-                new String[]{"mode", "driverPath", "driverName", "address", "user"},
-                new String[]{"mode", "driverPath", "driverName", "address", "user", "password"},
-                false, false, true, true, false)
-                .readArgs(args);
+        ArgumentInterpreter args1 = null;
+        try {
+             args1 = new ArgumentInterpreter(
+                    new String[]{"mode", "driverPath", "driverName", "address", "user"},
+                    new String[]{"mode", "driverPath", "driverName", "address", "user", "password", "httpPort"},
+                    false, false, true, true, false)
+                    .readArgs(args);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showConfirmDialog(null, "Error when parsing command line arguments:\n" + e.getMessage(), "Error",  JOptionPane.CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            System.exit(1);
+        }
 
 
 
@@ -77,7 +83,8 @@ public class Main {
             DbCredentials dbCred = new DbCredentials(user, null);
             PasswordGui pwUi = new PasswordGui(dbCred);
             if (dbCred.getPassword() == null) {
-                ExceptionVisualizer.show(new IllegalArgumentException("The password must not be null."));
+                JOptionPane.showConfirmDialog(null, "The password must not be null.", "Error",  JOptionPane.CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                System.exit(1);
             }
             password = dbCred.getPassword();
         }
@@ -89,7 +96,8 @@ public class Main {
             globalState.setDbConnector(new DbConnector(address, user, password));
             System.out.println(" Done.");
         } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | MalformedURLException | FileNotFoundException e) {
-            ExceptionVisualizer.showAndAddMessage(e, "The database connection could not be established\n");
+            JOptionPane.showConfirmDialog(null, "Something went wrong when trying to register the database driver:\n" + e.getMessage(), "Error",  JOptionPane.CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            System.exit(1);
         }
 
         // If database connection cannot be established, try to create the schema.
@@ -116,7 +124,19 @@ public class Main {
         // Open the EventSelector
         EventSelector.getInstanceAndSetVisible();
 
+        // Port
+        int port = 80;
+        if (args1.argIsSet("httpPort")) {
+            try {
+                port = Integer.parseInt(args1.get("httpPort"));
+                if (port > 65535 || port < 0)
+                    throw new NumberFormatException("Port out of range.");
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, globalState.getGuiTextBundle().getString("Main.portNotValid"));
+            }
+        }
+
         // Start Webserver
-        WebServer.startWebserver();
+        WebServer.startWebserver(port);
     }
 }
