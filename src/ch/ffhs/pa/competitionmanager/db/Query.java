@@ -357,10 +357,6 @@ public class Query {
                 "-- -----------------------------------------------------\n" +
                 "-- Schema CompetitionManager\n" +
                 "-- -----------------------------------------------------\n" +
-                "\n" +
-                "-- -----------------------------------------------------\n" +
-                "-- Schema CompetitionManager\n" +
-                "-- -----------------------------------------------------\n" +
                 "CREATE SCHEMA IF NOT EXISTS `CompetitionManager` DEFAULT CHARACTER SET utf8 ;\n" +
                 "USE `CompetitionManager` ;\n" +
                 "\n" +

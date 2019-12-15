@@ -29,12 +29,19 @@ public class DbPreparator {
             ResultSet rs = stmt.getResultSet();
             // If there are no rows in that query, then the schema does not exist.
             if (!rs.next()) {
+                System.out.println("*************************");
+                System.out.println("Creating database schema.");
+                System.out.println("*************************");
                 for (String query : Query.createDatabaseSchema()) {
                     if (!query.equals(";") && !query.equals("\n;")) {
                         stmt.execute(query);
                         System.out.print(query);
                     }
                 }
+                System.out.println("");
+                System.out.println("**************************************************");
+                System.out.println("Executed all statements to create database schema.");
+                System.out.println("**************************************************");
             }
         } catch (SQLException e) {
             e.printStackTrace();
