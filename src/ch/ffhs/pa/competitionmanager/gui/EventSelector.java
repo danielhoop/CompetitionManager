@@ -76,7 +76,7 @@ public class EventSelector {
 
             // Website hint
             websiteHint.setText(bundle.getString("EventSelector.webserverHint1") +
-                    "http://" + globalState.getIpOfComputer() + ":" + globalState.getHttpPort() + "\n" +
+                    globalState.getWebServerAddress() + "\n" +
                     bundle.getString("EventSelector.webserverHint2"));
             websiteHint.setBorder(null);
             websiteHint.setEditable(false);
@@ -237,7 +237,7 @@ public class EventSelector {
     private void showRanking() {
         globalState.setWebsiteHasBeenOpened(true);
         try {
-            UrlOpener.openWebpage(new URL("http://" + globalState.getIpOfComputer() + ":" + globalState.getHttpPort()));
+            UrlOpener.openWebpage(new URL(globalState.getWebServerAddress()));
         } catch (MalformedURLException e) {
             // Should not happen.
             System.out.println("URL of web server is malformed.");
