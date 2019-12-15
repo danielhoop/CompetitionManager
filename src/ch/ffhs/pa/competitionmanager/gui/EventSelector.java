@@ -3,11 +3,13 @@ package ch.ffhs.pa.competitionmanager.gui;
 import ch.ffhs.pa.competitionmanager.core.EventList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.entities.Event;
+import ch.ffhs.pa.competitionmanager.utils.UrlOpener;
 
 import javax.swing.*;
-import javax.swing.table.TableRowSorter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
@@ -18,6 +20,7 @@ public class EventSelector {
     private static EventSelector eventSelector = null;
 
     private GlobalState globalState;
+    private ResourceBundle bundle;
     private EventList eventList;
     private EventTableModel eventTableModel;
     private JFrame mainFrame;
@@ -28,10 +31,11 @@ public class EventSelector {
     private JButton editScoresButton;
     private JButton editEventButton;
     private JButton editCategoriesButton;
-    private JButton showRankingButton;
     private JScrollPane eventScrollPane;
     private JLabel tableCaption;
     private JLabel text1;
+    private JTextPane websiteHint;
+    private JButton showRankingButton;
 
     public static EventSelector getInstanceAndSetVisible() {
         if (eventSelector == null) {
@@ -46,6 +50,7 @@ public class EventSelector {
     private EventSelector(JFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.globalState = GlobalState.getInstance();
+        this.bundle = globalState.getGuiTextBundle();
         createUIComponents();
     }
 
@@ -64,12 +69,18 @@ public class EventSelector {
     }
 
     private void createUIComponents() {
-        GlobalState globalState = GlobalState.getInstance();
-        ResourceBundle bundle = globalState.getGuiTextBundle();
 
         SwingUtilities.invokeLater(() -> {
             tableCaption.setVisible(false);
             text1.setVisible(false);
+
+            // Website hint
+            websiteHint.setText(bundle.getString("EventSelector.webserverHint1") +
+                    "http://" + globalState.getIpOfComputer() + ":" + globalState.getHttpPort() + "\n" +
+                    bundle.getString("EventSelector.webserverHint2"));
+            websiteHint.setBorder(null);
+            websiteHint.setEditable(false);
+            websiteHint.setBackground(outerPanel.getBackground());
         });
 
         // Table
@@ -86,7 +97,7 @@ public class EventSelector {
             public void mouseReleased(MouseEvent e) {
                 selectedRow = eventTable.rowAtPoint(e.getPoint());
                 if (e.getClickCount() == 2) {
-                    openEmptyScoreEditor();
+                    openScoreEditor();
                 }
             }
             @Override
@@ -107,7 +118,7 @@ public class EventSelector {
             public void mousePressed(MouseEvent e) {}
             @Override
             public void mouseReleased(MouseEvent e) {
-                openEmptyScoreEditor();
+                openScoreEditor();
             }
             @Override
             public void mouseEntered(MouseEvent e) {}
@@ -145,11 +156,37 @@ public class EventSelector {
             @Override
             public void mouseExited(MouseEvent e) {}
         });
+
+        showRankingButton.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(null, bundle.getString("EventSelector.noRowSelectedErrorHint"));
+                } else {
+                    showRankingButton.setVisible(false);
+                    globalState.setEvent(eventTableModel.getEventFromRow(selectedRow));
+                    showRanking();
+                    showRankingButton.setVisible(true);
+                }
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+        });
     }
 
-    private void openEmptyScoreEditor() {
+    private void openScoreEditor() {
         GlobalState globalState = GlobalState.getInstance();
         ResourceBundle bundle = globalState.getGuiTextBundle();
+
+        if (!globalState.getWebsiteHasBeenOpened()) {
+            showRanking();
+        }
 
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(null, bundle.getString("EventSelector.noRowSelectedErrorHint"));
@@ -167,9 +204,6 @@ public class EventSelector {
     }
 
     private void openCategoryEditor() {
-        GlobalState globalState = GlobalState.getInstance();
-        ResourceBundle bundle = globalState.getGuiTextBundle();
-
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(null, bundle.getString("EventSelector.noRowSelectedErrorHint"));
         } else {
@@ -179,11 +213,6 @@ public class EventSelector {
             SwingUtilities.invokeLater(() -> mainFrame.setVisible(false));
             CategoryEditor.getInstanceAndSetVisible();
         }
-    }
-
-    private void xxx_reloadEventsFromDb() {
-        eventList.reloadFromDb();
-        eventSelector.eventTableModel.fireTableDataChanged();
     }
 
     private void createOrRefreshEventTable(boolean reloadFromDb) {
@@ -202,6 +231,17 @@ public class EventSelector {
             System.out.println("ScoreEditor: Loading events table completely new.");
             eventTableModel = eventList.getEventsAsTableModel();
             eventTable.setModel(eventTableModel);
+        }
+    }
+
+    private void showRanking() {
+        globalState.setWebsiteHasBeenOpened(true);
+        try {
+            UrlOpener.openWebpage(new URL("http://" + globalState.getIpOfComputer() + ":" + globalState.getHttpPort()));
+        } catch (MalformedURLException e) {
+            // Should not happen.
+            System.out.println("URL of web server is malformed.");
+            e.printStackTrace();
         }
     }
 }
