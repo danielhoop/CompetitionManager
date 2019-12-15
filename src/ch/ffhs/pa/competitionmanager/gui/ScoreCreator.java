@@ -54,6 +54,7 @@ public class ScoreCreator {
     private JPanel scorePanel;
     private JTextPane howToStartTimerTextArea;
     private JButton navigateToScoreEditorButton;
+    private JButton clearButton;
 
     private StopWatch stopWatch = new StopWatch();
     private Timer timer;
@@ -68,7 +69,7 @@ public class ScoreCreator {
             scoreCreator = ScoreCreator.main(true);
         } else {
             scoreCreator.mainFrame.setVisible(true);
-            scoreCreator.reloadCompetitorsFromDb();
+            scoreCreator.createOrRefreshTable(true, true);
         }
         scoreCreator.setScore(scoreToEdit);
         scoreCreator.setCompetitor(competitor);
@@ -79,7 +80,7 @@ public class ScoreCreator {
 
         ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
 
-        JFrame frame = new JFrame(bundle.getString("ScoreEditor.title"));
+        JFrame frame = new JFrame(bundle.getString("ScoreCreator.title"));
         ScoreCreator scoreCreator = new ScoreCreator(frame);
         SwingUtilities.invokeLater(() -> {
             frame.setContentPane(scoreCreator.outerPanel);
@@ -119,11 +120,11 @@ public class ScoreCreator {
 
         // Create text1 string, depending on whether time is relevant or points.
         SwingUtilities.invokeLater(() -> {
-            String text1String = bundle.getString("ScoreEditor.text1.start");
+            String text1String = bundle.getString("ScoreCreator.text1.start");
             if (globalState.getEvent().isTimeRelevant()) {
-                text1String += bundle.getString("ScoreEditor.text1.time");
+                text1String += bundle.getString("ScoreCreator.text1.time");
             } else {
-                text1String += bundle.getString("ScoreEditor.text1.points");
+                text1String += bundle.getString("ScoreCreator.text1.points");
             }
             text1.setText(text1String);
         });
@@ -157,21 +158,14 @@ public class ScoreCreator {
             public void keyTyped(KeyEvent e) {}
             @Override
             public void keyPressed(KeyEvent e) {
-                if (Character.toUpperCase(e.getKeyChar()) == 'S') {
-                    startStopTimer();
-                }
+                startStopTimer();
             }
             @Override
             public void keyReleased(KeyEvent e) {}
         });
 
         // Table
-        competitorList = globalState.getCompetitorList();
-        competitorTableModel = competitorList.getCompetitorsAsTableModel();
-        competitorTable.setModel(competitorTableModel);
-        // Sorter & filter. See also filterCompetitorTable()
-        competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
-        competitorTable.setRowSorter(competitorTableSorter);
+        createOrRefreshTable(true, true);
 
         // Time needed or points achieved
         SwingUtilities.invokeLater(() -> {
@@ -226,7 +220,7 @@ public class ScoreCreator {
             public void mousePressed(MouseEvent e) { }
             @Override
             public void mouseReleased(MouseEvent e) {
-                reloadCompetitorsFromDb();
+                createOrRefreshTable(true, false);
             }
             @Override
             public void mouseEntered(MouseEvent e) { }
@@ -234,7 +228,18 @@ public class ScoreCreator {
             public void mouseExited(MouseEvent e) { }
         });
 
+        // Clear form button
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreCreator.clearFieldsAreYouSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (shouldBeZero == 0) {
+                    clearAllFields();
+                }
+            }
+        });
 
+        // Save button
         saveButton.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) { }
@@ -258,7 +263,7 @@ public class ScoreCreator {
         editCompetitorButton.addActionListener(e -> {
             int selectedRow = getSelectedRowOfTable();
             if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
+                JOptionPane.showMessageDialog(null, bundle.getString("ScoreCreator.errorNoCompetitorSelected"));
                 return;
             }
             Competitor selectedCompetitor = competitorTableModel.getCompetitorFromRow(selectedRow).clone();
@@ -293,8 +298,7 @@ public class ScoreCreator {
             nameTextField.setText("");
             dateOfBirthTextField.setText("");
             competitorTable.clearSelection();
-            competitorTableSorter.setRowFilter(null);
-            competitorTableModel.fireTableDataChanged();
+            createOrRefreshTable(false, true);
 
             timeNeededTextField.setText("");
             timeNeededTextField.setEditable(true);
@@ -308,6 +312,29 @@ public class ScoreCreator {
             mainFrame.setVisible(false);
         });
         clearAllFields();
+    }
+
+    private void createOrRefreshTable(boolean reloadFromDb, boolean clearRowFilter) {
+        if (reloadFromDb && competitorList != null) {
+            competitorList.reloadFromDb();
+        }
+
+        competitorList = globalState.getCompetitorList();
+        if (competitorTableModel != null) {
+            if (clearRowFilter) {
+                competitorTableSorter.setRowFilter(null);
+            }
+            competitorTableModel.fireTableDataChanged();
+        }
+        if (competitorTableModel == null
+                || competitorTableModel.getRowCount() != competitorList.getCompetitors().size()) {
+            System.out.println("ScoreCreator: Loading competitors table completely new.");
+            competitorTableModel = competitorList.getCompetitorsAsTableModel();
+            competitorTable.setModel(competitorTableModel);
+            // Sorter & filter. See also filterCompetitorTable()
+            competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
+            competitorTable.setRowSorter(competitorTableSorter);
+        }
     }
 
     private void filterCompetitorTable() {
@@ -350,11 +377,6 @@ public class ScoreCreator {
         return selectedRow;
     }
 
-    private void reloadCompetitorsFromDb() {
-        globalState.reloadCompetitorListFromDb();
-        competitorTableModel.fireTableDataChanged();
-    }
-
     private boolean saveOrEditScore() {
         boolean shouldContinue = true;
         boolean isValid = isValidCheckBox.isSelected();
@@ -362,7 +384,7 @@ public class ScoreCreator {
 
         // Continue only if a row is selected or only 1 row is displayed
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorNoCompetitorSelected"));
+            JOptionPane.showMessageDialog(null, bundle.getString("ScoreCreator.errorNoCompetitorSelected"));
             shouldContinue = false;
         }
 
@@ -374,14 +396,14 @@ public class ScoreCreator {
                 try {
                     timeNeeded = LocalTime.parse(timeNeededTextField.getText(), DateTimeFormatter.ISO_LOCAL_TIME);
                 } catch (DateTimeParseException ex) {
-                    JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorTimeNotParsed"));
+                    JOptionPane.showMessageDialog(null, bundle.getString("ScoreCreator.errorTimeNotParsed"));
                     shouldContinue = false;
                 }
             } else {
                 try {
                     pointsAchieved = Double.valueOf(pointsAchievedTextField.getText());
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, bundle.getString("ScoreEditor.errorPointsNotParsed"));
+                    JOptionPane.showMessageDialog(null, bundle.getString("ScoreCreator.errorPointsNotParsed"));
                     shouldContinue = false;
                 }
             }
@@ -400,7 +422,7 @@ public class ScoreCreator {
             // Assert that competitor was not changed by by accident.
             if (editExisting) {
                 if (scoreToEdit.getCompetitor() != competitor) {
-                    int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.hintCompetitorIsNotTheSame"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreCreator.hintCompetitorIsNotTheSame"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                     shouldContinue = shouldBeZero == 0;
                 }
                 if (shouldContinue) {
@@ -429,7 +451,7 @@ public class ScoreCreator {
 
                 filterCompetitorTable();
                 if (getSelectedRowOfTable() == -1) {
-                    reloadCompetitorsFromDb();
+                    createOrRefreshTable(true, true);
                     filterCompetitorTable();
                 }
             });
@@ -459,7 +481,7 @@ public class ScoreCreator {
             stopWatch.start();
             timer.start();
             SwingUtilities.invokeLater(() -> {
-                String stopString = globalState.getGuiTextBundle().getString("ScoreEditor.timerButtonStop");
+                String stopString = globalState.getGuiTextBundle().getString("ScoreCreator.timerButtonStop");
                 timerButton.setText(stopString);
                 competitorTable.setEnabled(false);
                 outerPanel.setBackground(new java.awt.Color(154, 205, 50, 255));
@@ -470,7 +492,7 @@ public class ScoreCreator {
             stopWatch.stop();
             timer.stop();
             SwingUtilities.invokeLater(() -> {
-                String startString = globalState.getGuiTextBundle().getString("ScoreEditor.timerButtonStart");
+                String startString = globalState.getGuiTextBundle().getString("ScoreCreator.timerButtonStart");
                 timerButton.setText(startString);
                 timeNeededTextField.setText(stopWatch.toString());
                 timeNeededTextField.setEditable(false);

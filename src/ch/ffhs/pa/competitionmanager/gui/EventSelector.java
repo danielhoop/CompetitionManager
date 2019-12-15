@@ -5,6 +5,7 @@ import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.entities.Event;
 
 import javax.swing.*;
+import javax.swing.table.TableRowSorter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ResourceBundle;
@@ -16,6 +17,7 @@ public class EventSelector {
 
     private static EventSelector eventSelector = null;
 
+    private GlobalState globalState;
     private EventList eventList;
     private EventTableModel eventTableModel;
     private JFrame mainFrame;
@@ -36,13 +38,14 @@ public class EventSelector {
             eventSelector = EventSelector.main();
         } else {
             eventSelector.mainFrame.setVisible(true);
-            eventSelector.reloadEventsFromDb();
+            eventSelector.createOrRefreshEventTable(true);
         }
         return eventSelector;
     }
 
     private EventSelector(JFrame mainFrame) {
         this.mainFrame = mainFrame;
+        this.globalState = GlobalState.getInstance();
         createUIComponents();
     }
 
@@ -70,9 +73,7 @@ public class EventSelector {
         });
 
         // Table
-        eventList = globalState.getEventList();
-        eventTableModel = eventList.getEventsAsTableModel();
-        eventTable.setModel(eventTableModel);
+        createOrRefreshEventTable(true);
         selectedRow = -1;
 
         // Add a listener and save the selected row because otherwise it does not work when button is pressed.
@@ -180,8 +181,27 @@ public class EventSelector {
         }
     }
 
-    private void reloadEventsFromDb() {
+    private void xxx_reloadEventsFromDb() {
         eventList.reloadFromDb();
         eventSelector.eventTableModel.fireTableDataChanged();
+    }
+
+    private void createOrRefreshEventTable(boolean reloadFromDb) {
+        selectedRow = -1;
+
+        if (reloadFromDb && eventList != null) {
+            eventList.reloadFromDb();
+        }
+
+        eventList = globalState.getEventList();
+        if (eventTableModel != null) {
+            eventTableModel.fireTableDataChanged();
+        }
+        if (eventTableModel == null
+                || eventTableModel.getRowCount() != eventList.getEvents().size()) {
+            System.out.println("ScoreEditor: Loading events table completely new.");
+            eventTableModel = eventList.getEventsAsTableModel();
+            eventTable.setModel(eventTableModel);
+        }
     }
 }

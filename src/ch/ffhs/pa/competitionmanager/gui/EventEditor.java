@@ -42,6 +42,7 @@ public class EventEditor {
             eventEditor = eventEditor.main();
         }
         SwingUtilities.invokeLater(() -> {
+            eventEditor.createOrRefreshEventTable(true, true);
             eventEditor.mainFrame.pack();
             eventEditor.mainFrame.setVisible(true);
         });
@@ -61,12 +62,7 @@ public class EventEditor {
         DateStringConverter dateStringConverter = new DateStringConverter(GlobalState.getInstance().getLocale());
 
         // Table
-        eventList = globalState.getEventList();
-        eventTableModel = eventList.getEventsAsTableModel();
-        eventTable.setModel(eventTableModel);
-        // Sorter & filter. See also filterEventTable()
-        eventTableSorter = new TableRowSorter<EventTableModel>(eventTableModel);
-        eventTable.setRowSorter(eventTableSorter);
+        eventEditor.createOrRefreshEventTable(true, true);
 
         eventTable.addMouseListener(new MouseListener() {
             @Override
@@ -192,8 +188,7 @@ public class EventEditor {
                 eventTableSorter.setRowFilter(null);
                 eventTableModel.fireTableDataChanged();
             }
-            globalState.reloadEventListFromDb();
-            eventTableModel.fireTableDataChanged();
+            createOrRefreshEventTable(true, true);
         });
     }
 
@@ -304,6 +299,29 @@ public class EventEditor {
             saveButton.setText(bundle.getString("EventEditor.buttonSaveNew"));
         } else {
             saveButton.setText(bundle.getString("EventEditor.buttonSaveChanges"));
+        }
+    }
+
+    private void createOrRefreshEventTable(boolean reloadFromDb, boolean clearRowFilter) {
+        if (reloadFromDb && eventList != null) {
+            eventList.reloadFromDb();
+        }
+
+        eventList = globalState.getEventList();
+        if (eventTableModel != null) {
+            if (clearRowFilter) {
+                eventTableSorter.setRowFilter(null);
+            }
+            eventTableModel.fireTableDataChanged();
+        }
+        if (eventTableModel == null
+                || eventTableModel.getRowCount() != eventList.getEvents().size()) {
+            System.out.println("ScoreEditor: Loading events table completely new.");
+            eventTableModel = eventList.getEventsAsTableModel();
+            eventTable.setModel(eventTableModel);
+            // Sorter & filter. See also filtereventTable()
+            eventTableSorter = new TableRowSorter<EventTableModel>(eventTableModel);
+            eventTable.setRowSorter(eventTableSorter);
         }
     }
 }
