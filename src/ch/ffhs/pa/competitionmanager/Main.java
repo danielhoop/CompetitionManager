@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
  * Main function of the project.
  * Must be called from the command line. Either start the application in editing mode or in displaying mode to show the ranking lists.
  * Command line arguments are arguments for the database connection. An example of command lime arguments that could work is:
- * --mode "display" --driverPath "E:/Workspaces/IntelliJ/CompetitionManager/lib/mysql-connector-java-8.0.17.jar" --driverName "com.mysql.cj.jdbc.Driver" --address "jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT" --user "NinjaWarrior" --password "Asdf-Poiu-0987-1234"
+ * --driverPath "E:/Workspaces/IntelliJ/CompetitionManager/lib/mysql-connector-java-8.0.17.jar" --driverName "com.mysql.cj.jdbc.Driver" --address "jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT" --user "NinjaWarrior" --password "Asdf-Poiu-0987-1234" --httpPort 80
  */
 public class Main {
 
@@ -55,8 +55,8 @@ public class Main {
         ArgumentInterpreter args1 = null;
         try {
              args1 = new ArgumentInterpreter(
-                    new String[]{"mode", "driverPath", "driverName", "address", "user"},
-                    new String[]{"mode", "driverPath", "driverName", "address", "user", "password", "httpPort"},
+                    new String[]{"driverPath", "driverName", "address", "user"},
+                    new String[]{"driverPath", "driverName", "address", "user", "password", "httpPort"},
                     false, false, true, true, false)
                     .readArgs(args);
         } catch (IllegalArgumentException e) {
