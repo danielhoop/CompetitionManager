@@ -4,6 +4,7 @@ import ch.ffhs.pa.competitionmanager.db.DbConnector;
 import ch.ffhs.pa.competitionmanager.db.DbPreparator;
 import ch.ffhs.pa.competitionmanager.entities.Event;
 import ch.ffhs.pa.competitionmanager.enums.SupportedLocale;
+import ch.ffhs.pa.competitionmanager.utils.IpFinder;
 import ch.ffhs.pa.competitionmanager.webserver.CategoryHtmlUpdater;
 import ch.ffhs.pa.competitionmanager.webserver.RankingHtmlUpdater;
 
@@ -21,6 +22,9 @@ public class GlobalState {
     private SupportedLocale localName;
     private Collection<SupportedLocale> allSupportedLocals;
     private ResourceBundle guiTextBundle;
+    private boolean websiteHasBeenOpened = false;
+    private int httpPort;
+    private String ipOfComputer;
 
     private Event event;
 
@@ -38,6 +42,8 @@ public class GlobalState {
         locales.put(SupportedLocale.de_CH, new Locale.Builder().setLanguage("de").setRegion("CH").build());
         //  Default locale is de_CH. setLocale will also set guiTextBundle.
         setLocale(SupportedLocale.de_CH);
+        // Get IP of computer
+        ipOfComputer = IpFinder.getLocalIp();
     }
 
     public static GlobalState getInstance() {
@@ -97,6 +103,25 @@ public class GlobalState {
     }
     public void setEventList(EventList eventList) {
         this.eventList = eventList;
+    }
+
+    public boolean getWebsiteHasBeenOpened() {
+        return websiteHasBeenOpened;
+    }
+    public void setWebsiteHasBeenOpened(boolean websiteHasBeenOpened) {
+        this.websiteHasBeenOpened = websiteHasBeenOpened;
+    }
+    public int getHttpPort() {
+        return httpPort;
+    }
+    public void setHttpPort(int httpPort) {
+        this.httpPort = httpPort;
+    }
+    public String getIpOfComputer() {
+        return ipOfComputer;
+    }
+    public void setIpOfComputer(String ipOfComputer) {
+        this.ipOfComputer = ipOfComputer;
     }
 
     public void reloadCompetitorListFromDb() {

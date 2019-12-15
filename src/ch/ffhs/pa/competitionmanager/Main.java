@@ -2,7 +2,6 @@ package ch.ffhs.pa.competitionmanager;
 
 import ch.danielhoop.sql.DynamicDriverLoader;
 import ch.danielhoop.utils.ArgumentInterpreter;
-import ch.danielhoop.utils.ExceptionVisualizer;
 import ch.danielhoop.utils.GuiLookAndFeelUtils;
 import ch.ffhs.pa.competitionmanager.core.*;
 import ch.ffhs.pa.competitionmanager.db.DbConnector;
@@ -14,7 +13,7 @@ import ch.ffhs.pa.competitionmanager.webserver.WebServer;
 
 import javax.swing.*;
 import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
+import java.net.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
@@ -114,16 +113,6 @@ public class Main {
                 DbPreparator.createSchemaIfNotExists();
             }
         }
-
-        // EventList can be set only after the database connector has been established!
-        globalState.setEventList(new EventList());
-
-        // Set Gui Look and feel
-        GuiLookAndFeelUtils.set();
-
-        // Open the EventSelector
-        EventSelector.getInstanceAndSetVisible();
-
         // Port
         int port = 80;
         if (args1.argIsSet("httpPort")) {
@@ -135,8 +124,18 @@ public class Main {
                 JOptionPane.showMessageDialog(null, globalState.getGuiTextBundle().getString("Main.portNotValid"));
             }
         }
+        globalState.setHttpPort(port);
 
-        // Start Webserver
+        // EventList can be set only after the database connector has been established!
+        globalState.setEventList(new EventList());
+
+        // Set Gui Look and feel
+        GuiLookAndFeelUtils.set();
+
+        // Open the EventSelector
+        EventSelector.getInstanceAndSetVisible();
+
+        // Start Webserver - It will block forever! Don't place anything after this line.
         WebServer.startWebserver(port);
     }
 }
