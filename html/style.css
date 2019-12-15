@@ -1,6 +1,7 @@
 * {
     margin: 0;
     padding: 0;
+	background: #303030;
 }
 
 h1, h3{
@@ -191,4 +192,27 @@ h1, h3{
    
     opacity: 1;
     transition: opacity 400ms ease-out;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  
+  color: white;
+  text-align: center;
+}
+
+.autoonoff 
+{
+	position:fixed;
+	right:10;
+	top:0;
+	font-size: 22px;
+	color: #DFDFDF;
+}
+
+.autoonoff .nicecheckbox 
+{
 }

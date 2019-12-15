@@ -61,14 +61,19 @@ function get_categories() {
 
 }
 
+
 function swap_tabs()
 {
+	if (document.getElementById("autoon").checked == true)
+	{
+	
 	
 	if (posCateg >= nrCateg) {posCateg = 0}
 	
 	document.getElementById("tab" + inputs[posCateg].value).checked = true;
 	console.log("PosCateg:" + posCateg + "NrCateg:" + nrCateg);
 	posCateg++;
+	}
 
 }
 
