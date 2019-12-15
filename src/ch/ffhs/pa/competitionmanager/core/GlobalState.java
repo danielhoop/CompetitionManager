@@ -25,6 +25,7 @@ public class GlobalState {
     private boolean websiteHasBeenOpened = false;
     private int httpPort;
     private String ipOfComputer;
+    private String webServerAddress = "";
 
     private Event event;
 
@@ -44,6 +45,7 @@ public class GlobalState {
         setLocale(SupportedLocale.de_CH);
         // Get IP of computer
         ipOfComputer = IpFinder.getLocalIp();
+        webServerAddress = "http://" + ipOfComputer + "/html/index.html";
     }
 
     public static GlobalState getInstance() {
@@ -116,13 +118,15 @@ public class GlobalState {
     }
     public void setHttpPort(int httpPort) {
         this.httpPort = httpPort;
+        this.webServerAddress = "http://" + ipOfComputer + ":" + httpPort + "/html/index.html";
     }
     public String getIpOfComputer() {
         return ipOfComputer;
     }
-    public void setIpOfComputer(String ipOfComputer) {
-        this.ipOfComputer = ipOfComputer;
+    public String getWebServerAddress() {
+        return webServerAddress;
     }
+
 
     public void reloadCompetitorListFromDb() {
         competitorList.reloadFromDb();
