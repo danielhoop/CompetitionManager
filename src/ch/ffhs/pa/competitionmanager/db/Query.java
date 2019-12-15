@@ -13,16 +13,6 @@ import java.time.LocalTime;
  */
 public class Query {
 
-    static String queryAllScoresForEvent(long event, boolean validOnly) {
-        return "";
-    }
-    static String queryAllScoresForCategory(long event, long category, boolean validOnly) {
-        return "";
-    }
-    static String queryAllScoresForCompetitor(long event, long competitor, boolean validOnly) {
-        return "";
-    }
-
     /**
      * Give back a SQL string to get the row from 'event' table that has specific id.
      * @return A SQL string to get the row from 'event' table that has specific id.
@@ -94,7 +84,8 @@ public class Query {
     }
 
     public static String getScoresForCategory(long event_id, String viewName, boolean isTimeRelevant) {
-        String queryPart1 = "SELECT s1.*\n" +
+        String queryPart1 =
+                "SELECT DISTINCT s1.*\n" +
                 "FROM `CompetitionManager`.`" + viewName + "` s1\n" +
                 "LEFT JOIN `CompetitionManager`.`" + viewName + "` s2\n";
 
@@ -102,10 +93,12 @@ public class Query {
         if (isTimeRelevant) {
             queryPart2 = "ON s1.`competitor_id` = s2.`competitor_id` AND timediff(s1.`time_needed`, s2.`time_needed`) > 0\n" +
                     "WHERE s2.`time_needed` IS NULL\n" +
+                    "GROUP BY s1.`competitor_id`\n" +
                     "ORDER BY s1.`time_needed` ASC;";
         } else {
             queryPart2 = "ON s1.`competitor_id` = s2.`competitor_id` AND s1.`points_achieved` > s2.`points_achieved`\n" +
                     "WHERE s2.`points_achieved` IS NULL\n" +
+                    "GROUP BY s1.`competitor_id`\n" +
                     "ORDER BY s1.`points_achieved` DESC;";
         }
         return queryPart1 + queryPart2;
