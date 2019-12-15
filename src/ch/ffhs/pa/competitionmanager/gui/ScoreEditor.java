@@ -4,6 +4,7 @@ import ch.ffhs.pa.competitionmanager.core.CompetitorList;
 import ch.ffhs.pa.competitionmanager.core.GlobalState;
 import ch.ffhs.pa.competitionmanager.core.Scores;
 import ch.ffhs.pa.competitionmanager.entities.Competitor;
+import ch.ffhs.pa.competitionmanager.entities.Event;
 import ch.ffhs.pa.competitionmanager.entities.Score;
 import ch.ffhs.pa.competitionmanager.utils.DateStringConverter;
 
@@ -28,6 +29,7 @@ public class ScoreEditor {
     private Score score;
     private Competitor competitor;
     private Scores scores;
+    private Event event;
     private ScoreTableModel scoreTableModel;
     private TableRowSorter<ScoreTableModel> scoreTableSorter;
     private CompetitorTableModel competitorTableModel;
@@ -62,7 +64,8 @@ public class ScoreEditor {
             scoreEditor = ScoreEditor.main(true);
         } else {
             scoreEditor.mainFrame.setVisible(true);
-            scoreEditor.reloadScoresFromDb();
+            scoreEditor.createOrRefreshScoreTable(true, true);
+            scoreEditor.createOrRefreshCompetitorTable(true, true);
         }
         return scoreEditor;
     }
@@ -87,17 +90,13 @@ public class ScoreEditor {
         this.mainFrame = mainFrame;
         this.globalState = GlobalState.getInstance();
         this.bundle = globalState.getGuiTextBundle();
+        this.event = globalState.getEvent();
         createUIComponents();
     }
 
     private void createUIComponents() {
         // Table for Scores
-        scores = new Scores(GlobalState.getInstance().getEvent(), true, true);
-        scoreTableModel = scores.getScoresAsTableModel(true,true);
-        scoreTable.setModel(scoreTableModel);
-        // Sorter & filter. See also filterCompetitorTable()
-        scoreTableSorter = new TableRowSorter<ScoreTableModel>(scoreTableModel);
-        scoreTable.setRowSorter(scoreTableSorter);
+        createOrRefreshScoreTable(true, true);
 
         scoreTable.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = getSelectedRowOfScoreTable();
@@ -122,12 +121,7 @@ public class ScoreEditor {
         });
 
         // Table for Competitors
-        competitorList = globalState.getCompetitorList();
-        competitorTableModel = competitorList.getCompetitorsAsTableModel();
-        competitorTable.setModel(competitorTableModel);
-        // Sorter & filter. See also filterCompetitorTable()
-        competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
-        competitorTable.setRowSorter(competitorTableSorter);
+        createOrRefreshCompetitorTable(true, true);
 
         nameTextField.addKeyListener(new KeyListener() {
             @Override
@@ -216,7 +210,7 @@ public class ScoreEditor {
             }
 
             SwingUtilities.invokeLater(() -> {
-                int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.scoreDeleteAreYourSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.scoreDeleteAreYouSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
                 if (shouldBeZero != 0) {
                     return;
                 }
@@ -260,16 +254,55 @@ public class ScoreEditor {
             isValidCheckBox.setSelected(false);
             deletedCheckBox.setSelected(false);
 
-            scoreTableSorter.setRowFilter(null);
-            scoreTableModel.fireTableDataChanged();
-            competitorTableSorter.setRowFilter(null);
-            competitorTableModel.fireTableDataChanged();
+            createOrRefreshScoreTable(false, true);
         });
     }
 
-    private void reloadScoresFromDb() {
-        scores.reloadFromDb();
-        scoreTableModel.fireTableDataChanged();
+    private void createOrRefreshCompetitorTable(boolean reloadFromDb, boolean clearRowFilter) {
+        if (reloadFromDb && competitorList != null) {
+            competitorList.reloadFromDb();
+        }
+
+        competitorList = globalState.getCompetitorList();
+        if (competitorTableModel != null) {
+            if (clearRowFilter) {
+                competitorTableSorter.setRowFilter(null);
+            }
+            competitorTableModel.fireTableDataChanged();
+        }
+        if (competitorTableModel == null
+                || competitorTableModel.getRowCount() != competitorList.getCompetitors().size()) {
+            System.out.println("ScoreEditor: Loading competitors table completely new.");
+            competitorTableModel = competitorList.getCompetitorsAsTableModel();
+            competitorTable.setModel(competitorTableModel);
+            // Sorter & filter. See also filterCompetitorTable()
+            competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
+            competitorTable.setRowSorter(competitorTableSorter);
+        }
+    }
+
+    private void createOrRefreshScoreTable(boolean reloadFromDb, boolean clearRowFilter) {
+        if (reloadFromDb && scores != null) {
+            scores.reloadFromDb();
+        }
+
+        if (scores == null
+                || globalState.getEvent().getId() != event.getId()
+                || scoreTableModel.getRowCount() != scores.getScores().size()) {
+
+            event = globalState.getEvent();
+            scores = new Scores(GlobalState.getInstance().getEvent(), true, true);
+            scoreTableModel = scores.getScoresAsTableModel(true,true);
+            scoreTable.setModel(scoreTableModel);
+            // Sorter & filter. See also filterCompetitorTable()
+            scoreTableSorter = new TableRowSorter<ScoreTableModel>(scoreTableModel);
+            scoreTable.setRowSorter(scoreTableSorter);
+        } else {
+            if (clearRowFilter) {
+                scoreTableSorter.setRowFilter(null);
+            }
+            scoreTableModel.fireTableDataChanged();
+        }
     }
 
     private void filterScoreTable() {
@@ -366,9 +399,13 @@ public class ScoreEditor {
         }
 
         Score newScore = scoreTableModel.getScoreFromRow(selectedScoreRow).clone();
+        boolean wasDeleted = newScore.isDeleted();
         Competitor newCompetitor = competitorTableModel.getCompetitorFromRow(selectedCompetitorRow).clone();
         if (!competitor.equals(newCompetitor)) {
-            int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.competitorChangedAreYouSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            int shouldBeZero = JOptionPane.showConfirmDialog(null,
+                    bundle.getString("ScoreEditor.competitorChangedAreYouSure") + "\n" + competitor.getName() + " -> " + newCompetitor.getName(),
+                    bundle.getString("pleaseConfirm"),
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (shouldBeZero != 0) {
                 return false;
             }
@@ -399,23 +436,26 @@ public class ScoreEditor {
                 return false;
             }
         }
-
         newScore.setValid(isValidCheckBox.isSelected());
 
-        boolean shouldDelete = false;
         if (!newScore.isDeleted() && deletedCheckBox.isSelected()) {
-            int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.scoreDeleteAreYourSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-            if (shouldBeZero == 0) {
-                shouldDelete = true;
+            int shouldBeZero = JOptionPane.showConfirmDialog(null, bundle.getString("ScoreEditor.scoreDeleteAreYouSure"), bundle.getString("pleaseConfirm"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (shouldBeZero != 0) {
+                return false;
             }
         }
         newScore.setDeleted(deletedCheckBox.isSelected());
 
         boolean hasWorked = newScore.update();
-        if (shouldDelete)
+
+        if (!wasDeleted && newScore.isDeleted())
             hasWorked = hasWorked && newScore.delete();
 
         return hasWorked;
+    }
+
+    private void setEvent(Event event) {
+        this.event = event;
     }
 
     private String safeToString(Object o) {

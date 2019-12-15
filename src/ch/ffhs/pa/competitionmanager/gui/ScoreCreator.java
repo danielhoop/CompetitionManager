@@ -69,7 +69,7 @@ public class ScoreCreator {
             scoreCreator = ScoreCreator.main(true);
         } else {
             scoreCreator.mainFrame.setVisible(true);
-            scoreCreator.reloadCompetitorsFromDb();
+            scoreCreator.createOrRefreshTable(true, true);
         }
         scoreCreator.setScore(scoreToEdit);
         scoreCreator.setCompetitor(competitor);
@@ -165,12 +165,7 @@ public class ScoreCreator {
         });
 
         // Table
-        competitorList = globalState.getCompetitorList();
-        competitorTableModel = competitorList.getCompetitorsAsTableModel();
-        competitorTable.setModel(competitorTableModel);
-        // Sorter & filter. See also filterCompetitorTable()
-        competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
-        competitorTable.setRowSorter(competitorTableSorter);
+        createOrRefreshTable(true, true);
 
         // Time needed or points achieved
         SwingUtilities.invokeLater(() -> {
@@ -225,7 +220,7 @@ public class ScoreCreator {
             public void mousePressed(MouseEvent e) { }
             @Override
             public void mouseReleased(MouseEvent e) {
-                reloadCompetitorsFromDb();
+                createOrRefreshTable(true, false);
             }
             @Override
             public void mouseEntered(MouseEvent e) { }
@@ -303,8 +298,7 @@ public class ScoreCreator {
             nameTextField.setText("");
             dateOfBirthTextField.setText("");
             competitorTable.clearSelection();
-            competitorTableSorter.setRowFilter(null);
-            competitorTableModel.fireTableDataChanged();
+            createOrRefreshTable(false, true);
 
             timeNeededTextField.setText("");
             timeNeededTextField.setEditable(true);
@@ -318,6 +312,29 @@ public class ScoreCreator {
             mainFrame.setVisible(false);
         });
         clearAllFields();
+    }
+
+    private void createOrRefreshTable(boolean reloadFromDb, boolean clearRowFilter) {
+        if (reloadFromDb && competitorList != null) {
+            competitorList.reloadFromDb();
+        }
+
+        competitorList = globalState.getCompetitorList();
+        if (competitorTableModel != null) {
+            if (clearRowFilter) {
+                competitorTableSorter.setRowFilter(null);
+            }
+            competitorTableModel.fireTableDataChanged();
+        }
+        if (competitorTableModel == null
+                || competitorTableModel.getRowCount() != competitorList.getCompetitors().size()) {
+            System.out.println("ScoreCreator: Loading competitors table completely new.");
+            competitorTableModel = competitorList.getCompetitorsAsTableModel();
+            competitorTable.setModel(competitorTableModel);
+            // Sorter & filter. See also filterCompetitorTable()
+            competitorTableSorter = new TableRowSorter<CompetitorTableModel>(competitorTableModel);
+            competitorTable.setRowSorter(competitorTableSorter);
+        }
     }
 
     private void filterCompetitorTable() {
@@ -358,11 +375,6 @@ public class ScoreCreator {
             selectedRow = competitorTable.convertRowIndexToModel(0);
         }
         return selectedRow;
-    }
-
-    private void reloadCompetitorsFromDb() {
-        globalState.reloadCompetitorListFromDb();
-        competitorTableModel.fireTableDataChanged();
     }
 
     private boolean saveOrEditScore() {
@@ -439,7 +451,7 @@ public class ScoreCreator {
 
                 filterCompetitorTable();
                 if (getSelectedRowOfTable() == -1) {
-                    reloadCompetitorsFromDb();
+                    createOrRefreshTable(true, true);
                     filterCompetitorTable();
                 }
             });

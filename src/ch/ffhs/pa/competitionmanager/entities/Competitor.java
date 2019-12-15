@@ -65,8 +65,8 @@ public class Competitor implements ICRUD {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Competitor that = (Competitor) o;
+        // Do not check for age because it will change between events!
         return id == that.id &&
-                age == that.age &&
                 Objects.equals(name, that.name) &&
                 gender == that.gender &&
                 Objects.equals(dateOfBirth, that.dateOfBirth);
@@ -74,7 +74,7 @@ public class Competitor implements ICRUD {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, gender, dateOfBirth, age);
+        return Objects.hash(id, name, gender, dateOfBirth);
     }
 
     @Override
