@@ -1,3 +1,5 @@
+// Users: Don't change anything below this line.
+// ---------------------------------------------
 window.onload = get_categories();
 var posCateg;
 var nrCateg;
@@ -28,8 +30,8 @@ startInterval();
 
 function startInterval() {
    // setInterval("startTime();",1000);
-	setInterval("swap_tabs();",6000);
-	setInterval("check_if_content_updated();",5000);
+	setInterval("swap_tabs();", swapTabInterval);
+	setInterval("check_if_content_updated();", checkForChangesInterval);
 }
 
 
