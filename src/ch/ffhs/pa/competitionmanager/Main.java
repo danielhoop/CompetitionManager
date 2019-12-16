@@ -51,10 +51,13 @@ public class Main {
             System.exit(0);
         }
 
+        // Set Gui Look and feel
+        GuiLookAndFeelUtils.set();
+
         // Evaluate arguments and store in map-like structure.
         ArgumentInterpreter args1 = null;
         try {
-             args1 = new ArgumentInterpreter(
+            args1 = new ArgumentInterpreter(
                     new String[]{"driverPath", "driverName", "address", "user"},
                     new String[]{"driverPath", "driverName", "address", "user", "password", "httpPort"},
                     false, false, true, true, false)
@@ -63,8 +66,6 @@ public class Main {
             JOptionPane.showConfirmDialog(null, "Error when parsing command line arguments:\n" + e.getMessage(), "Error",  JOptionPane.CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             System.exit(1);
         }
-
-
 
         // Initialize objects
         GlobalState globalState = GlobalState.getInstance();
@@ -111,6 +112,8 @@ public class Main {
                 address = address.replaceAll("CompetitionManager", "");
                 globalState.setDbConnector(new DbConnector(address, user, password));
                 DbPreparator.createSchemaIfNotExists();
+            } else {
+                System.exit(1);
             }
         }
         // Port
@@ -128,9 +131,6 @@ public class Main {
 
         // EventList can be set only after the database connector has been established!
         globalState.setEventList(new EventList());
-
-        // Set Gui Look and feel
-        GuiLookAndFeelUtils.set();
 
         // Open the EventSelector
         EventSelector.getInstanceAndSetVisible();
