@@ -19,17 +19,17 @@ public class WebServer {
      * Creates the ServerSocket and listens for client connections, creates a
      * separate thread to handle each client request.
      *
-     * @param args an array of arguments to be used in the
-     *
+     * @param port Port Number to be listening connection to
+     * @throws  IOException if the port is used or cannot listen on the selected port
      *
      */
     public static void startWebserver(int port) throws IOException {
 
-        // Create ServerSocket on LocalHost, port 80
+        // Create ServerSocket on LocalHost, port
         ServerSocket serverSocket = new ServerSocket(port);
         System.out.println("Listening for connections on port " + port + "...");
 
-        // Listen for new client connections
+        /**  Listen for new client connections */
         while(true) {
             // Accept new client connection
             // Hint: accept() is a blocking method. This loop will repeat only if a socket was accepted.
