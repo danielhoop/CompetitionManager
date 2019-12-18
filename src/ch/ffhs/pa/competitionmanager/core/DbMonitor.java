@@ -77,6 +77,10 @@ public class DbMonitor {
         this.objectsToNotify.addAll(objectsToNotify);
     }
 
+    /**
+     * Get objects to notify as a list.
+     * @return The objects to notify in a list.
+     */
     public List<INotifiable> getObjectsToNotify() {
         return objectsToNotify;
     }

@@ -13,7 +13,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Singleton
+ * Singleton that implements logic for the separate GUI class.
+ * The GUI was created using IntelliJ. Therefore, the structure of some methods was predefined.
  */
 public class EventSelector {
 
@@ -37,6 +38,10 @@ public class EventSelector {
     private JTextPane websiteHint;
     private JButton showRankingButton;
 
+    /**
+     * Return an instance of object and set GUI to be visible.
+     * @return The object (singleton)
+     */
     public static EventSelector getInstanceAndSetVisible() {
         if (eventSelector == null) {
             eventSelector = EventSelector.main();

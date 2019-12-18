@@ -4,10 +4,17 @@ import ch.ffhs.pa.competitionmanager.db.DbCredentials;
 
 import javax.swing.*;
 
+/**
+ * A simple GUI that will prompt for a password.
+ */
 public class PasswordGui {
 
     private DbCredentials dbCred;
 
+    /**
+     * Constructor
+     * @param databaseCredentials The object into which the credentials should be stored.
+     */
     public PasswordGui(DbCredentials databaseCredentials) {
         // Option 3: Hidden characters in password field & NICE.
         JPanel panel = new JPanel();

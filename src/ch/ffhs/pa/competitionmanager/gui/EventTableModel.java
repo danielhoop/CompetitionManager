@@ -9,6 +9,9 @@ import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * A table model for usage in JTable for the events.
+ */
 public class EventTableModel extends AbstractTableModel {
 
     private ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
@@ -42,6 +45,11 @@ public class EventTableModel extends AbstractTableModel {
         return null;
     }
 
+    /**
+     * Get the event that is stored in a specific row.
+     * @param rowIndex The row index
+     * @return The event object
+     */
     public Event getEventFromRow(int rowIndex) {
         return events.get(rowIndex);
     }

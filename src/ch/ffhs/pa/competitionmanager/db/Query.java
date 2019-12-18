@@ -14,8 +14,8 @@ import java.time.LocalTime;
 public class Query {
 
     /**
-     * Give back a SQL string to get the row from 'event' table that has specific id.
-     * @return A SQL string to get the row from 'event' table that has specific id.
+     * Give back a SQL statement to get the row from 'event' table that has specific id.
+     * @return A SQL statement to get the row from 'event' table that has specific id.
      */
     public static String eventById(long id) {
         return "select *\n" +
@@ -35,9 +35,9 @@ public class Query {
     }
 
     /**
-     * Give back a SQL string that will drop the column called 'age_<event_id>' in table 'competitor'.
+     * Give back a SQL statement that will drop the column called 'age_<event_id>' in table 'competitor'.
      * @param event_id The id of the event.
-     * @return A SQL string that will drop the column called 'age_<event_id>' in table 'competitor'.
+     * @return A SQL statement that will drop the column called 'age_<event_id>' in table 'competitor'.
      */
     public static String dropAgeColumn(long event_id) {
         return "ALTER TABLE `CompetitionManager`.`competitor`\n" +
@@ -45,10 +45,10 @@ public class Query {
     }
 
     /**
-     * Give back a SQL string that wil create an age column in table 'competitor' which contains the age in years.
+     * Give back a SQL statement that wil create an age column in table 'competitor' which contains the age in years.
      * @param event_id The id of the event.
      * @param dateOfToday A date string ISO-8601 format uuuu-MM-dd, like '2019-01-01'.
-     * @return A SQL string that wil create an age column in table 'competitor' which contains the age in years.
+     * @return A SQL statement that wil create an age column in table 'competitor' which contains the age in years.
      */
     static String createAgeColumn(long event_id, String dateOfToday) {
         return "ALTER TABLE `CompetitionManager`.`competitor`\n" +
@@ -61,9 +61,9 @@ public class Query {
     }
 
     /**
-     * Given an event id, returns a SQL string that will count the number of valid scores in table 'score'.
+     * Given an event id, returns a SQL statement that will count the number of valid scores in table 'score'.
      * @param event The id of the event.
-     * @return A SQL string that will count the number of valid scores in table 'score'.
+     * @return A SQL statement that will count the number of valid scores in table 'score'.
      */
     public static String numberOfValidScores(long event) {
         return "select sum(`is_valid`)\n" +
@@ -72,9 +72,9 @@ public class Query {
     }
 
     /**
-     * Given an event id, returns a SQL string that will return the maximum id in table 'score'.
-     * @param event The id of the event.
-     * @return A SQL string that will return the maximum id in table 'score'
+     * Given an event id, returns a SQL statement that will return the maximum id in table 'score'.
+     * @param event The id of the event
+     * @return A SQL statement that will return the maximum id in table 'score'
      */
     public static String maxIdInScores(long event) {
         return "select max(`id`)\n" +
@@ -83,6 +83,13 @@ public class Query {
                 "  and `event_id` = " + event + ";";
     }
 
+    /**
+     * Get the score for a specific category
+     * @param event_id The id of the event
+     * @param viewName The name of the database view
+     * @param isTimeRelevant Indicating if time is relevant, rather than points.
+     * @return An SQL statement that will get all scores for the category.
+     */
     public static String getScoresForCategory(long event_id, String viewName, boolean isTimeRelevant) {
         String queryPart1 =
                 "SELECT DISTINCT s1.*\n" +
@@ -104,6 +111,13 @@ public class Query {
         return queryPart1 + queryPart2;
     }
 
+    /**
+     * Get all scores
+     * @param event_id The id of the event
+     * @param withDeletedOnes Indicating if deleted scores should be loaded as well.
+     * @param orderByName Indicating if the scores should be ordered by name (true) rather than by time_needed or points_achieved (false).
+     * @return An SQL statement that will get all scores
+     */
     public static String getAllScores(long event_id, boolean withDeletedOnes, boolean orderByName) {
         String sql =
                 "select s.*, c.`name`, c.`date_of_birth`, c.`gender`, c.`" + ageColumnName(event_id) + "`\n" +
@@ -123,16 +137,31 @@ public class Query {
         return sql;
     }
 
+    /**
+     * Give the age column name for specifiy event
+     * @param event_id The id of the event
+     * @return The according age column name (not an SQL statement)
+     */
     public static String ageColumnName(long event_id) {
         return "age_" + event_id;
     }
 
+    /**
+     * Get all competitors
+     * @return an SQL statement that will get all competitors
+     */
     public static String getAllCompetitors() {
         return "select *\n" +
                 "from `CompetitionManager`.`competitor`\n" +
                 "where `deleted` = false\n" +
                 "order by `name` asc;";
     }
+
+    /**
+     * Get all competitors having scores for a specific event.
+     * @param event_id The id of the event.
+     * @return An SQL statement that will get all competitors having scores for a specific event.
+     */
     public static String getCompetitorsWithScoreForEvent(long event_id) {
         return "select distinct c.*\n" +
                 "from `CompetitionManager`.`competitor` c\n" +
@@ -143,26 +172,66 @@ public class Query {
     }
 
     // --------------------------------------------
-    // Methods to create SQL strings for categories
+    // Methods to create SQL statements for categories
     // --------------------------------------------
+
+    /**
+     * Get all categories for specific event.
+     * @param event_id The id of the event.
+     * @return An SQL statement that will get all categories for specific event.
+     */
     public static String getAllCategories(long event_id) {
         return "select *\n" +
                 "from `CompetitionManager`.`category`\n" +
                 "where `event_id` = " + event_id + "\n" +
                 "  and `deleted` = false;";
     }
+
+    /**
+     * Get all view names
+     * @return An SQL statement that will get all view names
+     */
     public static String getAllViewNames() {
         return "SHOW FULL TABLES IN `CompetitionManager` WHERE TABLE_TYPE LIKE '%VIEW%';";
     }
+
+    /**
+     * Concatenate the score category view name for a specific event. This is not category specific.
+     * @param event_id The event id.
+     * @return The according view name (not an SQL statement)
+     */
     public static String categoryViewEventName(long event_id) {
         return "scores_category_" + event_id;
     }
-    public static String categoryViewFullName(long event_id, long categoryId) {
-        return "scores_category_" + event_id + "_" + categoryId;
+
+    /**
+     * Concatenate the score category view name for a specific event and a specific category.
+     * @param event_id The id of the event
+     * @param category_id The id of the category
+     * @return The according view name (not an SQL statement)
+     */
+    public static String categoryViewFullName(long event_id, long category_id) {
+        return "scores_category_" + event_id + "_" + category_id;
     }
+
+    /**
+     * Drop a view.
+     * @param viewName The name of the view
+     * @return An SQL statement to drop that view
+     */
     public static String dropView(String viewName) {
         return "drop view `CompetitionManager`.`" + viewName + "`;";
     }
+
+    /**
+     * Create a score view for a category.
+     * @param event_id The id of the event
+     * @param viewName The name of the view
+     * @param minAgeInclusive The minimum age of the category (inclusive)
+     * @param maxAgeInclusive The maximum age of the category (exclusive)
+     * @param gender The gender of the category
+     * @return An SQL statement that will create the score view
+     */
     public static String createScoreViewForCategory(long event_id, String viewName, int minAgeInclusive, int maxAgeInclusive, int gender) {
         String sql =
                 "create view `CompetitionManager`.`" + viewName + "` as\n" +
@@ -183,6 +252,13 @@ public class Query {
         }
         return sql;
     }
+
+    /**
+     * Create a score view that shows scores of all competitors, independently of categories.
+     * @param viewName The name of the view
+     * @param event_id The id of the event
+     * @return
+     */
     public static String createScoreViewForAllCompetitors(String viewName, long event_id) {
         return "create view `CompetitionManager`.`" + viewName + "` as\n" +
                 "select s.*, c.`name`, c.`date_of_birth`\n" +
@@ -201,7 +277,7 @@ public class Query {
      * @param minAgeInclusive Lower Age Level which includes Competitor to the Category
      * @param maxAgeInclusive Higher Age Level which includes Competitor to the Category
      * @param gender Genders which are for that Category
-     * @return A SQL String which creates a Event Entry in the Database
+     * @return A SQL statement which creates a Event Entry in the Database
      */
     public static String createCategory(long event_id, String name, String description, int minAgeInclusive, int maxAgeInclusive, Gender gender){
         return "INSERT INTO CompetitionManager.category" +
@@ -214,7 +290,7 @@ public class Query {
      * @param name Name of the Competitor
      * @param gender Gender of the Competitor
      * @param date_of_birth Birthdate of Competitor
-     * @return A SQL String which creates a Competitor Entry in the Database
+     * @return A SQL statement which creates a Competitor Entry in the Database
      */
     public static String createCompetitor(String name, Gender gender, LocalDate date_of_birth ){
 
@@ -233,7 +309,7 @@ public class Query {
      * @param date_descr Event Date Description
      * @param description Event Description
      * @param is_time_relevant Boolean if the Event is Time relevant
-     * @return A SQL String which creates a Event in the Database
+     * @return A SQL statement which creates a Event in the Database
      */
     public static String createEvent(String name,  LocalDate date, String date_descr, String description, boolean is_time_relevant){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
@@ -254,7 +330,7 @@ public class Query {
      * @param number_of_tries How many tries are needed for this Score
      * @param is_valid If the Score is valid
      * @param time_of_recording When the Score has been recorded
-     * @return A SQL String which creates a Score Entry in Database
+     * @return A SQL statement which creates a Score Entry in Database
      */
     public static String createScore(long event_id, long competitor_id, LocalTime time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
@@ -273,16 +349,49 @@ public class Query {
                 ", " + is_valid + ", '" + time_of_recording + "', '" + created_datetime + "',0);";
     }
 
+    /**
+     * Update a competitor.
+     * @param id
+     * @param name
+     * @param gender
+     * @param date_of_birth
+     * @return An SQL statement that will perform the update.
+     */
     public static String updateCompetitor(long id, String name, Gender gender, LocalDate date_of_birth) {
         return "update `CompetitionManager`.`competitor`\n" +
                 "set `name` = '" + name + "', `gender` = " + gender.getValue() + ", `date_of_birth` = '" + date_of_birth + "'\n" +
                 "where `id` = " + id + ";";
     }
+
+    /**
+     * Update an event.
+     * @param id
+     * @param name
+     * @param date
+     * @param date_descr
+     * @param description
+     * @param is_time_relevant
+     * @return An SQL statement that will perform the update.
+     */
     public static String updateEvent(long id, String name,  LocalDate date, String date_descr, String description, boolean is_time_relevant) {
         return "update  `CompetitionManager`.`event`\n" +
                 "set `name` = '" + name + "', `date` = '" + date + "', `date_descr` = '" + date_descr + "', `description` = '" + description + "'\n" +
                 "where `id` = " + id + ";";
     }
+
+    /**
+     * Update a score.
+     * @param id
+     * @param event_id
+     * @param competitor_id
+     * @param time_needed
+     * @param points_achieved
+     * @param number_of_tries
+     * @param is_valid
+     * @param time_of_recording
+     * @param deleted
+     * @return An SQL statement that will perform the update.
+     */
     public static String updateScore(long id, long event_id, long competitor_id, LocalTime time_needed, double points_achieved, int number_of_tries, boolean is_valid, LocalDateTime time_of_recording, boolean deleted) {
         String timeNeededString;
         if (time_needed == null) {
@@ -294,6 +403,18 @@ public class Query {
                 "set `event_id` = " + event_id + ", `competitor_id` = " + competitor_id + ", `time_needed` = " + timeNeededString + ", `points_achieved` = " + points_achieved + ", `number_of_tries` = " + number_of_tries + ", `is_valid` = " + is_valid + ", `time_of_recording` = '" + time_of_recording + "', deleted = " + deleted + "\n" +
                 "where `id` = " + id + ";";
     }
+
+    /**
+     * Update a category.
+     * @param id
+     * @param event_id
+     * @param name
+     * @param description
+     * @param minAgeInclusive
+     * @param maxAgeInclusive
+     * @param gender
+     * @return An SQL statement that will perform the update.
+     */
     public static String updateCategory(long id, long event_id, String name, String description, int minAgeInclusive, int maxAgeInclusive, Gender gender) {
         return "update `CompetitionManager`.`category`\n" +
                 "set `event_id` = " + event_id + ", `name` = '" + name + "', `description` = '" + description + "', `min_age_inclusive` = " + minAgeInclusive + ", `max_age_inclusive` = " + maxAgeInclusive + ", `gender` = " + gender.getValue() + "\n" +
@@ -336,6 +457,11 @@ public class Query {
                 + deleted_datetime + "' WHERE id = " + id + ";";
     }
 
+    /**
+     * Sets the delete flag with the current timestamp in the database
+     * @param id Category ID which has to be deleted
+     * @return A SQL Statement which sets deleted to true
+     */
     public static String deleteCategory(long id){
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String deleted_datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(ts);
@@ -343,12 +469,20 @@ public class Query {
                 + deleted_datetime + "' WHERE id = " + id + ";";
     }
 
+    /**
+     * Check if the database schema exists.
+     * @return An SQL statement that will check if the database schema exists.
+     */
     public static String doesDatabaseSchemaExist() {
         return  "SELECT SCHEMA_NAME\n" +
                 "FROM INFORMATION_SCHEMA.SCHEMATA\n" +
                 "WHERE SCHEMA_NAME = 'CompetitionManager'";
     }
 
+    /**
+     * Creates the database schema
+     * @return An array holding SQL statements that have to be executed sequentially.
+     */
     public static String[] createDatabaseSchema() {
         String sql = "SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;\n" +
                 "SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;\n" +

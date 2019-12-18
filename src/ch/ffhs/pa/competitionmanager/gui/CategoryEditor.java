@@ -11,6 +11,10 @@ import javax.swing.*;
 import javax.swing.table.TableRowSorter;
 import java.util.ResourceBundle;
 
+/**
+ * Singleton that implements logic for the separate GUI class.
+ * The GUI was created using IntelliJ. Therefore, the structure of some methods was predefined.
+ */
 public class CategoryEditor {
     private static CategoryEditor categoryEditor = null;
     private GlobalState globalState = GlobalState.getInstance();
@@ -37,6 +41,10 @@ public class CategoryEditor {
     private JLabel title;
     private JButton navigateToEventSelectorButton;
 
+    /**
+     * Return an instance of object and set GUI to be visible.
+     * @return The object (singleton)
+     */
     public static CategoryEditor getInstanceAndSetVisible() {
         if (categoryEditor == null) {
             categoryEditor = categoryEditor.main();

@@ -1,0 +1,15 @@
+ch.danielhoop.sql
+ch.danielhoop.utils
+ch.ffhs.pa.competitionmanager
+ch.ffhs.pa.competitionmanager.core
+ch.ffhs.pa.competitionmanager.db
+ch.ffhs.pa.competitionmanager.entities
+ch.ffhs.pa.competitionmanager.enums
+ch.ffhs.pa.competitionmanager.gui
+ch.ffhs.pa.competitionmanager.interfaces
+ch.ffhs.pa.competitionmanager.utils
+ch.ffhs.pa.competitionmanager.webserver
+ch.ffhs.pa.competitionmanager.webserver.j2html
+ch.ffhs.pa.competitionmanager.webserver.j2html.attributes
+ch.ffhs.pa.competitionmanager.webserver.j2html.tags
+ch.ffhs.pa.competitionmanager.webserver.j2html.utils

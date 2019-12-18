@@ -13,7 +13,8 @@ import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 /**
- * Singleton
+ * Singleton that implements logic for the separate GUI class.
+ * The GUI was created using IntelliJ. Therefore, the structure of some methods was predefined.
  */
 public class CompetitorEditor {
 
@@ -39,10 +40,19 @@ public class CompetitorEditor {
     private JFrame mainFrame;
 
 
+    /**
+     * Return an instance of object and set GUI to be visible.
+     * @return The object (singleton)
+     */
     public static CompetitorEditor getInstanceAndSetVisible() {
         return getInstanceAndSetVisible(null);
     }
 
+    /**
+     * Return an instance of object and set GUI to be visible. Initialize some fields with attributes of given competitor.
+     * @param competitor The competitor to fill some fields.
+     * @return The object (singleton)
+     */
     public static CompetitorEditor getInstanceAndSetVisible(Competitor competitor) {
         if (competitorEditor == null) {
             competitorEditor = CompetitorEditor.main(competitor);

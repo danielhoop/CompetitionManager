@@ -14,6 +14,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Holds information on events.
+ */
 public class EventList {
 
     private GlobalState globalState = GlobalState.getInstance();
@@ -21,25 +24,42 @@ public class EventList {
 
     private List<Event> events;
 
+    /**
+     * Constructor
+     */
     public EventList() {
         this.events = new LinkedList<>();
-        getEventsFromDb();
+        loadEventsFromDb();
     }
 
+    /**
+     * Reload internal data from database.
+     */
     public void reloadFromDb() {
-        getEventsFromDb();
+        loadEventsFromDb();
     }
 
+    /**
+     * Get events as a list.
+     * @return The events as a list.
+     */
     public List<Event> getEvents() {
         return events;
     }
 
+    /**
+     * Get events as a table model to be used in a JTable.
+     * @return The table model.
+     */
     public EventTableModel getEventsAsTableModel() {
         EventTableModel eventTableModel = new EventTableModel(this);
         return eventTableModel;
     }
 
-    private void getEventsFromDb() {
+    /**
+     * Load events from database.
+     */
+    private void loadEventsFromDb() {
 
         DbConnector dbConnector = globalState.getDbConnector();
         Connection conn = dbConnector.getConnection();

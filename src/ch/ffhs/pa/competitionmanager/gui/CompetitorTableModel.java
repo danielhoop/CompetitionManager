@@ -10,6 +10,9 @@ import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * A table model for usage in JTable for the competitors.
+ */
 public class CompetitorTableModel extends AbstractTableModel {
 
     private ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
@@ -45,10 +48,20 @@ public class CompetitorTableModel extends AbstractTableModel {
         return null;
     }
 
+    /**
+     * Get the competitor that is stored in a specific row.
+     * @param rowIndex The row index
+     * @return The competitor object
+     */
     public Competitor getCompetitorFromRow(int rowIndex) {
         return competitors.get(rowIndex);
     }
 
+    /**
+     * Determines in which column a column name is stored.
+     * @param columnName The column name
+     * @return The index of the column
+     */
     public int isWhichColumn(String columnName) {
         for (int i = 1; i < getColumnCount(); i++) {
             if (columns[i].equals(columnName))

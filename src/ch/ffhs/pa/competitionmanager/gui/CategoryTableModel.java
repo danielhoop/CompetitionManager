@@ -10,6 +10,9 @@ import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * A table model for usage in JTable for the categories.
+ */
 public class CategoryTableModel extends AbstractTableModel {
 
     private ResourceBundle bundle = GlobalState.getInstance().getGuiTextBundle();
@@ -53,10 +56,20 @@ public class CategoryTableModel extends AbstractTableModel {
         return null;
     }
 
+    /**
+     * Get the category that is stored in a specific row.
+     * @param rowIndex The row index
+     * @return The category object
+     */
     public Category getCategoryFromRow(int rowIndex) {
         return categories.get(rowIndex);
     }
 
+    /**
+     * Determines in which column a column name is stored.
+     * @param columnName The column name
+     * @return The index of the column
+     */
     public int isWhichColumn(String columnName) {
         for (int i = 1; i < getColumnCount(); i++) {
             if (columns[i].equals(columnName))

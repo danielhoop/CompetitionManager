@@ -15,6 +15,9 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Holds information on competitors.
+ */
 public class CompetitorList {
 
     private GlobalState globalState = GlobalState.getInstance();
@@ -22,37 +25,68 @@ public class CompetitorList {
     private List<Competitor> competitors;
     private boolean ofEvent;
 
-    // Private constructor with factory pattern.
+    /**
+     * Private constructor for factory pattern.
+     */
     private CompetitorList(Event event, boolean ofEvent) {
         this.ofEvent = ofEvent;
         this.event = event;
         this.competitors = new LinkedList<>();
-        getCompetitorsFromDb(event, ofEvent);
+        loadCompetitorsFromDb(event, ofEvent);
     }
-    // Factory
+
+    /**
+     * Factory to build instances of the object.
+     */
     public static class Build {
+        /**
+         * Create object with competitors of all events (not event-specific).
+         * @param event The event.
+         * @return A new CompetitorList instance.
+         */
         public static CompetitorList withAllCompetitors(Event event) {
             return new CompetitorList(event, false);
         }
+        /**
+         * Create object with competitors of given event only.
+         * @param event The event.
+         * @return A new CompetitorList instance.
+         */
         public static CompetitorList havingScoresForEvent(Event event) {
             return new CompetitorList(event, true);
         }
     }
 
+    /**
+     * Reload competitors from database.
+     */
     public void reloadFromDb() {
-        getCompetitorsFromDb(event, ofEvent);
+        loadCompetitorsFromDb(event, ofEvent);
     }
 
+    /**
+     * Get competitors as a list.
+     * @return The competitors as a list.
+     */
     public List<Competitor> getCompetitors() {
         return competitors;
     }
 
+    /**
+     * Get competitors as a table model to be used  in a JTable.
+     * @return The table model.
+     */
     public CompetitorTableModel getCompetitorsAsTableModel() {
         CompetitorTableModel competitorTableModel = new CompetitorTableModel(this);
         return competitorTableModel;
     }
 
-    private void getCompetitorsFromDb(Event event, boolean ofEvent) {
+    /**
+     * Load competitors from database.
+     * @param event The event.
+     * @param ofEvent Indicating if competitors of the event should be loaded (true) or all competitors in database (false).
+     */
+    private void loadCompetitorsFromDb(Event event, boolean ofEvent) {
 
         long eventId = event.getId();
         DbConnector dbConnector = globalState.getDbConnector();

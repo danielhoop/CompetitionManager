@@ -11,7 +11,7 @@ import ch.ffhs.pa.competitionmanager.webserver.RankingHtmlUpdater;
 import java.util.*;
 
 /**
- * Singleton containing some global variables.
+ * Singleton containing some global variables, such as the chosen event to work with.
  */
 public class GlobalState {
 
@@ -37,6 +37,9 @@ public class GlobalState {
 
     private CategoryHtmlUpdater categoryHtmlUpdater;
 
+    /**
+     * Private constructor because of singleton pattern.
+     */
     private GlobalState() {
         locales = new HashMap<>();
         locales.put(SupportedLocale.en_US, new Locale.Builder().setLanguage("en").setRegion("US").build());
@@ -44,10 +47,14 @@ public class GlobalState {
         //  Default locale is de_CH. setLocale will also set guiTextBundle.
         setLocale(SupportedLocale.de_CH);
         // Get IP of computer
-        ipOfComputer = IpFinder.getLocalIp();
+        ipOfComputer = IpFinder.getLocalIpV4();
         webServerAddress = "http://" + ipOfComputer + "/html/index.html";
     }
 
+    /**
+     * Get the singleton (single available instance of object).
+     * @return The singleton
+     */
     public static GlobalState getInstance() {
         if (globalState == null) {
             globalState = new GlobalState();
@@ -58,6 +65,7 @@ public class GlobalState {
     public DbConnector getDbConnector() {
         return dbConnector;
     }
+
     public void setDbConnector(DbConnector dbConnector) {
         this.dbConnector = dbConnector;
     }
@@ -65,6 +73,11 @@ public class GlobalState {
     public Event getEvent() {
         return event;
     }
+
+    /**
+     * Set the event and exectute all according updates of internal data in GlobalState.
+     * @param event The event
+     */
     public void setEvent(Event event) {
         this.event = event;
         // CategoryList
@@ -92,6 +105,7 @@ public class GlobalState {
         return categoryList;
     }
     // RankingList: No setter!
+
     public RankingList getRankingList() {
         return rankingList;
     }
@@ -107,9 +121,18 @@ public class GlobalState {
         this.eventList = eventList;
     }
 
+    /**
+     * The ranking website should be opened only once. This method helps to determine if it has already happened.
+     * @return True indicates that the website has already been opened.
+     */
     public boolean getWebsiteHasBeenOpened() {
         return websiteHasBeenOpened;
     }
+
+    /**
+     * The ranking website should be opened only once. This method helps to determine if it has already happened.
+     * @param websiteHasBeenOpened True indicates that the website has already been opened.
+     */
     public void setWebsiteHasBeenOpened(boolean websiteHasBeenOpened) {
         this.websiteHasBeenOpened = websiteHasBeenOpened;
     }

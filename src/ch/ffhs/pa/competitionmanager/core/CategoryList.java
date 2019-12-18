@@ -16,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * An object that holds information on all categories of the competition.
+ * Holds information on all categories of the competition.
  */
 public class CategoryList {
 
@@ -24,26 +24,45 @@ public class CategoryList {
     private Event event;
     private List<Category> categories;
 
+    /**
+     * Constructor
+     * @param event The event to make the CategoryList for
+     */
     public CategoryList(Event event) {
         this.event = event;
         this.categories = new LinkedList<>();
-        getCategoriesFromDb(event);
+        loadCategoriesFromDb(event);
     }
 
+    /**
+     * Reload internal data from database.
+     */
     public void reloadFromDb() {
-        getCategoriesFromDb(event);
+        loadCategoriesFromDb(event);
     }
 
+    /**
+     * Get categories as a list.
+     * @return The categories as a list.
+     */
     public List<Category> getCategories() {
         return categories;
     }
 
+    /**
+     * Get categories as a table model to be used in a JTable.
+     * @return The table model.
+     */
     public CategoryTableModel getCategoriesAsTableModel() {
         CategoryTableModel categoryTableModel = new CategoryTableModel(this);
         return categoryTableModel;
     }
 
-    private void getCategoriesFromDb(Event event) {
+    /**
+     * Load categories from database.
+     * @param event Categories will be loaded for this event.
+     */
+    private void loadCategoriesFromDb(Event event) {
 
         long eventId = event.getId();
         DbConnector dbConnector = globalState.getDbConnector();

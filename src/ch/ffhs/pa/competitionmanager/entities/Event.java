@@ -9,6 +9,11 @@ import ch.ffhs.pa.competitionmanager.interfaces.ICRUD;
 import java.sql.*;
 import java.time.LocalDate;
 
+/**
+ * Contains information on an event.
+ * Simple data object without functionality (only getter, setter and persistence methods).
+ * @author Daniel Hoop, Reto Laesser, Christian Ion
+ */
 public class Event implements ICRUD {
     private long id;
     private String name;
@@ -68,6 +73,12 @@ public class Event implements ICRUD {
     }
 
     // Load event from database.
+
+    /**
+     * Load an event by id from the database.
+     * @param id The id of the event
+     * @return The event object
+     */
     public static Event getById(long id) {
         DbConnector dbConnector = GlobalState.getInstance().getDbConnector();
         Connection conn = dbConnector.getConnection();

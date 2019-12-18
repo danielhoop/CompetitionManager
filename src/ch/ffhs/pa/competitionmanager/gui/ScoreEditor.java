@@ -21,6 +21,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Singleton that implements logic for the separate GUI class.
+ * The GUI was created using IntelliJ. Therefore, the structure of some methods was predefined.
+ */
 public class ScoreEditor {
     private static ScoreEditor scoreEditor = null;
 
@@ -59,6 +63,10 @@ public class ScoreEditor {
     private JTextField compDateOfBirthTextField;
     private JCheckBox deletedCheckBox;
 
+    /**
+     * Return an instance of object and set GUI to be visible.
+     * @return The object (singleton)
+     */
     public static ScoreEditor getInstanceAndSetVisible() {
         if (scoreEditor == null) {
             scoreEditor = ScoreEditor.main(true);
