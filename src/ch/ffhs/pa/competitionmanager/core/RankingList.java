@@ -25,29 +25,42 @@ public class RankingList implements INotifiable {
     private Map<Category, List<Score>> scores;
     private Map<Category, Long> highestIdInScores;
 
+    /**
+     * Constructor
+     * @param event The event
+     * @param categoryList The category list
+     */
     public RankingList(Event event, CategoryList categoryList) {
         this.event = event;
         this.categoryList = categoryList;
         this.scores = new HashMap<>();
-        getScoresFromDb(event, categoryList);
+        loadScoresFromDb(event, categoryList);
     }
 
+    /**
+     * Reload internal data from database.
+     */
     public void reloadFromDb(boolean reloadCategories) {
         if (reloadCategories) {
             categoryList.reloadFromDb();
         }
-        getScoresFromDb(event, categoryList);
+        loadScoresFromDb(event, categoryList);
     }
 
+    /**
+     * Get the scores
+     * @return The scores are returned as a map. Each map entry holds the scores for one category.
+     */
     public Map<Category, List<Score>> getScores() {
         return scores;
     }
 
     /**
-     * Gets all Score of the category from database and replaces inner list 'Score' completely.
-     * @return A map where the key is the category, and the value is the score list.
+     * Load scores from database.
+     * @param event Scores will be loaded for this event.
+     * @param categoryList Scores will be loaded for these categories.
      */
-    private void getScoresFromDb(Event event, CategoryList categoryList) {
+    private void loadScoresFromDb(Event event, CategoryList categoryList) {
 
         long eventId = event.getId();
         List<Category> categories = categoryList.getCategories();
@@ -93,10 +106,12 @@ public class RankingList implements INotifiable {
 //        return new HashMap<Category, List<Score>>();
 //    }
 
+    /**
+     * When this method is called, then the internal data of the instance will be loaded once again from the database.
+     */
     @Override
     public void notifyMe() {
         System.out.print("Database has changed. Pulling newest results...");
-
         reloadFromDb(false);
         System.out.print(" Done.\n");
     }

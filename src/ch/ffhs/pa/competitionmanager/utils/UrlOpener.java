@@ -10,6 +10,11 @@ import java.net.URL;
  * Source: https://stackoverflow.com/questions/10967451/open-a-link-in-browser-with-java-button
  */
 public class UrlOpener {
+    /**
+     * Open a web page from given URI.
+     * @param uri The URI.
+     * @return True if no exception has occurred.
+     */
     public static boolean openWebpage(URI uri) {
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
         if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
@@ -23,6 +28,11 @@ public class UrlOpener {
         return false;
     }
 
+    /**
+     * Open a web page from given URL.
+     * @param url The URL.
+     * @return True if no exception has occurred.
+     */
     public static boolean openWebpage(URL url) {
         try {
             return openWebpage(url.toURI());

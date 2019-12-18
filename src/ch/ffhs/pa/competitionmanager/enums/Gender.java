@@ -23,10 +23,19 @@ public enum Gender {
         }
     }
 
+    /**
+     * Convert integer encoding to Gender enumeration.
+     * @param genderEncoded The encoded value
+     * @return The value as Gender
+     */
     public static Gender valueOf(int genderEncoded) {
         return (Gender) map.get(genderEncoded);
     }
 
+    /**
+     * Return the integer encoded value
+     * @return The integer encoded value
+     */
     public int getValue() {
         return value;
     }

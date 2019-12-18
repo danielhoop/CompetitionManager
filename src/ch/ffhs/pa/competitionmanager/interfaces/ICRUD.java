@@ -1,8 +1,9 @@
 package ch.ffhs.pa.competitionmanager.interfaces;
 
 /**
- * Interface for persistence.
- * CRUD = Create, update, delete.
+ * Interface for persistence
+ * CRUD = Create, read, update, delete.
+ * Hint: Read is not requiered in our project because the 'list' classes in the core package will read the objects.
  */
 public interface ICRUD {
 
@@ -20,7 +21,6 @@ public interface ICRUD {
      * @return Boolean value indicating if the transaction was successful.
      */
     public boolean create();
-
 
     /**
      * Update a database entry.

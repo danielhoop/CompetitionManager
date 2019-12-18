@@ -19,6 +19,9 @@ public class DbPreparator {
 
     private static GlobalState globalState = GlobalState.getInstance();
 
+    /**
+     * Create the database schema 'CompetitionManager' if it yet does not exist.
+     */
     public static void createSchemaIfNotExists() {
         DbConnector dbConnector = globalState.getDbConnector();
         Connection conn = dbConnector.getConnection();
@@ -52,6 +55,12 @@ public class DbPreparator {
         dbConnector.closeConnection(conn);
     }
 
+    /**
+     * Prepare the database for an event. This will create the age column in the database and the views that show the rankings per category.
+     * @param event
+     * @param categoryList
+     * @return
+     */
     public static boolean prepare(Event event, CategoryList categoryList) {
         boolean hasWorked = true;
         hasWorked = hasWorked & createAgeColumn(event);

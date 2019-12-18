@@ -13,6 +13,10 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 
+/**
+ * Singleton that implements logic for the separate GUI class.
+ * The GUI was created using IntelliJ. Therefore, the structure of some methods was predefined.
+ */
 public class EventEditor {
     private static EventEditor eventEditor = null;
     private GlobalState globalState = GlobalState.getInstance();
@@ -37,6 +41,10 @@ public class EventEditor {
     private JButton navigateToEventSelectorButton;
     private JTextField dateDescriptionTextField;
 
+    /**
+     * Return an instance of object and set GUI to be visible.
+     * @return The object (singleton)
+     */
     public static EventEditor getInstanceAndSetVisible() {
         if (eventEditor == null) {
             eventEditor = eventEditor.main();

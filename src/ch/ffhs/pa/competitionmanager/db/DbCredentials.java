@@ -1,8 +1,16 @@
 package ch.ffhs.pa.competitionmanager.db;
 
+/**
+ * A class to hold database credentials
+ */
 public class DbCredentials {
     private String username, password;
 
+    /**
+     * Constructor
+     * @param username The username
+     * @param password The password
+     */
     public DbCredentials(String username, String password) {
         this.username = username;
         this.password = password;

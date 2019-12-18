@@ -51,8 +51,8 @@ public class DbConnector {
 
     /**
      * Create a statement of an open connection. Catch errors and show them visually and in stout.
-     * @param connection The database connection.
-     * @return A Statement.
+     * @param connection The database connection
+     * @return A statement
      */
     public Statement createStatmentForConnection(Connection connection) {
         Statement stmt = null;

@@ -19,7 +19,8 @@ import java.util.*;
 
 
 /**
- * Singleton.
+ * Singleton that implements logic for the separate GUI class.
+ * The GUI was created using IntelliJ. Therefore, the structure of some methods was predefined.
  */
 public class ScoreCreator {
 
@@ -60,10 +61,20 @@ public class ScoreCreator {
     private Timer timer;
     private boolean isTimerRunning = false;
 
+    /**
+     * Return an instance of object and set GUI to be visible.
+     * @return The object (singleton)
+     */
     public static ScoreCreator getInstanceAndSetVisible() {
         return getInstanceAndSetVisible(null, null);
     }
 
+    /**
+     * Return an instance of object and set GUI to be visible. Fill fields with attribute of given score and competitor
+      * @param scoreToEdit The score to fill fields with
+     * @param competitor The competitor to fill fields with
+     * @return The object (singleton)
+     */
     public static ScoreCreator getInstanceAndSetVisible(Score scoreToEdit, Competitor competitor) {
         if (scoreCreator == null) {
             scoreCreator = ScoreCreator.main(true);

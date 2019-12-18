@@ -23,6 +23,10 @@ public class DbPuller implements IDbPuller {
 
     public DbPuller() { }
 
+    /**
+     * Method to determine if the content of the database has changed.
+     * @return True indicates that the database content has changed.
+     */
     @Override
     public boolean hasDbContentChanged() {
         DbConnector dbConnector = globalState.getDbConnector();

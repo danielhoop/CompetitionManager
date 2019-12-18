@@ -21,13 +21,18 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 
 /**
- * Main function of the project.
+ * Main class of the project.
  * Must be called from the command line. Either start the application in editing mode or in displaying mode to show the ranking lists.
  * Command line arguments are arguments for the database connection. An example of command lime arguments that could work is:
  * --driverPath "E:/Workspaces/IntelliJ/CompetitionManager/lib/mysql-connector-java-8.0.17.jar" --driverName "com.mysql.cj.jdbc.Driver" --address "jdbc:mysql://localhost:3306/CompetitionManager?autoReconnect=true&verifyServerCertificate=false&useSSL=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT" --user "NinjaWarrior" --password "Asdf-Poiu-0987-1234" --httpPort 80
  */
 public class Main {
 
+    /**
+     * The main method
+     * @param args Command line arguments
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
         if (args.length == 0 || args[0].equals("-help") || args[0].equals("--help")) {
             System.out.println(

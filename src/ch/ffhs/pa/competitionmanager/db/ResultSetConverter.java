@@ -10,8 +10,17 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.time.LocalTime;
 
+/**
+ * Utility class that converts result sets to entity objects
+ */
 public class ResultSetConverter {
 
+    /**
+     * Convert a result set to a score
+     * @param rs The result set
+     * @return The score
+     * @throws SQLException
+     */
     public static Score toScore(ResultSet rs) throws SQLException {
         Time timeNeeded = rs.getTime("time_needed");
         LocalTime localTimeNeeded = null;
