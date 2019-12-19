@@ -1,7 +1,8 @@
-package ch.ffhs.pa.competitionmanager.webserver;
+package test;
 
 import ch.ffhs.pa.competitionmanager.entities.Category;
 import ch.ffhs.pa.competitionmanager.enums.Gender;
+import ch.ffhs.pa.competitionmanager.webserver.HtmlPage;
 
 import java.util.LinkedList;
 import java.util.List;
