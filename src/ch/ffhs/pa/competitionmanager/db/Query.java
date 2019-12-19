@@ -7,6 +7,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * Contains strings for querying the database.
@@ -583,10 +585,122 @@ public class Query {
                 "SET SQL_MODE=@OLD_SQL_MODE;\n" +
                 "SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;\n" +
                 "SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;\n";
-        String[] sqlSplitted = sql.split(";");
-        for (int i = 0; i<sqlSplitted.length; i++) {
-            sqlSplitted[i] = sqlSplitted[i] + ";";
+
+        return splitAndAdd(sql, ";");
+    }
+
+    public static String[] createTestData() {
+        String sql =
+                "-- Das ist wichtig, damit geprueft wird, ob foreign keys ueberhaupt vorhanden sind!!!\n" +
+                "SET FOREIGN_KEY_CHECKS=1;\n" +
+                "-- This way you can check the status.\n" +
+                "SELECT @@FOREIGN_KEY_CHECKS;\n" +
+                "\n" +
+                "\n" +
+                "-- -------------------- event --------------------\n" +
+                "insert into `CompetitionManager`.`event`\n" +
+                "    (`name`, `date`, `date_descr`, `description`, `is_time_relevant`, `created_datetime`, `deleted`, `deleted_datetime`) values \n" +
+                "\t(\"Ninja Warriors 2018\", \"2018-09-11\", \"11. September 2018\", \"First event organized with software\", true, \"2018-08-10 08:54:12\", false, null),\t# id=1\n" +
+                "\t(\"Ninja Warriors 2019\", \"2019-09-13\", \"13. September 2019\", null,                                  true, \"2018-08-27 18:43:19\", false, null);\t# id=2\n" +
+                "-- select * from `CompetitionManager`.`event`;\n" +
+                "\n" +
+                "\n" +
+                "-- -------------------- competitor --------------------\n" +
+                "insert into `CompetitionManager`.`competitor`\n" +
+                "    (`name`, `gender`, `date_of_birth`, `created_datetime`, `deleted`, `deleted_datetime`) values \n" +
+                "\t-- Event 2018\n" +
+                "    -- Erwachsene, Männer\n" +
+                "    (\"Hans Ulrich Müller\", 1, \"1958-01-12\", \"2018-09-11 10:05:12\", false, null),\t# id=1\n" +
+                "    (\"Herbert Winkler\",    1, \"1965-03-11\", \"2018-09-11 10:10:35\", false, null),\t# id=2\n" +
+                "    (\"Ueli Schläpfi\",      1, \"1969-05-03\", \"2018-09-11 10:15:15\", false, null),\t# id=3\n" +
+                "    -- Kinder, Jungs\n" +
+                "    (\"Max Müller\",         1, \"2010-10-10\", \"2018-09-11 10:20:43\", false, null),\t# id=4\n" +
+                "    (\"Andreas Juppi\",      1, \"2011-01-18\", \"2018-09-11 10:24:47\", false, null),\t# id=5\n" +
+                "    (\"Georg Tanner\",       1, \"2011-02-24\", \"2018-09-11 10:28:31\", false, null),\t# id=6\n" +
+                "    -- Erwachsene, Frauen\n" +
+                "    (\"Nina Goetschi\",      2, \"1965-08-23\", \"2018-09-11 10:15:24\", false, null),\t# id=7\n" +
+                "    (\"Lisa Grüniger\",      2, \"1978-11-01\", \"2018-09-11 10:19:26\", false, null),\t# id=8\n" +
+                "    (\"Marta Rucker\",       2, \"1989-08-02\", \"2018-09-11 10:23:54\", false, null),\t# id=9\n" +
+                "    \n" +
+                "    -- Event 2019\n" +
+                "    -- Erwachsene, Männer\n" +
+                "    (\"Matrin Marxer\",      1, \"1986-02-05\", \"2018-09-13 10:01:19\", false, null),\t# id=10\n" +
+                "\t(\"Klaus Ammann\",       1, \"1988-04-09\", \"2018-09-13 10:04:49\", false, null),\t# id=11\n" +
+                "    (\"Paul Heimgrätner\",   1, \"1971-07-22\", \"2018-09-13 10:11:28\", false, null);\t# id=12\n" +
+                "-- select * from `CompetitionManager`.`competitor`;\n" +
+                "\n" +
+                "\n" +
+                "-- -------------------- score --------------------\n" +
+                "insert into `CompetitionManager`.`score`\n" +
+                "    (`event_id`, `competitor_id`, `time_needed`, `points_achieved`, `number_of_tries`, `is_valid`, `time_of_recording`, `created_datetime`, `deleted`, `deleted_datetime`) values\n" +
+                "    -- Event 2018\n" +
+                "    -- Erwachsene, Männer\n" +
+                "    -- Hans Ulrich Müller\n" +
+                "    (1, 1, \"00:05:12\", null, 1, true,  \"2018-09-11 10:05:00\", \"2018-09-11 10:10:12\", false, null),\n" +
+                "    (1, 1,       null, null, 2, false, \"2018-09-11 10:10:30\", \"2018-09-11 10:15:45\", false, null),\n" +
+                "    (1, 1, \"00:03:06\", null, 3, true,  \"2018-09-11 10:16:00\", \"2018-09-11 10:08:10\", false, null),\n" +
+                "    -- Herbert Winkler\n" +
+                "    (1, 2, \"00:04:23\", null, 1, true,  \"2018-09-11 10:04:01\", \"2018-09-11 10:08:56\", false, null),\n" +
+                "    -- Ueli Schläpfi\n" +
+                "    (1, 3,       null, null, 1, false, \"2018-09-11 10:45:54\", \"2018-09-11 10:51:32\", false, null),\n" +
+                "    (1, 3,       null, null, 1, false, \"2018-09-11 10:45:54\", \"2018-09-11 10:51:32\", false, null), -- Double scores should not be shon in the ranking.\n" +
+                "    \n" +
+                "    -- Kinder, Jungs\n" +
+                "    -- Max Müller\n" +
+                "    (1, 4, \"00:05:31\", null, 1, true,  \"2018-09-11 10:05:00\", \"2018-09-11 10:10:12\", false, null),\n" +
+                "    (1, 4,       null, null, 2, false, \"2018-09-11 10:10:30\", \"2018-09-11 10:15:45\", false, null),\n" +
+                "    (1, 4, \"00:04:12\", null, 3, true,  \"2018-09-11 10:16:00\", \"2018-09-11 10:08:10\", false, null),\n" +
+                "    -- Andreas Juppi\n" +
+                "    (1, 5, \"00:03:45.1\", null, 1, true,  \"2018-09-11 10:04:01\", \"2018-09-11 10:08:56\", false, null),\n" +
+                "    -- Georg Tanner\n" +
+                "    (1, 6, \"00:06:25\", null, 1, true,  \"2018-09-11 10:04:01\", \"2018-09-11 10:08:56\", false, null),\n" +
+                "    (1, 6, \"00:05:31\", null, 2, true,  \"2018-09-11 10:09:01\", \"2018-09-11 10:12:59\", false, null),\n" +
+                "    \n" +
+                "    -- Erwachsene, Frauen\n" +
+                "    -- Nina Goetschi\n" +
+                "    (1, 7, \"00:03:45.05\", null, 1, true,  \"2018-09-11 10:04:01\", \"2018-09-11 10:08:56\", false, null),\n" +
+                "    -- Lisa Grüniger\n" +
+                "    (1, 8, \"00:03:45.9\", null, 1, true,  \"2018-09-11 10:09:01\", \"2018-09-11 10:12:49\", false, null),\n" +
+                "    -- Marta Rucker\n" +
+                "    (1, 9,       null, null, 2, false, \"2018-09-11 10:10:30\", \"2018-09-11 10:15:45\", false, null),\n" +
+                "    (1, 9,       null, null, 2, false, \"2018-09-11 10:15:31\", \"2018-09-11 10:21:38\", false, null),\n" +
+                "    \n" +
+                "    -- Event 2019\n" +
+                "    -- Matrin Marxer\n" +
+                "    (2, 10, \"00:06:25\", null, 2, false, \"2019-09-11 10:10:30\", \"2019-09-11 10:15:45\", false, null);\n" +
+                "    \n" +
+                "-- select * from `CompetitionManager`.`score`;\n" +
+                "\n" +
+                "\n" +
+                "-- -------------------- category --------------------\n" +
+                "insert into `CompetitionManager`.`category`\n" +
+                "    (`event_id`, `name`, `description`, `min_age_inclusive`, `max_age_inclusive`, `gender`,`deleted`,`deleted_datetime`) values\n" +
+                "    (1, \"Jungs\",    \"Kinder, männlich, zwischen 0 bis und mit 17 Jahre alt\", 0,  17, 1, 0,NULL),\n" +
+                "    (1, \"Mädchen\",  \"Kinder, weiblich, zwischen 0 bis und mit 17 Jahre alt\", 0,  17, 1, 0,NULL),\n" +
+                "    (1, \"Männer\",   \"Erwachsene, männlich, ab 18 Jahren\",                   18, 999, 1, 0,NULL),\n" +
+                "    (1, \"Frauen\",   \"Erwachsene, weiblich, ab 18 Jahren\",                   18, 999, 2, 0,NULL),\n" +
+                "    (1, \"Alle\",     \"Alle Teilnehmer, unabhängig von Alter und Geschlecht\",  0, 999, 3, 0,NULL);\n" +
+                "    \n" +
+                "-- select * from `CompetitionManager`.`category`;";
+
+        return splitAndAdd(sql, ";");
+    }
+
+    public static String dropSchema() {
+        return "drop schema `CompetitionManager`;";
+    }
+
+    private static String[] splitAndAdd(String s, String pattern) {
+        String[] splitted = s.split(pattern);
+
+        //Pattern p = Pattern.compile("( |\n)*");
+        for (int i = 0; i<splitted.length; i++) {
+            //if (!p.matcher(sqlSplitted[i]).matches()) {
+            splitted[i] = splitted[i] + pattern;
+            //}
         }
-        return sqlSplitted;
+        //splitted = Arrays.stream(splitted).filter(s -> s.matches(" *[a-zA-Z0-9].*;")).toArray(String[]::new);
+
+        return splitted;
     }
 }

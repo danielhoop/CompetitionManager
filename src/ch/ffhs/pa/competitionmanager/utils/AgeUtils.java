@@ -30,7 +30,7 @@ public class AgeUtils {
      */
     public static int calcAge(LocalDate dateOfBirth, LocalDate referenceDate) {
         int age = referenceDate.getYear() - dateOfBirth.getYear();
-        if (dateOfBirth.getDayOfYear() < referenceDate.getDayOfYear())
+        if (referenceDate.getDayOfYear() < dateOfBirth.getDayOfYear())
             age--;
         return age;
     }
