@@ -37,8 +37,8 @@ public class DbPreparator {
                 System.out.println("*************************");
                 for (String query : Query.createDatabaseSchema()) {
                     if (!query.equals(";") && !query.equals("\n;")) {
-                        stmt.execute(query);
                         System.out.print(query);
+                        stmt.execute(query);
                     }
                 }
                 System.out.println("");
