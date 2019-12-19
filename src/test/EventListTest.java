@@ -26,6 +26,7 @@ class EventListTest {
     @Test
     void getEvents() {
         TestDataPreparator.prepare();
+
         EventList eventList = new EventList();
         List<Event> events = eventList.getEvents();
 

@@ -14,6 +14,11 @@ import java.sql.Statement;
 
 public class TestDataPreparator {
     static boolean wasDriverRegistered = false;
+    static boolean wasPrepared = false;
+
+    public static void main(String[] args) {
+        prepare();
+    }
 
     public static void registerDbDriver() {
         if (!wasDriverRegistered) {
@@ -34,31 +39,35 @@ public class TestDataPreparator {
     }
 
     public static void prepare() {
+        if (!wasPrepared) {
 
-        registerDbDriver();
-        GlobalState globalState = GlobalState.getInstance();
-        DbConnector dbConnector = globalState.getDbConnector();
-        Connection conn = dbConnector.getConnection();
-        Statement stmt = dbConnector.createStatmentForConnection(conn);
+            registerDbDriver();
+            GlobalState globalState = GlobalState.getInstance();
+            DbConnector dbConnector = globalState.getDbConnector();
+            Connection conn = dbConnector.getConnection();
+            Statement stmt = dbConnector.createStatmentForConnection(conn);
 
-        try {
-            stmt.execute(Query.dropSchema());
-            for (String query : Query.createDatabaseSchema()) {
-                if (!query.equals(";") && !query.equals("\n;")) {
-                    stmt.execute(query);
+            try {
+                stmt.execute(Query.dropSchema());
+                for (String query : Query.createDatabaseSchema()) {
+                    if (!query.equals(";") && !query.equals("\n;")) {
+                        stmt.execute(query);
+                    }
                 }
-            }
-            for (String query : Query.createTestData()) {
-                if (!query.equals(";") && !query.equals("\n;")) {
-                    stmt.execute(query);
+                for (String query : Query.createTestData()) {
+                    if (!query.equals(";") && !query.equals("\n;")) {
+                        stmt.execute(query);
+                    }
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                ExceptionVisualizer.showAndAddMessage(e, "When trying to get the events from the database, the following error occurred: ");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            ExceptionVisualizer.showAndAddMessage(e, "When trying to get the events from the database, the following error occurred: ");
+
+            dbConnector.closeStatement(stmt);
+            dbConnector.closeConnection(conn);
+
+            wasPrepared = true;
         }
-
-        dbConnector.closeStatement(stmt);
-        dbConnector.closeConnection(conn);
     }
 }

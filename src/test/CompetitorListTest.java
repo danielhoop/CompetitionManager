@@ -16,6 +16,7 @@ class CompetitorListTest {
     @Test
     void getCompetitors() {
         TestDataPreparator.prepare();
+
         GlobalState globalState = GlobalState.getInstance();
         globalState.setEvent(Event.getById(1));
         List<Competitor> competitors = globalState.getCompetitorList().getCompetitors();
