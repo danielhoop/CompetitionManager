@@ -5,16 +5,11 @@ import java.nio.file.Files;
 import java.util.HashMap;
 
 /**
- * Connection Object.
- *
- * Handles requests made by a client socket on behalf of the server by
- * sending appropriate response. Implements the Runnable interface to
- * allows the Connection object to run inside of a thread.
- *
+ * Connection Object. Handles requests made by a client socket on behalf of the server by sending appropriate response. Implements the Runnable interface to  allows the Connection object to run inside of a thread.
  */
 public class Connection implements Runnable {
 
-    // The socket used to connect to the server
+    //The socket used to connect to the server
     private Socket connectionSocket;
     // A HashMap to store the keys/values inside of the client request
     private HashMap<String, String> request;
